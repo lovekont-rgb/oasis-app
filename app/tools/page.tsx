@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 
-// 1. 把获取数据的逻辑单独放在一个组件里
+// 1. 把获取数据的逻辑单独放在这个组件里
 async function ToolsList() {
   const supabase = await createClient()
   const { data: tools, error } = await supabase.from('tools').select('*').order('name')
