@@ -31,11 +31,7 @@ export default function ToolsClient({ initialTools }: { initialTools: any[] }) {
         </div>
         <div className={styles.tabs}>
           {categories.map((cat) => (
-            <button
-              key={cat.key}
-              className={`${styles.tab} ${activeCat === cat.key ? styles.tabActive : ''}`}
-              onClick={() => setActiveCat(cat.key)}
-            >
+            <button key={cat.key} className={`${styles.tab} ${activeCat === cat.key ? styles.tabActive : ''}`} onClick={() => setActiveCat(cat.key)}>
               {cat.label}
             </button>
           ))}
@@ -46,13 +42,10 @@ export default function ToolsClient({ initialTools }: { initialTools: any[] }) {
 
       <div className={styles.grid}>
         {filteredTools.map((tool) => (
-          <div key={tool.id} className={ui-card}>
+          <div key={tool.id} className="ui-card"> {/* 统一使用 ui-card */}
             <div className={styles.cardHead}>
               <h3 className={styles.cardName}>{tool.name}</h3>
-              <span className={`${styles.badge} ${
-                tool.pricing === 'free' ? styles.badgeFree : 
-                tool.pricing === 'paid' ? styles.badgePaid : styles.badgeOss
-              }`}>
+              <span className={`${styles.badge} ${tool.pricing === 'free' ? styles.badgeFree : tool.pricing === 'paid' ? styles.badgePaid : styles.badgeOss}`}>
                 {tool.pricing}
               </span>
             </div>

@@ -1,29 +1,29 @@
-/* ==================== OASIS 强制全局 UI 规范 ==================== */
+/* ==================== OASIS 终极全局规范 ==================== */
 
-/* 1. 页面统一容器（保证所有页面宽度、边距绝对一致） */
+/* 1. 页面容器：限制最大宽度 1120px 并且居中，左右留白 24px */
 .page-container { 
-  max-width: 1200px; /* 强制统一宽度 */
+  max-width: 1120px; 
   margin: 0 auto; 
   padding: 60px 24px 100px; 
 }
 
-/* 2. 统一徽章 Badge */
+/* 2. 徽章 */
 .ui-badge {
   display: inline-flex; align-items: center; gap: 8px;
-  font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 0.18em;
+  font-family: 'Orbitron', monospace; font-size: 12px; letter-spacing: 0.15em;
   color: var(--cyan); border: 1px solid var(--border-glow); padding: 6px 16px;
-  border-radius: 100px; background: rgba(0, 212, 255, 0.05); margin-bottom: 24px;
+  border-radius: 100px; background: rgba(0, 212, 255, 0.05); margin-bottom: 32px;
 }
 .ui-badge-dot { 
   width: 6px; height: 6px; border-radius: 50%; 
   background: var(--cyan); box-shadow: 0 0 10px var(--cyan); 
 }
 
-/* 3. 统一主标题（强制使用最大字号） */
+/* 3. 主标题：超大字号，极粗 */
 .ui-title { 
   font-family: 'Syne', sans-serif; 
-  font-size: clamp(2.5rem, 5vw, 4.5rem); /* 统一巨大字号 */
-  font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; 
+  font-size: clamp(3rem, 6vw, 4.5rem); 
+  font-weight: 800; line-height: 1.15; letter-spacing: -0.03em; 
   margin-bottom: 24px; color: var(--text-primary);
 }
 .ui-title-gradient { 
@@ -31,34 +31,34 @@
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
 }
 
-/* 4. 统一副标题 */
+/* 4. 副标题：限制最大宽度，行高舒适 */
 .ui-subtitle { 
-  color: var(--text-secondary); font-size: 16px; line-height: 1.7; 
-  max-width: 700px; /* 统一限制宽度 */
-  margin-bottom: 64px; /* 统一下方间距 */
+  color: var(--text-secondary); font-size: 16px; line-height: 1.8; 
+  max-width: 680px; /* 强制限制宽度，让它自然折行 */
+  margin-bottom: 72px; /* 拉大与下方卡片的距离 */
 }
 
-/* 5. 统一区块标题 H2 */
+/* 5. 区块标题 H2 */
 .ui-section-title { 
-  font-family: 'Syne', sans-serif; font-size: 1.6rem; 
-  font-weight: 700; margin: 64px 0 24px 0; color: var(--text-primary); 
+  font-family: 'Syne', sans-serif; font-size: 1.8rem; 
+  font-weight: 700; margin: 64px 0 32px 0; color: var(--text-primary); 
 }
 
-/* 6. 统一卡片样式（强制统一背景、圆角、内边距、发光） */
+/* 6. 终极卡片规范：大圆角、大内边距、半透明背景 */
 .ui-card {
   background: var(--surface-card); 
   border: 1px solid var(--border-subtle);
-  border-radius: 16px; 
-  padding: 28px; /* 统一大内边距 */
+  border-radius: 20px; /* 大圆角 */
+  padding: 32px; /* 宽裕的内边距 */
   transition: all 0.3s ease;
 }
 .ui-card:hover { 
   border-color: var(--border-glow); 
   transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
 }
 
-/* 7. 统一网格间距 */
+/* 7. 网格系统：统一 24px 间距 */
 .ui-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
 .ui-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
 @media (max-width: 768px) {

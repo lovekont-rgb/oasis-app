@@ -18,15 +18,12 @@ export default function PromptClient({ initialPrompts }: { initialPrompts: any[]
   return (
     <div className={styles.templateList}>
       {initialPrompts.map((prompt) => (
-        <div key={prompt.id} className={"ui-card"}>
+        <div key={prompt.id} className="ui-card"> {/* 统一使用 ui-card */}
           <div className={styles.templateTop}>
             <h4>{prompt.title}</h4>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <span className={styles.modelTag}>{prompt.model}</span>
-              <button 
-                className={`${styles.copyBtn} ${copiedId === prompt.id ? styles.copied : ''}`}
-                onClick={() => handleCopy(prompt.id, prompt.content)}
-              >
+              <button className={`${styles.copyBtn} ${copiedId === prompt.id ? styles.copied : ''}`} onClick={() => handleCopy(prompt.id, prompt.content)}>
                 {copiedId === prompt.id ? '已复制 ✓' : '复制'}
               </button>
             </div>
@@ -34,7 +31,6 @@ export default function PromptClient({ initialPrompts }: { initialPrompts: any[]
           <pre className={styles.codeBlock}>{prompt.content}</pre>
         </div>
       ))}
-      {initialPrompts.length === 0 && <p className={styles.empty}>暂无模板数据。</p>}
     </div>
   )
 }
