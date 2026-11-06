@@ -1,3 +1,4 @@
+export const instant = false
 import { createClient } from '@/lib/supabase/server'
 import ToolsClient from './ToolsClient'
 import styles from './tools.module.css'

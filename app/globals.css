@@ -1,5 +1,3 @@
-@import "tailwindcss";
-
 :root {
   --bg-void: #05070d;
   --surface-card: rgba(14, 20, 38, 0.72);
