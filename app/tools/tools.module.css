@@ -60,3 +60,14 @@
 
 .cardDesc { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin: 0; }
 .empty { color: var(--text-dim); margin-top: 30px; }
+/* 宽屏时隐藏换行符，保持一行 */
+.responsiveBr {
+  display: none;
+}
+
+/* 窄屏（平板/手机）时显示换行符，变成两行 */
+@media (max-width: 1024px) {
+  .responsiveBr {
+    display: block;
+  }
+}
