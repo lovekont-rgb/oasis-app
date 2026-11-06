@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import styles from './tools.module.css'
 
@@ -9,9 +8,7 @@ export default function ToolsClient({ initialTools }: { initialTools: any[] }) {
 
   const filteredTools = initialTools.filter((t) => {
     const matchCat = activeCat === 'all' || t.category === activeCat
-    const matchQuery = !query || 
-      t.name.toLowerCase().includes(query.toLowerCase()) || 
-      t.description.includes(query)
+    const matchQuery = !query || t.name.toLowerCase().includes(query.toLowerCase()) || t.description.includes(query)
     return matchCat && matchQuery
   })
 
@@ -30,12 +27,7 @@ export default function ToolsClient({ initialTools }: { initialTools: any[] }) {
       <div className={styles.toolbar}>
         <div className={styles.searchBox}>
           <span className={styles.searchIcon}>⌕</span>
-          <input 
-            type="text" 
-            placeholder="搜索工具名称或描述..." 
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
+          <input type="text" placeholder="搜索工具名称或描述..." value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
         <div className={styles.tabs}>
           {categories.map((cat) => (
@@ -68,10 +60,7 @@ export default function ToolsClient({ initialTools }: { initialTools: any[] }) {
           </div>
         ))}
       </div>
-
-      {filteredTools.length === 0 && (
-        <div className={styles.empty}>没有匹配的工具，试试其他关键词。</div>
-      )}
+      {filteredTools.length === 0 && <div className={styles.empty}>没有匹配的工具。</div>}
     </>
   )
 }
