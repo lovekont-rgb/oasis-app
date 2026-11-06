@@ -53,6 +53,48 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </header>
         <div style={{ paddingTop: '120px' }}>{children}</div>
+                {/* 这里插入新的 Footer 代码 */}
+        <footer style={{
+          borderTop: '1px solid var(--border-subtle)', padding: '60px 40px 30px',
+          background: 'var(--bg-void)', fontSize: '14px', marginTop: '60px'
+        }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '40px', marginBottom: '40px' }}>
+            <div style={{ maxWidth: '300px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 900 }}>O</div>
+                <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20 }}>OASIS</span>
+                <span style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'Orbitron, monospace' }}>创意无线增长</span>
+              </div>
+              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '13px' }}>
+                OASIS — 创意无线增长。以交付能力为导向的 AIGC 学习平台。黑色是画布，科技蓝是信号。
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '80px', flexWrap: 'wrap' }}>
+              <div>
+                <h5 style={{ color: 'var(--cyan)', marginBottom: '16px', fontFamily: 'Orbitron, monospace', fontSize: '12px' }}>学习</h5>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', color: 'var(--text-secondary)' }}>
+                  <Link href="#">学习路径</Link><Link href="#">课程模块</Link><Link href="/prompts">提示词工程</Link>
+                </div>
+              </div>
+              <div>
+                <h5 style={{ color: 'var(--cyan)', marginBottom: '16px', fontFamily: 'Orbitron, monospace', fontSize: '12px' }}>资源</h5>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', color: 'var(--text-secondary)' }}>
+                  <Link href="/tools">工具矩阵</Link><Link href="#">项目实战</Link><Link href="#">社区资源</Link>
+                </div>
+              </div>
+              <div>
+                <h5 style={{ color: 'var(--cyan)', marginBottom: '16px', fontFamily: 'Orbitron, monospace', fontSize: '12px' }}>关于</h5>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', color: 'var(--text-secondary)' }}>
+                  <Link href="#">关于我们</Link><Link href="#">联系我们</Link><Link href="#">隐私政策</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', borderTop: '1px solid var(--border-subtle)', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', color: 'var(--text-dim)', fontSize: '12px' }}>
+            <span>© 2026 OASIS · 创意无线增长. 学习，然后交付。</span>
+            <span>Designed with 科技蓝 · 黑色酷炫</span>
+          </div>
+        </footer>
       </body>
     </html>
   )

@@ -21,7 +21,7 @@ export default function PromptClient({ initialPrompts }: { initialPrompts: any[]
         <div key={prompt.id} className={styles.template}>
           <div className={styles.templateTop}>
             <h4>{prompt.title}</h4>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <span className={styles.modelTag}>{prompt.model}</span>
               <button 
                 className={`${styles.copyBtn} ${copiedId === prompt.id ? styles.copied : ''}`}
@@ -34,7 +34,7 @@ export default function PromptClient({ initialPrompts }: { initialPrompts: any[]
           <pre className={styles.codeBlock}>{prompt.content}</pre>
         </div>
       ))}
-      {initialPrompts.length === 0 && <p className={styles.empty}>暂无模板数据，请在 Supabase 中添加。</p>}
+      {initialPrompts.length === 0 && <p className={styles.empty}>暂无模板数据。</p>}
     </div>
   )
 }
