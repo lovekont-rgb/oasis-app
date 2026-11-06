@@ -13,13 +13,8 @@ export default function ToolsClient({ initialTools }: { initialTools: any[] }) {
   })
 
   const categories = [
-    { key: 'all', label: '全部' },
-    { key: 'text', label: '对话 / 文本' },
-    { key: 'image', label: '图像' },
-    { key: 'video', label: '视频' },
-    { key: 'code', label: '编程 / Agent' },
-    { key: 'audio', label: '音频 / 音乐' },
-    { key: 'office', label: '办公 / 效率' }
+    { key: 'all', label: '全部' }, { key: 'text', label: '对话 / 文本' }, { key: 'image', label: '图像' },
+    { key: 'video', label: '视频' }, { key: 'code', label: '编程 / Agent' }, { key: 'audio', label: '音频 / 音乐' }, { key: 'office', label: '办公 / 效率' }
   ]
 
   return (
@@ -42,7 +37,7 @@ export default function ToolsClient({ initialTools }: { initialTools: any[] }) {
 
       <div className={styles.grid}>
         {filteredTools.map((tool) => (
-          <div key={tool.id} className="ui-card"> {/* 统一使用 ui-card */}
+          <div key={tool.id} className="ui-card">
             <div className={styles.cardHead}>
               <h3 className={styles.cardName}>{tool.name}</h3>
               <span className={`${styles.badge} ${tool.pricing === 'free' ? styles.badgeFree : tool.pricing === 'paid' ? styles.badgePaid : styles.badgeOss}`}>

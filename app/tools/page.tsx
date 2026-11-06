@@ -17,7 +17,6 @@ export default async function ToolsPage() {
       <p className="ui-subtitle">
         按场景分类收录，标注免费 / 付费 / 开源属性。不用全装——先固定一条基线，遇到具体问题时再引入对应工具。
       </p>
-      
       <ToolsClient initialTools={tools || []} />
     </main>
   )

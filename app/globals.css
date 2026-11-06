@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap');
 
-/* ==================== 1. 深浅双主题变量 ==================== */
 :root {
   --bg-void: #05070d;
   --surface-card: rgba(14, 20, 38, 0.6);
@@ -37,7 +36,6 @@ html[data-theme="light"] {
   --nav-bg: rgba(242, 246, 251, 0.88);
 }
 
-/* ==================== 2. 基础重置与背景 ==================== */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -53,7 +51,6 @@ body {
   transition: background-color 0.35s ease, color 0.35s ease;
 }
 
-/* 背景发光光晕 */
 body::before, body::after {
   content: ''; position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none;
 }
@@ -69,85 +66,63 @@ body::after {
 ::selection { background: var(--cyan); color: #05070d; }
 a { text-decoration: none; color: inherit; }
 
-/* ==================== 3. 绝对统一的 OASIS UI 规范 ==================== */
-
-/* 页面容器：限制宽度并居中 */
-.page-container { 
-  max-width: 1120px; 
+/* 终极统一容器：宽度 1200px */
+.page-container, .nav-container { 
+  max-width: 1200px; 
   margin: 0 auto; 
-  padding: 60px 24px 100px; 
+  width: 100%;
+  padding-left: 24px;
+  padding-right: 24px;
 }
+.page-container { padding-top: 60px; padding-bottom: 100px; }
+.nav-container { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; padding-bottom: 16px; }
 
-/* 徽章 */
+/* 全局 UI 规范 */
 .ui-badge {
   display: inline-flex; align-items: center; gap: 8px;
   font-family: 'Orbitron', monospace; font-size: 12px; letter-spacing: 0.15em;
   color: var(--cyan); border: 1px solid var(--border-glow); padding: 6px 16px;
   border-radius: 100px; background: rgba(0, 212, 255, 0.05); margin-bottom: 32px;
 }
-.ui-badge-dot { 
-  width: 6px; height: 6px; border-radius: 50%; 
-  background: var(--cyan); box-shadow: 0 0 10px var(--cyan); 
-}
+.ui-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
 
-/* 主标题（超大字号） */
 .ui-title { 
-  font-family: 'Syne', sans-serif; 
-  font-size: clamp(3rem, 6vw, 4.5rem); 
+  font-family: 'Syne', sans-serif; font-size: clamp(2.8rem, 5vw, 4.5rem); 
   font-weight: 800; line-height: 1.15; letter-spacing: -0.03em; 
   margin-bottom: 24px; color: var(--text-primary);
 }
-
-/* 渐变文字（修复消失的“货架”） */
 .ui-title-gradient { 
   background: linear-gradient(110deg, var(--cyan), var(--violet)); 
-  -webkit-background-clip: text; 
-  background-clip: text;
-  -webkit-text-fill-color: transparent; 
-  color: transparent; /* 兼容处理 */
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; 
 }
 
-/* 副标题 */
 .ui-subtitle { 
   color: var(--text-secondary); font-size: 16px; line-height: 1.8; 
-  max-width: 680px; 
-  margin-bottom: 72px; 
+  max-width: 680px; margin-bottom: 72px; 
 }
 
-/* 区块标题 H2 */
 .ui-section-title { 
   font-family: 'Syne', sans-serif; font-size: 1.8rem; 
   font-weight: 700; margin: 64px 0 32px 0; color: var(--text-primary); 
 }
 
-/* 统一卡片（大圆角、半透明、宽裕内边距） */
 .ui-card {
-  background: var(--surface-card); 
-  border: 1px solid var(--border-subtle);
-  border-radius: 20px; 
-  padding: 32px; 
-  transition: all 0.3s ease;
+  background: var(--surface-card); border: 1px solid var(--border-subtle);
+  border-radius: 20px; padding: 32px; transition: all 0.3s ease;
 }
-.ui-card:hover { 
-  border-color: var(--border-glow); 
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
-}
+.ui-card:hover { border-color: var(--border-glow); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3); }
 
-/* 网格系统 */
-.ui-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.ui-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .ui-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-@media (max-width: 768px) {
-  .ui-grid-3, .ui-grid-2 { grid-template-columns: 1fr; }
+@media (max-width: 1024px) { .ui-grid-3 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) { .ui-grid-3, .ui-grid-2 { grid-template-columns: 1fr; } }
+
+/* 统一底部 CTA 按钮 */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 36px; border-radius: 100px;
+  background: linear-gradient(120deg, var(--cyan), #4ae0ff);
+  color: #05070d; font-weight: 700; font-size: 15px; border: none; cursor: pointer;
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.3); transition: all 0.3s;
 }
-/* 导航栏内容容器，与 page-container 保持绝对对齐 */
-.nav-container {
-  max-width: 1120px;
-  margin: 0 auto;
-  width: 100%;
-  padding: 16px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-sizing: border-box;
-}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(0, 212, 255, 0.5); }

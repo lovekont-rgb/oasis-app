@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import PromptClient from './PromptClient'
 import styles from './prompts.module.css'
+import Link from 'next/link'
 
 export const instant = false
 
@@ -54,6 +55,13 @@ export default async function PromptsPage() {
         <div className="ui-card"><h4 className={styles.principleH4}>一次只改一个变量</h4><p className={styles.principleP}>同时改三个词，你无法判断哪个起了作用。单变量迭代才能沉淀可复用的方法。</p></div>
         <div className="ui-card"><h4 className={styles.principleH4}>用示例代替形容词</h4><p className={styles.principleP}>“高级感”不如一张参考图或一段示例输出。Few-Shot 往往比一堆修饰词更有效。</p></div>
         <div className="ui-card"><h4 className={styles.principleH4}>把 Prompt 当文档维护</h4><p className={styles.principleP}>版本化、注释、测试。好的 Prompt 不是灵感，是配方和执行文档。</p></div>
+      </div>
+
+      {/* 新增：底部 CTA 按钮，链接到社区 */}
+      <div style={{ textAlign: 'center', marginTop: '80px', marginBottom: '20px' }}>
+        <Link href="/community" className="btn-primary">
+          去提示词库复制更多 →
+        </Link>
       </div>
     </main>
   )
