@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               工具矩阵
               <div style={{ position: 'absolute', bottom: -6, left: 0, right: 0, height: 2, background: 'var(--cyan)', boxShadow: '0 0 8px var(--cyan)' }} />
             </Link>
-            <Link href="#" style={{ transition: '0.2s' }}>提示词工程</Link>
+            <Link href="/prompts" style={{ transition: '0.2s' }}>提示词工程</Link>
             <Link href="#" style={{ transition: '0.2s' }}>项目实战</Link>
             <Link href="#" style={{ transition: '0.2s' }}>社区</Link>
           </nav>
