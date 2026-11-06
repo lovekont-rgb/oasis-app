@@ -1,0 +1,44 @@
+.container { max-width: 1200px; margin: 0 auto; padding: 60px 20px; }
+.title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
+.subtitle { color: var(--text-secondary); margin-bottom: 30px; }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 28px; }
+.searchBox { flex: 1; min-width: 220px; position: relative; }
+.searchBox input {
+  width: 100%; padding: 10px 16px 10px 38px; border-radius: 100px;
+  background: var(--input-bg); border: 1px solid var(--border-subtle);
+  color: var(--text-primary); outline: none; font-size: 14px;
+  transition: all 0.3s;
+}
+.searchBox input:focus { border-color: var(--cyan); }
+.searchIcon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 7px; }
+.tab {
+  padding: 7px 16px; border-radius: 100px; border: 1px solid var(--border-subtle);
+  color: var(--text-secondary); font-size: 13px; cursor: pointer; background: transparent;
+  transition: all 0.3s;
+}
+.tab:hover { border-color: var(--cyan); color: var(--text-primary); }
+.tabActive { background: var(--cyan); border-color: var(--cyan); color: #05070d; font-weight: bold; }
+
+.countLine { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; }
+.countLine b { color: var(--cyan); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+.card {
+  background: var(--surface-card); border: 1px solid var(--border-subtle);
+  border-radius: 14px; padding: 20px; transition: all 0.3s;
+  display: flex; flex-direction: column;
+}
+.card:hover { border-color: var(--border-glow); transform: translateY(-3px); }
+
+.cardHead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.cardName { font-weight: bold; font-size: 16px; margin: 0; color: var(--text-primary); }
+.badge { font-size: 10px; padding: 3px 8px; border-radius: 100px; font-family: monospace; text-transform: uppercase; }
+.badgeFree { background: rgba(60, 220, 140, 0.1); color: var(--green); }
+.badgePaid { background: rgba(255, 180, 60, 0.1); color: var(--warn); }
+.badgeOss { background: rgba(123, 97, 255, 0.12); color: var(--violet); }
+
+.cardDesc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0; }
+.empty { color: var(--text-dim); margin-top: 30px; }
