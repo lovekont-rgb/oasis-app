@@ -10,7 +10,6 @@ export default async function ToolsPage() {
 
   return (
     <main className="page-container">
-      {/* 替换为全局 UI 类名 */}
       <div className="ui-badge"><span className="ui-badge-dot"></span>TOOL MATRIX</div>
       <h1 className="ui-title">
         工具是 <span className="ui-title-gradient">货架</span>，<br className={styles.responsiveBr} />不是清单

@@ -1,33 +1,23 @@
-.formulaGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-.formulaH3 { font-size: 1.1rem; color: var(--cyan); margin-bottom: 12px; }
-.formulaCode { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--text-secondary); background: rgba(0,0,0,0.3); padding: 14px; border-radius: 8px; margin-bottom: 14px; border: 1px solid var(--border-subtle); }
+/* 只保留局部细节，其他全部由全局类名接管 */
+.formulaH3 { font-size: 1.1rem; color: var(--cyan); margin-bottom: 16px; }
+.formulaCode { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--text-secondary); background: rgba(0,0,0,0.3); padding: 14px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border-subtle); }
 html[data-theme="light"] .formulaCode { background: #f0f5fa; }
-.formulaP { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+.formulaP { font-size: 14px; color: var(--text-dim); line-height: 1.7; }
 
-.anatomyGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-.anatomyH4 { color: var(--cyan); font-size: 14px; margin-bottom: 8px; font-family: 'Orbitron', monospace; }
-.anatomyP { color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin: 0; }
+.anatomyH4 { color: var(--cyan); font-size: 15px; margin-bottom: 10px; font-family: 'Orbitron', monospace; }
+.anatomyP { color: var(--text-secondary); font-size: 14px; line-height: 1.7; margin: 0; }
 
-.templateList { display: flex; flex-direction: column; gap: 16px; }
+.templateList { display: flex; flex-direction: column; gap: 20px; }
 .templateTop { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
-.templateTop h4 { font-size: 16px; font-weight: 700; margin: 0; color: var(--text-primary); }
+.templateTop h4 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text-primary); }
 .modelTag { font-size: 11px; font-family: 'Orbitron', monospace; color: var(--violet); border: 1px solid var(--violet); padding: 4px 10px; border-radius: 100px; opacity: 0.8; }
 
 .copyBtn { background: rgba(0, 212, 255, 0.08); border: 1px solid rgba(0, 212, 255, 0.2); color: var(--cyan); padding: 6px 16px; border-radius: 100px; font-size: 12px; cursor: pointer; transition: 0.3s; font-family: 'Orbitron', monospace; }
 .copyBtn:hover { background: rgba(0, 212, 255, 0.15); }
 .copied { background: var(--cyan); color: #05070d; font-weight: bold; border-color: var(--cyan); }
 
-.codeBlock { background: rgba(0, 0, 0, 0.4); padding: 20px; border-radius: 10px; color: var(--text-secondary); font-family: 'Orbitron', monospace; font-size: 13px; white-space: pre-wrap; word-break: break-word; margin: 0; border: 1px solid var(--border-subtle); line-height: 1.7; }
+.codeBlock { background: rgba(0, 0, 0, 0.4); padding: 24px; border-radius: 10px; color: var(--text-secondary); font-family: 'Orbitron', monospace; font-size: 14px; white-space: pre-wrap; word-break: break-word; margin: 0; border: 1px solid var(--border-subtle); line-height: 1.8; }
 html[data-theme="light"] .codeBlock { background: #f0f5fa; }
 
-.principleGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-.principleH4 { font-size: 16px; margin-bottom: 8px; color: var(--text-primary); }
-.principleP { color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin: 0; }
-
-.ctaSection { text-align: center; margin-top: 60px; }
-.btnPrimary { display: inline-block; background: linear-gradient(120deg, var(--cyan), #4ae0ff); color: #05070d; font-weight: 700; font-size: 15px; padding: 14px 36px; border-radius: 100px; text-decoration: none; box-shadow: 0 0 30px rgba(0, 212, 255, 0.3); transition: 0.3s; }
-.btnPrimary:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(0, 212, 255, 0.5); }
-
-@media (max-width: 768px) {
-  .anatomyGrid, .principleGrid { grid-template-columns: 1fr; }
-}
+.principleH4 { font-size: 16px; margin-bottom: 10px; color: var(--text-primary); }
+.principleP { color: var(--text-secondary); font-size: 14px; line-height: 1.7; margin: 0; }

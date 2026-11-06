@@ -10,7 +10,6 @@ export default async function PromptsPage() {
 
   return (
     <main className="page-container">
-      {/* 替换为全局 UI 类名 */}
       <div className="ui-badge"><span className="ui-badge-dot"></span>PROMPT ENGINEERING</div>
       <h1 className="ui-title">从 <span className="ui-title-gradient">堆词</span> 到 <span className="ui-title-gradient">结构化控制</span></h1>
       <p className="ui-subtitle">
@@ -18,7 +17,7 @@ export default async function PromptsPage() {
       </p>
 
       <h2 className="ui-section-title">三套核心公式</h2>
-      <div className={styles.formulaGrid}>
+      <div className="ui-grid-3">
         <div className="ui-card">
           <h3 className={styles.formulaH3}>角色定位法</h3>
           <div className={styles.formulaCode}>角色描述 + 任务目标 + 输出要求</div>
@@ -37,7 +36,7 @@ export default async function PromptsPage() {
       </div>
 
       <h2 className="ui-section-title">图像提示词的五个解剖层</h2>
-      <div className={styles.anatomyGrid}>
+      <div className="ui-grid-2">
         <div className="ui-card"><h4 className={styles.anatomyH4}>01 / 主体</h4><p className={styles.anatomyP}>谁 / 什么。人物、物体、场景的核心描述。越具体越好：年龄、材质、状态。</p></div>
         <div className="ui-card"><h4 className={styles.anatomyH4}>02 / 动作与关系</h4><p className={styles.anatomyP}>主体在做什么，与其他元素的关系。动作姿态直接影响手部和肢体的稳定性。</p></div>
         <div className="ui-card"><h4 className={styles.anatomyH4}>03 / 环境与光线</h4><p className={styles.anatomyP}>场景、时间、天气、光源方向、色温。光线是画面情绪的底层。</p></div>
@@ -50,15 +49,11 @@ export default async function PromptsPage() {
       <PromptClient initialPrompts={prompts || []} />
 
       <h2 className="ui-section-title">四条迭代原则</h2>
-      <div className={styles.principleGrid}>
+      <div className="ui-grid-2">
         <div className="ui-card"><h4 className={styles.principleH4}>先结构，后语义</h4><p className={styles.principleP}>角色、输入、输出、边界先立住，语义才有地方使劲。结构为零，模型只能替你猜。</p></div>
         <div className="ui-card"><h4 className={styles.principleH4}>一次只改一个变量</h4><p className={styles.principleP}>同时改三个词，你无法判断哪个起了作用。单变量迭代才能沉淀可复用的方法。</p></div>
         <div className="ui-card"><h4 className={styles.principleH4}>用示例代替形容词</h4><p className={styles.principleP}>“高级感”不如一张参考图或一段示例输出。Few-Shot 往往比一堆修饰词更有效。</p></div>
         <div className="ui-card"><h4 className={styles.principleH4}>把 Prompt 当文档维护</h4><p className={styles.principleP}>版本化、注释、测试。好的 Prompt 不是灵感，是配方和执行文档。</p></div>
-      </div>
-
-      <div className={styles.ctaSection}>
-        <a href="/community" className={styles.btnPrimary}>去提示词库复制更多 →</a>
       </div>
     </main>
   )

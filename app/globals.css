@@ -1,79 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap');
+/* ==================== OASIS 强制全局 UI 规范 ==================== */
 
-:root {
-  --bg-void: #05070d;
-  --surface-card: rgba(14, 20, 38, 0.6);
-  --border-subtle: rgba(0, 212, 255, 0.12);
-  --border-glow: rgba(0, 212, 255, 0.45);
-  --cyan: #00d4ff;
-  --violet: #7b61ff;
-  --text-primary: #eef4ff;
-  --text-secondary: #8b9bb8;
-  --text-dim: #5a6a85;
-  --green: #3cdc8c;
-  --warn: #ffb43c;
-  --grid-line: rgba(0, 212, 255, 0.035);
-  --glow-1: rgba(0, 212, 255, 0.12);
-  --glow-2: rgba(123, 97, 255, 0.08);
-  --nav-bg: rgba(5, 7, 13, 0.85);
-}
-
-html[data-theme="light"] {
-  --bg-void: #f2f6fb;
-  --surface-card: #ffffff;
-  --border-subtle: rgba(14, 88, 134, 0.13);
-  --border-glow: rgba(10, 127, 184, 0.35);
-  --cyan: #0a7fb8;
-  --violet: #5b45cf;
-  --text-primary: #0b1a2b;
-  --text-secondary: #4a5d76;
-  --text-dim: #7688a0;
-  --green: #0d9663;
-  --warn: #b8770c;
-  --grid-line: rgba(14, 88, 134, 0.06);
-  --glow-1: rgba(80, 170, 230, 0.15);
-  --glow-2: rgba(120, 100, 220, 0.08);
-  --nav-bg: rgba(242, 246, 251, 0.88);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  background-color: var(--bg-void);
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-  /* 背景网格 */
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 64px 64px;
-  transition: background-color 0.35s ease, color 0.35s ease;
-}
-
-/* 光晕背景层 */
-body::before, body::after {
-  content: ''; position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none;
-}
-body::before {
-  width: 700px; height: 700px; top: -280px; left: 50%; transform: translateX(-50%);
-  background: radial-gradient(circle, var(--glow-1), transparent 65%);
-}
-body::after {
-  width: 500px; height: 500px; top: 40%; right: -200px;
-  background: radial-gradient(circle, var(--glow-2), transparent 65%);
-}
-
-::selection { background: var(--cyan); color: #05070d; }
-a { text-decoration: none; color: inherit; }
-/* ==================== OASIS 全局 UI 规范 ==================== */
-
-/* 1. 页面统一容器 */
+/* 1. 页面统一容器（保证所有页面宽度、边距绝对一致） */
 .page-container { 
-  max-width: 1200px; 
+  max-width: 1200px; /* 强制统一宽度 */
   margin: 0 auto; 
-  padding: 40px 20px 80px; 
+  padding: 60px 24px 100px; 
 }
 
 /* 2. 统一徽章 Badge */
@@ -88,9 +19,10 @@ a { text-decoration: none; color: inherit; }
   background: var(--cyan); box-shadow: 0 0 10px var(--cyan); 
 }
 
-/* 3. 统一标题字体 */
+/* 3. 统一主标题（强制使用最大字号） */
 .ui-title { 
-  font-family: 'Syne', sans-serif; font-size: clamp(2.5rem, 5vw, 4rem); 
+  font-family: 'Syne', sans-serif; 
+  font-size: clamp(2.5rem, 5vw, 4.5rem); /* 统一巨大字号 */
   font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; 
   margin-bottom: 24px; color: var(--text-primary);
 }
@@ -102,20 +34,33 @@ a { text-decoration: none; color: inherit; }
 /* 4. 统一副标题 */
 .ui-subtitle { 
   color: var(--text-secondary); font-size: 16px; line-height: 1.7; 
-  max-width: 640px; margin-bottom: 60px; 
+  max-width: 700px; /* 统一限制宽度 */
+  margin-bottom: 64px; /* 统一下方间距 */
 }
 
 /* 5. 统一区块标题 H2 */
 .ui-section-title { 
-  font-family: 'Syne', sans-serif; font-size: 1.5rem; 
-  font-weight: 700; margin: 60px 0 24px 0; color: var(--text-primary); 
+  font-family: 'Syne', sans-serif; font-size: 1.6rem; 
+  font-weight: 700; margin: 64px 0 24px 0; color: var(--text-primary); 
 }
 
-/* 6. 统一卡片样式 */
+/* 6. 统一卡片样式（强制统一背景、圆角、内边距、发光） */
 .ui-card {
-  background: var(--surface-card); border: 1px solid var(--border-subtle);
-  border-radius: 16px; padding: 24px; transition: all 0.3s;
+  background: var(--surface-card); 
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px; 
+  padding: 28px; /* 统一大内边距 */
+  transition: all 0.3s ease;
 }
 .ui-card:hover { 
-  border-color: var(--border-glow); transform: translateY(-4px); 
+  border-color: var(--border-glow); 
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* 7. 统一网格间距 */
+.ui-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.ui-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+@media (max-width: 768px) {
+  .ui-grid-3, .ui-grid-2 { grid-template-columns: 1fr; }
 }
