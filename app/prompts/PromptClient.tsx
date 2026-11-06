@@ -18,7 +18,7 @@ export default function PromptClient({ initialPrompts }: { initialPrompts: any[]
   return (
     <div className={styles.templateList}>
       {initialPrompts.map((prompt) => (
-        <div key={prompt.id} className={styles.template}>
+        <div key={prompt.id} className={"ui-card"}>
           <div className={styles.templateTop}>
             <h4>{prompt.title}</h4>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

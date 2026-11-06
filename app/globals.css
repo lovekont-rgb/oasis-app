@@ -67,3 +67,55 @@ body::after {
 
 ::selection { background: var(--cyan); color: #05070d; }
 a { text-decoration: none; color: inherit; }
+/* ==================== OASIS 全局 UI 规范 ==================== */
+
+/* 1. 页面统一容器 */
+.page-container { 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  padding: 40px 20px 80px; 
+}
+
+/* 2. 统一徽章 Badge */
+.ui-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 0.18em;
+  color: var(--cyan); border: 1px solid var(--border-glow); padding: 6px 16px;
+  border-radius: 100px; background: rgba(0, 212, 255, 0.05); margin-bottom: 24px;
+}
+.ui-badge-dot { 
+  width: 6px; height: 6px; border-radius: 50%; 
+  background: var(--cyan); box-shadow: 0 0 10px var(--cyan); 
+}
+
+/* 3. 统一标题字体 */
+.ui-title { 
+  font-family: 'Syne', sans-serif; font-size: clamp(2.5rem, 5vw, 4rem); 
+  font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; 
+  margin-bottom: 24px; color: var(--text-primary);
+}
+.ui-title-gradient { 
+  background: linear-gradient(110deg, var(--cyan), var(--violet)); 
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+}
+
+/* 4. 统一副标题 */
+.ui-subtitle { 
+  color: var(--text-secondary); font-size: 16px; line-height: 1.7; 
+  max-width: 640px; margin-bottom: 60px; 
+}
+
+/* 5. 统一区块标题 H2 */
+.ui-section-title { 
+  font-family: 'Syne', sans-serif; font-size: 1.5rem; 
+  font-weight: 700; margin: 60px 0 24px 0; color: var(--text-primary); 
+}
+
+/* 6. 统一卡片样式 */
+.ui-card {
+  background: var(--surface-card); border: 1px solid var(--border-subtle);
+  border-radius: 16px; padding: 24px; transition: all 0.3s;
+}
+.ui-card:hover { 
+  border-color: var(--border-glow); transform: translateY(-4px); 
+}

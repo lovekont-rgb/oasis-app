@@ -46,7 +46,7 @@ export default function ToolsClient({ initialTools }: { initialTools: any[] }) {
 
       <div className={styles.grid}>
         {filteredTools.map((tool) => (
-          <div key={tool.id} className={styles.card}>
+          <div key={tool.id} className={ui-card}>
             <div className={styles.cardHead}>
               <h3 className={styles.cardName}>{tool.name}</h3>
               <span className={`${styles.badge} ${
