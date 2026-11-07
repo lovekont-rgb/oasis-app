@@ -1,4 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap');
+/* 👈 新增：强制锁定 HTML 的初始背景，防止任何白屏闪烁 */
+html {
+  background-color: #05070d;
+  color-scheme: dark;
+}
+html[data-theme="light"] {
+  background-color: #f2f6fb;
+  color-scheme: light;
+}
+
+/* ==================== 1. 深浅双主题变量 ==================== */
+:root {
+  --bg-void: #05070d;
+  /* ... 下面的代码保持原样不要动 ... */
 
 :root {
   --bg-void: #05070d;
@@ -39,7 +53,7 @@ html[data-theme="light"] {
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background-color: var(--bg-void);
+  background-color: transparent; /* 👈 改为透明，让 html 的背景露出来 */
   color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
