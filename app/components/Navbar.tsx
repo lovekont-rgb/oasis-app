@@ -5,6 +5,8 @@ import ThemeToggle from './ThemeToggle'
 
 export default function Navbar() {
   const pathname = usePathname()
+  
+  // 1. 统一导航链接
   const links = [
     { name: '学习路径', href: '/paths' },
     { name: '课程模块', href: '/modules' },
@@ -14,6 +16,21 @@ export default function Navbar() {
     { name: '社区', href: '/community' },
   ]
 
+  // 2. 动态获取右侧按钮的文案和跳转链接
+  const getActionBtn = () => {
+    switch (pathname) {
+      case '/': return { text: '开始学习', href: '/paths' };
+      case '/paths': return { text: '开始学习', href: '/paths' };
+      case '/modules': return { text: '浏览工具', href: '/tools' };
+      case '/tools': return { text: '看项目', href: '/projects' };
+      case '/prompts': return { text: '提示词库', href: '/prompts' };
+      case '/projects': return { text: '看作品', href: '/projects' };
+      case '/community': return { text: '回首页', href: '/' };
+      default: return { text: '开始学习', href: '/paths' };
+    }
+  }
+  const actionBtn = getActionBtn()
+
   return (
     <header style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
@@ -21,31 +38,58 @@ export default function Navbar() {
       borderBottom: '1px solid var(--border-subtle)', transition: 'all 0.3s'
     }}>
       <div className="nav-container">
+        
+        {/* 左侧 Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
             width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, var(--violet), var(--cyan))',
-            display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 900, fontSize: 14, boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)'
+            display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 900, fontSize: 14,
+            boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)'
           }}>O</div>
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>OASIS</span>
           <span style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'Orbitron, monospace', letterSpacing: '0.1em', marginLeft: 4 }}>创意无线增长</span>
         </Link>
 
+        {/* 中间导航 */}
         <nav style={{ display: 'flex', gap: '32px', fontSize: 14, fontWeight: 500 }}>
           {links.map(link => {
             const isActive = pathname === link.href
             return (
-              <Link key={link.href} href={link.href} style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)', position: 'relative', transition: '0.2s' }}>
+              <Link 
+                key={link.href} 
+                href={link.href} 
+                style={{ 
+                  color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)', 
+                  position: 'relative', transition: '0.2s' 
+                }}
+              >
                 {link.name}
-                {isActive && <div style={{ position: 'absolute', bottom: -6, left: 0, right: 0, height: 2, background: 'var(--cyan)', boxShadow: '0 0 8px var(--cyan)' }} />}
+                {isActive && (
+                  <div style={{ position: 'absolute', bottom: -6, left: 0, right: 0, height: 2, background: 'var(--cyan)', boxShadow: '0 0 8px var(--cyan)' }} />
+                )}
               </Link>
             )
           })}
         </nav>
 
+        {/* 右侧按钮组 (完全统一样式，仅文字动态改变) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <ThemeToggle />
-          <Link href="/projects" className="btn-primary" style={{ padding: '8px 20px', fontSize: 13 }}>看项目</Link>
+          <Link href={actionBtn.href} style={{
+            padding: '8px 20px', 
+            borderRadius: 100, 
+            background: 'var(--cyan)', 
+            color: '#05070d',
+            fontWeight: 700, 
+            fontSize: 14, // 统一字体大小
+            boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)', 
+            transition: '0.3s',
+            textDecoration: 'none'
+          }}>
+            {actionBtn.text}
+          </Link>
         </div>
+
       </div>
     </header>
   )
