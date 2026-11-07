@@ -162,7 +162,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. 底部 CTA */}
+            {/* 5. 底部 CTA */}
       <section className={styles.ctaBox}>
         <h2>开始构建你的 AIGC 作品集</h2>
         <p>选择一个阶段，做出第一个可验证的交付物。学习 AIGC 最好的方式，从来不是看完所有教程。<br/>创意无线增长，从第一个作品开始。</p>
