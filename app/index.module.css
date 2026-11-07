@@ -149,53 +149,58 @@
   .toolPreviewGrid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* 底部 CTA 宽扁型横幅 */
+/* 底部 CTA 强发光横幅 */
 .ctaBox {
-  margin-top: 80px; 
-  border-radius: 20px; 
-  /* 减小上下 Padding，增加左右空间，让它变得更宽扁 */
-  padding: 64px 40px; 
+  margin-top: 100px; 
+  border-radius: 24px; 
+  padding: 80px 40px; 
   text-align: center;
   position: relative;
   overflow: hidden;
   
-  /* 1. 底色：极深的蓝黑 */
-  background-color: #060b14; 
-  /* 2. 顶部强力聚光灯效果（模拟极光/光晕） */
-  background-image: radial-gradient(ellipse 70% 100% at 50% 0%, rgba(0, 212, 255, 0.15), transparent 70%);
+  /* 背景：深色底 + 顶部和底部的极光渐变 */
+  background: 
+    radial-gradient(ellipse 60% 60% at 50% 0%, rgba(0, 212, 255, 0.12), transparent 70%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(0, 212, 255, 0.08), transparent 70%),
+    rgba(6, 11, 20, 0.9); /* 深底色 */
   
-  /* 3. 边框：外层半透明蓝色，内层高光，去掉之前发散的黑影 */
-  border: 1px solid rgba(0, 212, 255, 0.3); 
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1); 
+  /* 边框：半透明青色 */
+  border: 1px solid rgba(0, 212, 255, 0.4); 
+  
+  /* 核心光效：外部大范围蓝光 + 内部边缘暗光 */
+  box-shadow: 
+    0 0 80px rgba(0, 212, 255, 0.15), 
+    inset 0 0 40px rgba(0, 212, 255, 0.08);
   
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(10px);
 }
 
 .ctaBox h2 { 
   font-family: 'Syne', sans-serif; 
-  font-size: clamp(2rem, 3vw, 2.5rem); 
+  font-size: clamp(2rem, 3.5vw, 2.8rem); 
   font-weight: 800; 
-  margin-bottom: 16px; 
+  margin-bottom: 20px; 
   color: #ffffff; 
   letter-spacing: -0.02em;
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.3); /* 标题微微发光 */
   position: relative;
   z-index: 2;
 }
 
 .ctaBox p { 
   color: var(--text-secondary); 
-  margin-bottom: 32px; 
+  margin-bottom: 36px; 
   font-size: 15px; 
   line-height: 1.8;
-  max-width: 800px; /* 放宽文字宽度限制，避免过早换行 */
+  max-width: 650px; 
   position: relative;
   z-index: 2;
 }
 
-/* 确保按钮不会被光晕覆盖 */
 .ctaBox > a {
   position: relative;
   z-index: 2;
