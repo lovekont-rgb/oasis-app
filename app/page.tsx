@@ -67,9 +67,8 @@ export default function Home() {
         
         <div className={styles.bentoGrid}>
           
-                  <div className={styles.bentoGrid}>
           
-          {/* 第一行：[宽卡] + [方卡] + [方卡] */}
+          {/* 1. 提示词工程 (宽卡) */}
           <div className={`${styles.bentoItem} ${styles.span2}`}>
             <div>
               <div className={styles.bentoIcon}>⌘</div>
@@ -81,17 +80,19 @@ export default function Home() {
             </div>
           </div>
 
+          {/* 2. AI 视觉 (方卡) */}
           <div className={styles.bentoItem}>
             <div>
               <div className={styles.bentoIcon}>◈</div>
               <h3>AI 视觉创作</h3>
-              <p>ComfyUI 节点工作流、Midjourney 风格探索、LoRA 训练与商业级出图。稳定产出风格统一的系列作品。</p>
+              <p>ComfyUI 节点工作流、Midjourney 风格探索、LoRA 训练与商业级出图。</p>
             </div>
             <div className={styles.pathChips} style={{ margin: 0 }}>
               <span className={styles.chip}>ComfyUI</span><span className={styles.chip}>LoRA</span><span className={styles.chip}>FLUX</span>
             </div>
           </div>
 
+          {/* 3. AI 视频 (方卡) */}
           <div className={styles.bentoItem}>
             <div>
               <div className={styles.bentoIcon}>▶</div>
@@ -103,7 +104,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 第二行：[方卡] + [方卡] + [宽卡] */}
+          {/* 4. Agent (方卡) */}
           <div className={styles.bentoItem}>
             <div>
               <div className={styles.bentoIcon}>⚙</div>
@@ -115,6 +116,7 @@ export default function Home() {
             </div>
           </div>
 
+          {/* 5. 数据分析 (方卡) */}
           <div className={styles.bentoItem}>
             <div>
               <div className={styles.bentoIcon}>📊</div>
@@ -126,11 +128,12 @@ export default function Home() {
             </div>
           </div>
 
+          {/* 6. 商业变现 (宽卡) */}
           <div className={`${styles.bentoItem} ${styles.span2}`}>
             <div>
               <div className={styles.bentoIcon}>✦</div>
               <h3>商业变现与作品集</h3>
-              <p>需求分析、报价、交付标准、作品集叙事。让学习成果对接真实商业场景。</p>
+              <p>需求分析、报价、交付标准、作品集叙事。让学习成果直接对接真实商业场景。</p>
             </div>
             <div className={styles.pathChips} style={{ margin: 0 }}>
               <span className={styles.chip} style={{ color: 'var(--violet)', borderColor: 'rgba(123,97,255,0.3)', background: 'rgba(123,97,255,0.1)' }}>商单拆解</span>

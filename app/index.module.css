@@ -94,14 +94,22 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  align-items: stretch; /* 确保同行卡片等高 */
+  grid-auto-flow: dense; /* 自动填补空隙 */
+  align-items: stretch;
 }
 .bentoItem {
-  background: var(--surface-card); border: 1px solid var(--border-subtle);
-  border-radius: 16px; padding: 28px; transition: 0.3s;
-  display: flex; flex-direction: column; justify-content: space-between;
+  background: var(--surface-card); 
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px; 
+  padding: 28px; 
+  transition: 0.3s;
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between;
 }
-.bentoItem:hover { border-color: var(--border-glow); }
+.bentoItem:hover { 
+  border-color: var(--border-glow); 
+}
 .bentoIcon {
   width: 40px; height: 40px; border-radius: 10px;
   background: rgba(0, 212, 255, 0.05); border: 1px solid var(--border-subtle);
@@ -111,12 +119,14 @@
 .bentoItem h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--text-primary); }
 .bentoItem p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
 
-/* 控制跨越格数 */
-.span2 { grid-column: span 2; }
+/* 强制跨两列 */
+.span2 { 
+  grid-column: span 2; 
+}
 
+/* 响应式调整 */
 @media (max-width: 1024px) {
   .bentoGrid { grid-template-columns: repeat(2, 1fr); }
-  .span2 { grid-column: span 2; }
 }
 @media (max-width: 768px) {
   .bentoGrid { grid-template-columns: 1fr; }
