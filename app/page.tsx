@@ -3,7 +3,7 @@ import styles from './index.module.css'
 
 export default function Home() {
   return (
-    <main className="page-container" style={{ paddingTop: '20px' }}>
+    <main className="page-container">
       
       {/* 1. 首屏 Hero 区 */}
       <section className={styles.hero}>
