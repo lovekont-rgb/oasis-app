@@ -67,7 +67,9 @@ export default function Home() {
         
         <div className={styles.bentoGrid}>
           
-          {/* 卡片 1：跨2列 */}
+                  <div className={styles.bentoGrid}>
+          
+          {/* 第一行：[宽卡] + [方卡] + [方卡] */}
           <div className={`${styles.bentoItem} ${styles.span2}`}>
             <div>
               <div className={styles.bentoIcon}>⌘</div>
@@ -79,8 +81,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 卡片 2：占1列，跨2行（高卡片） */}
-          <div className={`${styles.bentoItem} ${styles.tall}`}>
+          <div className={styles.bentoItem}>
             <div>
               <div className={styles.bentoIcon}>◈</div>
               <h3>AI 视觉创作</h3>
@@ -91,7 +92,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 卡片 3：占1列 */}
           <div className={styles.bentoItem}>
             <div>
               <div className={styles.bentoIcon}>▶</div>
@@ -103,7 +103,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 卡片 4（补全的空白）：占1列 */}
+          {/* 第二行：[方卡] + [方卡] + [宽卡] */}
           <div className={styles.bentoItem}>
             <div>
               <div className={styles.bentoIcon}>⚙</div>
@@ -115,7 +115,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 卡片 5（补全的空白）：占1列 */}
           <div className={styles.bentoItem}>
             <div>
               <div className={styles.bentoIcon}>📊</div>
@@ -127,7 +126,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 卡片 6：跨2列 */}
           <div className={`${styles.bentoItem} ${styles.span2}`}>
             <div>
               <div className={styles.bentoIcon}>✦</div>
