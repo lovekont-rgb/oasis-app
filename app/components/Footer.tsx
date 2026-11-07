@@ -35,7 +35,7 @@ export default function Footer() {
           </div>
         </div>
         <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', color: 'var(--text-dim)', fontSize: '12px' }}>
-          <span>© 2026 OASIS · 创意无线增长. 学习，然后交付。</span><span>Designed with 科技蓝 · 黑色酷炫</span>
+          <span>© 2026 OASIS · 创意无线增长. 学习，然后交付。</span><span>© 北京创意思维教育科技有限公司 版权所有</span>
         </div>
       </div>
     </footer>

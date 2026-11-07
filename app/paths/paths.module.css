@@ -1,0 +1,144 @@
+.stage {
+  display: flex;
+  gap: 40px;
+  padding: 60px 0;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+.stage:last-child {
+  border-bottom: none;
+}
+
+/* 左侧超大数字 */
+.stageNumber {
+  font-family: 'Orbitron', monospace;
+  font-size: 4.5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: rgba(0, 212, 255, 0.1); /* 极暗的科技蓝 */
+  flex-shrink: 0;
+  width: 120px;
+  user-select: none;
+}
+
+/* 右侧内容区 */
+.stageContent {
+  flex: 1;
+}
+.stageTitle {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+.stageSubtitle {
+  font-family: 'Orbitron', monospace;
+  font-size: 13px;
+  color: var(--cyan);
+  margin-bottom: 24px;
+  letter-spacing: 0.05em;
+}
+.stageDesc {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 32px;
+}
+
+/* 三列信息块 */
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.infoCard {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+}
+.infoCard h4 {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.infoCard p {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin: 0;
+}
+.toolsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.toolChip {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  color: var(--cyan);
+}
+
+/* 交付物横幅 */
+.deliverable {
+  background: rgba(0, 212, 255, 0.03);
+  border: 1px solid var(--border-glow);
+  border-radius: 12px;
+  padding: 20px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.deliverable b {
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+/* 通关标签 */
+.passBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.passChip {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  background: rgba(60, 220, 140, 0.05);
+  border: 1px solid rgba(60, 220, 140, 0.2);
+  color: var(--green);
+}
+
+/* 底部按钮 */
+.ctaGroup {
+  display: flex;
+  justify-content: center;
+  margin-top: 80px;
+}
+.btnPrimary {
+  display: inline-block;
+  background: linear-gradient(120deg, var(--cyan), #4ae0ff);
+  color: #05070d; font-weight: 700; font-size: 15px;
+  padding: 16px 40px; border-radius: 100px;
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.3); transition: 0.3s;
+}
+.btnPrimary:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(0, 212, 255, 0.5); }
+
+@media (max-width: 900px) {
+  .stage { flex-direction: column; gap: 20px; padding: 40px 0; }
+  .stageNumber { width: auto; font-size: 3rem; }
+  .infoGrid { grid-template-columns: 1fr; }
+}
