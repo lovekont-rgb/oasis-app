@@ -1,0 +1,145 @@
+/* 卡片头部与标题徽章 */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.cardHeader h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+.badgeNum {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.cardDesc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+/* 列表样式 */
+.list {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
+}
+.listItem {
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+.listItem:last-child {
+  border-bottom: none;
+}
+.listItem h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.listItem p {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* AI 周刊特殊排版 */
+.weekItem {
+  display: flex;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+.weekItem:last-child { border-bottom: none; }
+.weekVol {
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  color: var(--cyan);
+  width: 55px;
+  flex-shrink: 0;
+}
+
+/* 底部标签云 */
+.tagCloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+.tag {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  color: var(--cyan);
+}
+
+/* 问答折叠面板 */
+.faqItem {
+  margin-bottom: 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.2);
+}
+.faqQ {
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: 0.3s;
+}
+.faqQ:hover {
+  background: rgba(0, 212, 255, 0.05);
+}
+.faqQ::after {
+  content: '+';
+  color: var(--cyan);
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
+}
+.faqItem[open] .faqQ::after {
+  content: '−';
+}
+.faqA {
+  padding: 0 18px 16px 18px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* 底部按钮 */
+.ctaGroup {
+  display: flex;
+  justify-content: center;
+  margin-top: 80px;
+}
+.btnPrimary {
+  display: inline-block;
+  background: linear-gradient(120deg, var(--cyan), #4ae0ff);
+  color: #05070d; font-weight: 700; font-size: 15px;
+  padding: 16px 40px; border-radius: 100px;
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.3); transition: 0.3s;
+}
+.btnPrimary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 40px rgba(0, 212, 255, 0.5);
+}
