@@ -153,7 +153,8 @@
 .ctaBox {
   margin-top: 100px; 
   border-radius: 24px; 
-  padding: 80px 40px; 
+  /* 👈 核心修改：把上下内边距从 80px 降到 60px，直接压扁高度 */
+  padding: 60px 40px; 
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -162,15 +163,10 @@
   background: 
     radial-gradient(ellipse 60% 60% at 50% 0%, rgba(0, 212, 255, 0.12), transparent 70%),
     radial-gradient(ellipse 80% 60% at 50% 100%, rgba(0, 212, 255, 0.08), transparent 70%),
-    rgba(6, 11, 20, 0.9); /* 深底色 */
+    rgba(6, 11, 20, 0.9);
   
-  /* 边框：半透明青色 */
   border: 1px solid rgba(0, 212, 255, 0.4); 
-  
-  /* 核心光效：外部大范围蓝光 + 内部边缘暗光 */
-  box-shadow: 
-    0 0 80px rgba(0, 212, 255, 0.15), 
-    inset 0 0 40px rgba(0, 212, 255, 0.08);
+  box-shadow: 0 0 80px rgba(0, 212, 255, 0.15), inset 0 0 40px rgba(0, 212, 255, 0.08);
   
   display: flex;
   flex-direction: column;
@@ -183,24 +179,25 @@
   font-family: 'Syne', sans-serif; 
   font-size: clamp(2rem, 3.5vw, 2.8rem); 
   font-weight: 800; 
-  margin-bottom: 20px; 
+  /* 👈 稍微缩小标题下方的间距 */
+  margin-bottom: 16px; 
   color: #ffffff; 
   letter-spacing: -0.02em;
-  text-shadow: 0 0 20px rgba(0, 212, 255, 0.3); /* 标题微微发光 */
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.3); 
   position: relative;
   z-index: 2;
 }
 
 .ctaBox p { 
   color: var(--text-secondary); 
-  margin-bottom: 36px; 
+  /* 👈 稍微缩小副标题下方的间距 */
+  margin-bottom: 28px; 
   font-size: 15px; 
   line-height: 1.8;
   max-width: 650px; 
   position: relative;
   z-index: 2;
 }
-
 .ctaBox > a {
   position: relative;
   z-index: 2;
