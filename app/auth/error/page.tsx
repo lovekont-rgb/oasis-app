@@ -1,3 +1,4 @@
+export const instant = false
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Suspense } from "react";
 
