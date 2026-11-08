@@ -1,15 +1,29 @@
 'use client'
 
 import { useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { createPrompt, deletePromptAction } from './actions'
 
 export default function PromptsClient({ initialPrompts }: { initialPrompts: any[] }) {
   const formRef = useRef<HTMLFormElement>(null)
+  const router = useRouter()
 
-  // 处理新增表单提交
   const handleSubmit = async (formData: FormData) => {
-    await createPrompt(formData)
-    formRef.current?.reset() // 提交成功后清空表单
+    try {
+      // 调用服务端动作，获取返回结果
+      const result = await createPrompt(formData)
+      
+      if (result.success) {
+        alert('发布成功！')
+        formRef.current?.reset() // 清空表单
+        router.refresh()          // 强制刷新页面数据
+      } else {
+        // 如果数据库报错，把真实原因弹出来
+        alert('发布失败: ' + result.error)
+      }
+    } catch (err: any) {
+      alert('请求异常: ' + err.message)
+    }
   }
 
   return (
@@ -52,7 +66,6 @@ export default function PromptsClient({ initialPrompts }: { initialPrompts: any[
                 <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>{prompt.model} · {prompt.category}</span>
               </div>
               
-              {/* 删除按钮 */}
               <form action={deletePromptAction}>
                 <input type="hidden" name="id" value={prompt.id} />
                 <button type="submit" style={{ background: 'transparent', border: '1px solid #ff4444', color: '#ff4444', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', transition: '0.2s' }}>
