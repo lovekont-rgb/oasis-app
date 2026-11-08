@@ -1,29 +1,25 @@
-export const instant = false
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
-export default async function DashboardPage() {
+// 1. 抽取动态数据部分
+async function DashboardData() {
   const supabase = await createClient()
-  
-  // 获取当前登录用户
   const { data: { user } } = await supabase.auth.getUser()
+  
   if (!user) redirect('/login')
 
-  // 获取用户角色档案
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
   const role = profile?.role || 'student'
 
   return (
-    <main className="page-container">
-      <div className="ui-badge"><span className="ui-badge-dot"></span>WORKSPACE</div>
+    <>
       <h1 className="ui-title">
         欢迎回来， <span className="ui-title-gradient">{user.email?.split('@')[0]}</span>
       </h1>
       <p className="ui-subtitle">当前身份：<strong style={{ color: 'var(--cyan)' }}>{role === 'student' ? '学生' : role === 'teacher' ? '教师' : '管理员'}</strong></p>
 
       <div className="ui-grid-2" style={{ marginTop: '40px' }}>
-        
-        {/* 学生端视图 */}
         {role === 'student' && (
           <>
             <div className="ui-card">
@@ -38,7 +34,6 @@ export default async function DashboardPage() {
           </>
         )}
 
-        {/* 教师端视图 */}
         {role === 'teacher' && (
           <>
             <div className="ui-card">
@@ -52,7 +47,6 @@ export default async function DashboardPage() {
           </>
         )}
 
-        {/* 管理员视图 */}
         {role === 'admin' && (
           <>
             <div className="ui-card">
@@ -65,8 +59,24 @@ export default async function DashboardPage() {
             </div>
           </>
         )}
-
       </div>
+    </>
+  )
+}
+
+// 2. 静态外壳，包裹 Suspense
+export default function DashboardPage() {
+  return (
+    <main className="page-container">
+      <div className="ui-badge"><span className="ui-badge-dot"></span>WORKSPACE</div>
+      
+      <Suspense fallback={
+        <div style={{ padding: '60px 0', textAlign: 'center', color: 'var(--text-secondary)' }}>
+          正在加载工作台数据...
+        </div>
+      }>
+        <DashboardData />
+      </Suspense>
     </main>
   )
 }

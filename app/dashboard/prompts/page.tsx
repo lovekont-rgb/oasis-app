@@ -1,12 +1,38 @@
-export const instant = false
-import { createClient } from '@/lib/supabase/server' // 👈 路径已修正
-import { addPrompt, deletePrompt, deletePromptAction } from './actions'
+import { Suspense } from 'react'
+import { createClient } from '@/lib/supabase/server'
+import { addPrompt, deletePromptAction } from './actions'
 
-export default async function PromptsAdminPage() {
+// 1. 把获取数据的逻辑抽成一个单独的异步组件
+async function PromptsData() {
   const supabase = await createClient()
-  // 获取所有提示词
   const { data: prompts } = await supabase.from('prompts').select('*').order('id', { ascending: false })
 
+  return (
+    <div className="ui-card">
+      <h3 style={{ fontSize: '1.2rem', marginBottom: '20px' }}>已发布列表 ({prompts?.length || 0})</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {prompts?.map(prompt => (
+          <div key={prompt.id} style={{ padding: '16px', background: 'var(--bg-void)', border: '1px solid var(--border-subtle)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h4 style={{ fontWeight: 'bold' }}>{prompt.title}</h4>
+              <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>{prompt.model} · {prompt.category}</span>
+            </div>
+            <form action={deletePromptAction}>
+              <input type="hidden" name="id" value={prompt.id} />
+              <button type="submit" style={{ background: 'transparent', border: '1px solid #ff4444', color: '#ff4444', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>
+                删除
+              </button>
+            </form>
+          </div>
+        ))}
+        {prompts?.length === 0 && <p style={{ color: 'var(--text-dim)' }}>暂无数据，请在左侧发布。</p>}
+      </div>
+    </div>
+  )
+}
+
+// 2. 页面主体保持静态，只用 Suspense 包裹数据组件
+export default function PromptsAdminPage() {
   return (
     <div>
       <div className="ui-badge"><span className="ui-badge-dot"></span>ADMIN PANEL</div>
@@ -15,7 +41,7 @@ export default async function PromptsAdminPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '32px' }}>
         
-        {/* 左侧：新增表单 */}
+        {/* 左侧：新增表单（静态外壳，不需要读取数据库） */}
         <div className="ui-card" style={{ height: 'fit-content' }}>
           <h3 style={{ fontSize: '1.2rem', marginBottom: '20px', color: 'var(--cyan)' }}>新增提示词</h3>
           <form action={addPrompt} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -41,28 +67,14 @@ export default async function PromptsAdminPage() {
           </form>
         </div>
 
-        {/* 右侧：数据列表 */}
-        <div className="ui-card">
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '20px' }}>已发布列表 ({prompts?.length || 0})</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {prompts?.map(prompt => (
-              <div key={prompt.id} style={{ padding: '16px', background: 'var(--bg-void)', border: '1px solid var(--border-subtle)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h4 style={{ fontWeight: 'bold' }}>{prompt.title}</h4>
-                  <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>{prompt.model} · {prompt.category}</span>
-                </div>
-                {/* 删除按钮 */}
-                <form action={deletePromptAction}>
-                  <input type="hidden" name="id" value={prompt.id} />
-                  <button type="submit" style={{ background: 'transparent', border: '1px solid #ff4444', color: '#ff4444', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>
-                    删除
-                  </button>
-                </form>
-              </div>
-            ))}
-            {prompts?.length === 0 && <p style={{ color: 'var(--text-dim)' }}>暂无数据，请在左侧发布。</p>}
+        {/* 右侧：列表区域，用 Suspense 包裹并给出加载提示 */}
+        <Suspense fallback={
+          <div className="ui-card" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+            <p style={{ color: 'var(--text-secondary)' }}>正在加载列表数据...</p>
           </div>
-        </div>
+        }>
+          <PromptsData />
+        </Suspense>
 
       </div>
     </div>
