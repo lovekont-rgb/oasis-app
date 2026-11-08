@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import ThemeToggle from './ThemeToggle'
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import LogoutButton from './LogoutButton'
 
 export default async function Navbar() {
