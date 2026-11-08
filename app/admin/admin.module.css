@@ -1,0 +1,126 @@
+/* 后台整体布局 */
+.adminLayout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-void);
+}
+
+/* 侧边栏 */
+.sidebar {
+  width: 260px;
+  background: rgba(10, 15, 28, 0.95);
+  border-right: 1px solid var(--border-subtle);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+}
+
+.logoArea {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+.logoMark {
+  width: 32px; height: 32px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--violet), var(--cyan));
+  display: grid; place-items: center; color: #fff; font-family: 'Orbitron';
+}
+
+.menuGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.menuTitle {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+.menuItem {
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: 0.2s;
+}
+.menuItem:hover, .menuItemActive {
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--cyan);
+}
+.menuItemActive {
+  font-weight: 700;
+  border-left: 3px solid var(--cyan);
+}
+
+.backBtn {
+  margin-top: auto;
+  padding: 12px;
+  text-align: center;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: 0.3s;
+}
+.backBtn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+/* 右侧内容区 */
+.mainContent {
+  flex: 1;
+  margin-left: 260px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部栏 */
+.topbar {
+  height: 72px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  background: rgba(10, 15, 28, 0.5);
+  backdrop-filter: blur(10px);
+}
+.topbarTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* 页面内容区 */
+.contentBody {
+  padding: 40px;
+  flex: 1;
+}
