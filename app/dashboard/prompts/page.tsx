@@ -1,3 +1,4 @@
+export const instant = false
 import { createClient } from '@/lib/supabase/server' // 👈 路径已修正
 import { addPrompt, deletePrompt, deletePromptAction } from './actions'
 
