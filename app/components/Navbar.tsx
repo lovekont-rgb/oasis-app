@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import LogoutButton from './LogoutButton'
 
 export default async function Navbar() {
-  const supabase = await createClient()
+  const supabase = await createClient() // 注意这里要有 await
   const { data: { user } } = await supabase.auth.getUser()
 
   // 导航链接保持不变

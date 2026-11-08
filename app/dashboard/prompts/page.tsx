@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server' // 👈 路径已修正
-import { addPrompt, deletePrompt } from './actions'
+import { addPrompt, deletePrompt, deletePromptAction } from './actions'
 
 export default async function PromptsAdminPage() {
   const supabase = await createClient()
@@ -51,10 +51,8 @@ export default async function PromptsAdminPage() {
                   <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>{prompt.model} · {prompt.category}</span>
                 </div>
                 {/* 删除按钮 */}
-                <form action={async () => {
-                  'use server'
-                  await deletePrompt(prompt.id)
-                }}>
+                <form action={deletePromptAction}>
+                  <input type="hidden" name="id" value={prompt.id} />
                   <button type="submit" style={{ background: 'transparent', border: '1px solid #ff4444', color: '#ff4444', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>
                     删除
                   </button>
