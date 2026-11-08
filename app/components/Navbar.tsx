@@ -1,13 +1,11 @@
+'use client'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import ThemeToggle from './ThemeToggle'
-import { createClient } from '@/lib/supabase/server'
-import LogoutButton from './LogoutButton'
 
-export default async function Navbar() {
-  const supabase = await createClient() // 注意这里要有 await
-  const { data: { user } } = await supabase.auth.getUser()
-
-  // 导航链接保持不变
+export default function Navbar() {
+  const pathname = usePathname()
+  
   const links = [
     { name: '学习路径', href: '/paths' },
     { name: '课程模块', href: '/modules' },
@@ -17,36 +15,58 @@ export default async function Navbar() {
     { name: '社区', href: '/community' },
   ]
 
+  const getActionBtn = () => {
+    switch (pathname) {
+      case '/': return { text: '开始学习', href: '/paths' };
+      case '/paths': return { text: '开始学习', href: '/paths' };
+      case '/modules': return { text: '浏览工具', href: '/tools' };
+      case '/tools': return { text: '看项目', href: '/projects' };
+      case '/prompts': return { text: '提示词库', href: '/prompts' };
+      case '/projects': return { text: '看作品', href: '/projects' };
+      case '/community': return { text: '回首页', href: '/' };
+      default: return { text: '开始学习', href: '/paths' };
+    }
+  }
+  const actionBtn = getActionBtn()
+
   return (
-    <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, background: 'var(--nav-bg)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--border-subtle)' }}>
+    <header style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
+      background: 'var(--nav-bg)', backdropFilter: 'blur(20px)',
+      borderBottom: '1px solid var(--border-subtle)', transition: 'all 0.3s'
+    }}>
       <div className="nav-container">
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 900 }}>O</div>
-          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: 'var(--text-primary)' }}>OASIS</span>
+          <div style={{
+            width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, var(--violet), var(--cyan))',
+            display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 900, fontSize: 14,
+            boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)'
+          }}>O</div>
+          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>OASIS</span>
         </Link>
 
-        <nav style={{ display: 'flex', gap: '32px', fontSize: 14 }}>
-          {links.map(link => (
-            <Link key={link.href} href={link.href} style={{ color: 'var(--text-secondary)', transition: '0.2s' }}>
-              {link.name}
-            </Link>
-          ))}
+        <nav style={{ display: 'flex', gap: '32px', fontSize: 14, fontWeight: 500 }}>
+          {links.map(link => {
+            const isActive = pathname === link.href
+            return (
+              <Link key={link.href} href={link.href} style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)', position: 'relative', transition: '0.2s' }}>
+                {link.name}
+                {isActive && (
+                  <div style={{ position: 'absolute', bottom: -6, left: 0, right: 0, height: 2, background: 'var(--cyan)', boxShadow: '0 0 8px var(--cyan)' }} />
+                )}
+              </Link>
+            )
+          })}
         </nav>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <ThemeToggle />
-          {user ? (
-            <>
-              <Link href="/dashboard" style={{ padding: '8px 20px', borderRadius: 100, background: 'var(--cyan)', color: '#05070d', fontWeight: 700, fontSize: 14 }}>
-                控制台
-              </Link>
-              <LogoutButton />
-            </>
-          ) : (
-            <Link href="/login" style={{ padding: '8px 20px', borderRadius: 100, background: 'var(--cyan)', color: '#05070d', fontWeight: 700, fontSize: 14 }}>
-              登录 / 注册
-            </Link>
-          )}
+          <Link href={actionBtn.href} style={{
+            padding: '8px 20px', borderRadius: 100, background: 'var(--cyan)', color: '#05070d',
+            fontWeight: 700, fontSize: 14, boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)', transition: '0.3s', textDecoration: 'none'
+          }}>
+            {actionBtn.text}
+          </Link>
         </div>
       </div>
     </header>
