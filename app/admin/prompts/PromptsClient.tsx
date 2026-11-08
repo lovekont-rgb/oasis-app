@@ -1,8 +1,7 @@
-import { createPrompt, deletePrompt, deletePromptAction } from './actions'
 'use client'
 
 import { useRef } from 'react'
-import { createPrompt, deletePrompt } from './actions'
+import { createPrompt, deletePromptAction } from './actions'
 
 export default function PromptsClient({ initialPrompts }: { initialPrompts: any[] }) {
   const formRef = useRef<HTMLFormElement>(null)
@@ -53,7 +52,7 @@ export default function PromptsClient({ initialPrompts }: { initialPrompts: any[
                 <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>{prompt.model} · {prompt.category}</span>
               </div>
               
-      {/* 删除按钮 */}
+              {/* 删除按钮 */}
               <form action={deletePromptAction}>
                 <input type="hidden" name="id" value={prompt.id} />
                 <button type="submit" style={{ background: 'transparent', border: '1px solid #ff4444', color: '#ff4444', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', transition: '0.2s' }}>
