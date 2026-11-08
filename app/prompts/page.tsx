@@ -4,8 +4,6 @@ import PromptClient from './PromptClient'
 import styles from './prompts.module.css'
 import Link from 'next/link'
 
-export const instant = false
-
 export default async function PromptsPage() {
   const supabase = await createClient()
   const { data: prompts } = await supabase.from('prompts').select('*').order('id')

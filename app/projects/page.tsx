@@ -3,8 +3,6 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import styles from './projects.module.css'
 
-export const instant = false
-
 export default async function ProjectsPage() {
   const supabase = await createClient()
   
