@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { createClient } from '@/utils/supabase/client' // 注意路径，如果是 lib 请调整
+import { createClient } from '@/lib/supabase/client' // 注意路径，如果是 lib 请调整
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
