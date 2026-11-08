@@ -30,3 +30,10 @@ export async function deletePrompt(id: number): Promise<void> {
   revalidatePath('/admin/prompts')
   revalidatePath('/prompts')
 }
+// 3. 专门用于表单调用的删除动作
+export async function deletePromptAction(formData: FormData): Promise<void> {
+  const id = Number(formData.get('id'))
+  if (id) {
+    await deletePrompt(id)
+  }
+}
