@@ -1,18 +1,15 @@
 import { type NextRequest } from 'next/server'
+import { updateSession } from '@/utils/supabase/middleware' // 注意：如果你的模板里是 lib，请改成 @/lib/...
 
-export function proxy(request: NextRequest) {
-  // 针对 /tools 路径直接放行，不做任何拦截
-  if (request.nextUrl.pathname.startsWith('/tools')) {
-    return undefined
-  }
-  
-  // 其他路径保持默认放行
-  return undefined
+export async function proxy(request: NextRequest) {
+  return await updateSession(request)
 }
 
-// 确保这个配置存在，用于排除静态资源
 export const config = {
   matcher: [
+    /*
+     * 匹配所有路径，除了静态资源。
+     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
