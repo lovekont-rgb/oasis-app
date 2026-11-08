@@ -1,3 +1,4 @@
+export const instant = false
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import styles from './projects.module.css'

@@ -1,3 +1,4 @@
+export const instant = false
 import { createClient } from '@/lib/supabase/server'
 import PromptClient from './PromptClient'
 import styles from './prompts.module.css'
