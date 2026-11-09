@@ -21,6 +21,7 @@ export default async function ModulesPage() {
 
       <div className="ui-grid-2">
         {modulesData?.map((mod) => (
+          // 👈 注意这里：把 div 换成了 Link，并加上了 href
           <Link href={`/modules/${mod.id}`} key={mod.id} className="ui-card" style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none' }}>
             
             <div className={styles.cardTop}>
@@ -47,7 +48,7 @@ export default async function ModulesPage() {
                 <span key={i} className={styles.chip}>{chip}</span>
               ))}
             </div>
-          </div>
+          </Link> // 👈 注意这里：闭合标签也必须是 Link
         ))}
       </div>
 
