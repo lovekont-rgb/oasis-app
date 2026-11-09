@@ -21,7 +21,7 @@ export default async function ModulesPage() {
 
       <div className="ui-grid-2">
         {modulesData?.map((mod) => (
-          <div key={mod.id} className="ui-card" style={{ display: 'flex', flexDirection: 'column' }}>
+          <Link href={`/modules/${mod.id}`} key={mod.id} className="ui-card" style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none' }}>
             
             <div className={styles.cardTop}>
               <h2>{mod.title}</h2>
