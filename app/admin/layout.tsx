@@ -18,6 +18,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/site/contact" className={`${styles.menuItem}`}>
             ✉️ 联系我们
           </Link>
+          {/* 👇 新增这一行 */}
+          <Link href="/admin/site/privacy" className={`${styles.menuItem}`}>
+            📜 隐私政策
+          </Link>
 
           <div className={styles.menuTitle}>核心内容管理</div>
           <Link href="/admin/prompts" className={`${styles.menuItem}`}>

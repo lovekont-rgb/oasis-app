@@ -47,7 +47,7 @@ export default function Footer() {
                 {/* 👈 这里已经修改好了 */}
                 <Link href="/about">关于我们</Link>
                 <Link href="/contact">联系我们</Link>
-                <Link href="#">隐私政策</Link>
+                <Link href="/privacy">隐私政策</Link>
               </div>
             </div>
           </div>
