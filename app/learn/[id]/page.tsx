@@ -1,5 +1,9 @@
 'use client'
 
+export const instant = false // 👈 添加这一行
+
+import { useState, useEffect, Suspense } from 'react'
+// ... 其余代码保持不变
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
