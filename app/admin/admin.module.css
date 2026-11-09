@@ -13,10 +13,12 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
+  flex-shrink: 0;
+  
+  /* 👈 核心修改：改为 sticky 粘性定位，不遮挡底部 */
+  position: sticky;
+  top: 100px; /* 留出全局导航栏的高度 */
+  height: calc(100vh - 100px); /* 减去顶部导航栏的高度 */
   z-index: 10;
 }
 
@@ -89,10 +91,10 @@
 /* 右侧内容区 */
 .mainContent {
   flex: 1;
-  margin-left: 260px;
-  padding: 0;
+  /* 👈 删除了原来的 margin-left: 260px; */
   display: flex;
   flex-direction: column;
+  min-width: 0; /* 防止内容溢出撑破布局 */
 }
 
 /* 顶部栏 */
