@@ -22,6 +22,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/tools" className={`${styles.menuItem}`}>
             🛠️ 工具矩阵管理
           </Link>
+          <Link href="/admin/community" className={`${styles.menuItem}`}>
+            🌐 社区作品管理
+          </Link>
           
           <div className={styles.menuTitle}>教务系统</div>
           <Link href="/admin/courses" className={`${styles.menuItem}`}>
