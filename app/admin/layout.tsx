@@ -6,38 +6,33 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className={styles.adminLayout}>
       {/* 左侧边栏 */}
       <aside className={styles.sidebar}>
-        <div className={styles.logoArea}>
-          <div className={styles.logoMark}>O</div>
-          OASIS Admin
-        </div>
-
-        <div className={styles.menuGroup}>
-          <div className={styles.menuTitle}>核心管理</div>
+                <div className={styles.menuGroup}>
+          <div className={styles.menuTitle}>网站管理</div>
+          {/* 点击 Logo 区或概览去首页 */}
           <Link href="/admin" className={`${styles.menuItem}`}>
             📊 数据概览
           </Link>
+          <Link href="/admin/site/about" className={`${styles.menuItem}`}>
+            🏢 关于我们
+          </Link>
+          <Link href="/admin/site/contact" className={`${styles.menuItem}`}>
+            ✉️ 联系我们
+          </Link>
+
+          <div className={styles.menuTitle}>核心内容管理</div>
           <Link href="/admin/prompts" className={`${styles.menuItem}`}>
             📝 提示词管理
           </Link>
           <Link href="/admin/tools" className={`${styles.menuItem}`}>
-            🛠️ 工具矩阵管理
+            🛠️ 工具矩阵
           </Link>
-          <Link href="/admin/community" className={`${styles.menuItem}`}>
-            🌐 社区作品管理
-          </Link>
-          
-          <div className={styles.menuTitle}>教务系统</div>
           <Link href="/admin/courses" className={`${styles.menuItem}`}>
             🎓 课程与资源
           </Link>
-          <Link href="/admin/users" className={`${styles.menuItem}`}>
-            👥 用户与权限
+          <Link href="/admin/community" className={`${styles.menuItem}`}>
+            🌐 社区作品
           </Link>
         </div>
-
-        <Link href="/" className={styles.backBtn}>
-          ← 返回网站前台
-        </Link>
       </aside>
 
       {/* 右侧内容区 */}
