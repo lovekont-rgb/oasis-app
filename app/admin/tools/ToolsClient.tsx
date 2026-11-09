@@ -1,12 +1,31 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createTool, deleteToolAction } from './actions'
 
 export default function ToolsClient({ initialTools }: { initialTools: any[] }) {
   const formRef = useRef<HTMLFormElement>(null)
   const router = useRouter()
+  
+  // 👇 新增：用于控制当前选中的分类
+  const [activeCat, setActiveCat] = useState('all')
+
+  // 👇 新增：定义分类列表
+  const categories = [
+    { key: 'all', label: '全部' },
+    { key: 'text', label: '对话 / 文本' },
+    { key: 'image', label: '图像' },
+    { key: 'video', label: '视频' },
+    { key: 'code', label: '编程 / Agent' },
+    { key: 'audio', label: '音频 / 音乐' },
+    { key: 'office', label: '办公 / 效率' }
+  ]
+
+  // 👇 新增：根据选中的分类过滤数据
+  const filteredTools = initialTools.filter(tool => 
+    activeCat === 'all' ? true : tool.category === activeCat
+  )
 
   const handleSubmit = async (formData: FormData) => {
     try {
@@ -65,9 +84,34 @@ export default function ToolsClient({ initialTools }: { initialTools: any[] }) {
 
       {/* 右侧：数据列表 */}
       <div className="ui-card">
-        <h3 style={{ fontSize: '1.2rem', marginBottom: '20px' }}>已上架工具 ({initialTools.length})</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '600px', overflowY: 'auto' }}>
-          {initialTools.map((tool) => (
+        {/* 👇 动态显示当前分类的数量 */}
+        <h3 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>
+          已上架工具 {activeCat !== 'all' && `- ${categories.find(c => c.key === activeCat)?.label}`} ({filteredTools.length})
+        </h3>
+
+        {/* 👇 新增：Tab 分类切换栏 */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+          {categories.map(cat => (
+            <button
+              key={cat.key}
+              onClick={() => setActiveCat(cat.key)}
+              style={{
+                padding: '6px 14px', borderRadius: '100px', fontSize: '13px', cursor: 'pointer',
+                transition: '0.3s', border: '1px solid',
+                borderColor: activeCat === cat.key ? 'var(--cyan)' : 'var(--border-subtle)',
+                background: activeCat === cat.key ? 'var(--cyan)' : 'transparent',
+                color: activeCat === cat.key ? '#05070d' : 'var(--text-secondary)',
+                fontWeight: activeCat === cat.key ? 'bold' : 'normal'
+              }}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '600px', overflowY: 'auto', paddingRight: '8px' }}>
+          {/* 👇 渲染过滤后的数据 */}
+          {filteredTools.map((tool) => (
             <div key={tool.id} style={{ padding: '16px', background: 'var(--bg-void)', border: '1px solid var(--border-subtle)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <h4 style={{ fontWeight: 'bold', fontSize: '15px', marginBottom: '4px' }}>{tool.name}</h4>
@@ -82,7 +126,7 @@ export default function ToolsClient({ initialTools }: { initialTools: any[] }) {
               </form>
             </div>
           ))}
-          {initialTools.length === 0 && <p style={{ color: 'var(--text-dim)' }}>暂无数据，请在左侧上架。</p>}
+          {filteredTools.length === 0 && <p style={{ color: 'var(--text-dim)' }}>该分类下暂无工具。</p>}
         </div>
       </div>
 
