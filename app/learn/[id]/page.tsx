@@ -1,29 +1,24 @@
-'use client' // 这里用客户端组件方便处理点击切换
-export const instant = false
-import { useState } from 'react'
+'use client'
+
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-
-// 模拟从数据库传入的课程数据（实际应从 page.tsx 服务端获取，为了演示交互，暂放前端）
-// 这里我们通过在下方导出一个真正的 Page 组件来获取数据
-import { useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-export default function LearnPage() {
+// 1. 将原本的页面逻辑移入这个子组件中
+function LearnContent() {
   const params = useParams()
   const courseId = params.id as string
   const supabase = createClient()
 
   const [course, setCourse] = useState<any>(null)
   const [currentLesson, setCurrentLesson] = useState<any>(null)
-  const [openChapters, setOpenChapters] = useState<number[]>([0]) // 默认展开第一章
+  const [openChapters, setOpenChapters] = useState<number[]>([0])
 
   useEffect(() => {
-    // 获取课程数据
     supabase.from('courses').select('*').eq('id', courseId).single().then(({ data }) => {
       if (data) {
         setCourse(data)
-        // 默认播放第一节课
         if (data.chapters && data.chapters.length > 0 && data.chapters[0].lessons.length > 0) {
           setCurrentLesson(data.chapters[0].lessons[0])
         }
@@ -39,7 +34,6 @@ export default function LearnPage() {
 
   return (
     <div style={{ display: 'flex', height: 'calc(100vh - 120px)', background: '#05070d', marginTop: '-20px' }}>
-      
       {/* 左侧：课程目录 */}
       <aside style={{ width: '320px', borderRight: '1px solid var(--border-subtle)', background: '#080b14', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '24px', borderBottom: '1px solid var(--border-subtle)' }}>
@@ -90,7 +84,6 @@ export default function LearnPage() {
                 src={currentLesson.url} 
                 controls 
                 style={{ width: '100%', maxHeight: '100%', objectFit: 'contain' }} 
-                poster="/api/placeholder/800/450"
               />
             ) : (
               <div style={{ textAlign: 'center', color: 'white' }}>
@@ -107,7 +100,6 @@ export default function LearnPage() {
           )}
         </div>
         
-        {/* 底部控制栏 */}
         <div style={{ padding: '20px 40px', borderTop: '1px solid var(--border-subtle)', background: '#080b14', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ fontSize: '16px', color: 'white' }}>{currentLesson?.title || '未选择课时'}</h3>
           <button style={{ padding: '8px 24px', background: 'var(--cyan)', color: '#05070d', borderRadius: '100px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
@@ -115,7 +107,15 @@ export default function LearnPage() {
           </button>
         </div>
       </main>
-
     </div>
+  )
+}
+
+// 2. 默认导出的页面组件，用 Suspense 包裹子组件
+export default function LearnPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '100px', textAlign: 'center', color: 'white' }}>正在进入学习空间...</div>}>
+      <LearnContent />
+    </Suspense>
   )
 }
