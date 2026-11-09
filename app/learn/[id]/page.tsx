@@ -1,5 +1,5 @@
 'use client' // 这里用客户端组件方便处理点击切换
-
+export const instant = false
 import { useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
