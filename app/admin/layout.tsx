@@ -22,6 +22,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/site/privacy" className={`${styles.menuItem}`}>
             📜 隐私政策
           </Link>
+          <Link href="/admin/messages" className={`${styles.menuItem}`}>
+            💬 留言管理
+          </Link>
 
           <div className={styles.menuTitle}>核心内容管理</div>
           <Link href="/admin/prompts" className={`${styles.menuItem}`}>
