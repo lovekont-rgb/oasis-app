@@ -16,7 +16,8 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
     notFound() // 如果课程不存在，显示 404
   }
 
-  const videos = course.video_list || []
+  // 使用新的多级目录数据
+  const chapters = course.chapters || []
 
   return (
     <main className="page-container">
@@ -50,21 +51,35 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
             </p>
           </div>
 
-          {/* 视频列表 */}
+          {/* 课程目录（多级结构） */}
           <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '20px', color: 'var(--text-primary)' }}>课程目录</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {videos.map((video: any, index: number) => (
-              <div key={index} className="ui-card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(0, 212, 255, 0.1)', display: 'grid', placeItems: 'center', color: 'var(--cyan)' }}>
-                    ▶
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {chapters.length > 0 ? (
+              chapters.map((chapter: any, cIdx: number) => (
+                <div key={cIdx}>
+                  {/* 大章标题 */}
+                  <h4 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--cyan)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ width: 4, height: 16, background: 'var(--cyan)', borderRadius: '2px' }}></span>
+                    {chapter.chapterTitle}
+                  </h4>
+                  
+                  {/* 小节列表 */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginLeft: '12px' }}>
+                    {chapter.lessons?.map((lesson: any, lIdx: number) => (
+                      <div key={lIdx} className="ui-card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.02)' }}>
+                        <span style={{ color: 'var(--cyan)', fontSize: '14px' }}>
+                          {lesson.type === 'video' ? '▶' : '📄'}
+                        </span>
+                        <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{lesson.title}</span>
+                      </div>
+                    ))}
                   </div>
-                  <span style={{ fontSize: '15px', fontWeight: 500, color: 'var(--text-primary)' }}>{video.title}</span>
                 </div>
-                <span style={{ fontSize: '13px', color: 'var(--text-dim)', fontFamily: 'Orbitron, monospace' }}>{video.duration}</span>
-              </div>
-            ))}
-            {videos.length === 0 && <p style={{ color: 'var(--text-dim)' }}>视频正在制作中，敬请期待...</p>}
+              ))
+            ) : (
+              <p style={{ color: 'var(--text-dim)' }}>课程目录正在准备中，敬请期待...</p>
+            )}
           </div>
         </div>
 
@@ -102,9 +117,10 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
             </div>
           </div>
 
+          {/* 👈 修改了这里的文案 */}
           <Link href={`/learn/${course.id}`} style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', marginTop: '24px', padding: '16px', borderRadius: '100px', background: 'linear-gradient(120deg, var(--cyan), #4ae0ff)', color: '#05070d', fontWeight: 800, fontSize: '16px', border: 'none', cursor: 'pointer', boxShadow: '0 0 30px rgba(0,212,255,0.3)' }}>
-  开始学习
-</Link>
+            开始学习本课程
+          </Link>
         </div>
 
       </div>

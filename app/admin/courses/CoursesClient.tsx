@@ -89,6 +89,18 @@ export default function CoursesClient({ initialCourses }: { initialCourses: any[
     newChapters[cIdx].lessons.push({ title: '新课时', type: 'video', url: '' })
     setChapters(newChapters)
   }
+    // 👈 补充：删除大章
+  const deleteChapter = (cIdx: number) => {
+    const newChapters = chapters.filter((_, index) => index !== cIdx)
+    setChapters(newChapters)
+  }
+
+  // 👈 补充：删除小节
+  const deleteLesson = (cIdx: number, lIdx: number) => {
+    const newChapters = [...chapters]
+    newChapters[cIdx].lessons = newChapters[cIdx].lessons.filter((_: any, index: number) => index !== lIdx)
+    setChapters(newChapters)
+  }
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
@@ -114,23 +126,46 @@ export default function CoursesClient({ initialCourses }: { initialCourses: any[
               <button type="button" onClick={addChapter} style={{ background: 'var(--cyan)', color: 'black', border: 'none', padding: '4px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}>+ 添加大章</button>
             </div>
             
-            {chapters.map((chap, cIdx) => (
+                        {chapters.map((chap, cIdx) => (
               <div key={cIdx} style={{ marginBottom: '16px', padding: '12px', border: '1px dashed var(--border-subtle)', borderRadius: '6px' }}>
-                <input 
-                  value={chap.chapterTitle} 
-                  onChange={(e) => { const n = [...chapters]; n[cIdx].chapterTitle = e.target.value; setChapters(n); }}
-                  placeholder="大章标题" 
-                  style={{ ...inputStyle, fontWeight: 'bold', marginBottom: '8px' }} 
-                />
+                
+                {/* 大章标题与删除按钮 */}
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+                  <input 
+                    value={chap.chapterTitle} 
+                    onChange={(e) => { const n = [...chapters]; n[cIdx].chapterTitle = e.target.value; setChapters(n); }}
+                    placeholder="大章标题" 
+                    style={{ ...inputStyle, fontWeight: 'bold', marginBottom: 0, flex: 1 }} 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => deleteChapter(cIdx)} 
+                    style={{ padding: '0 12px', height: '40px', background: 'transparent', border: '1px solid #ff4444', color: '#ff4444', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}
+                  >
+                    删除章
+                  </button>
+                </div>
                 
                 {chap.lessons.map((lesson: any, lIdx: number) => (
                   <div key={lIdx} style={{ marginLeft: '16px', marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }}>
-                    <input 
-                      value={lesson.title} 
-                      onChange={(e) => { const n = [...chapters]; n[cIdx].lessons[lIdx].title = e.target.value; setChapters(n); }}
-                      placeholder="课时标题" 
-                      style={{ ...inputStyle, marginBottom: '4px', fontSize: '12px' }} 
-                    />
+                    {/* 小节标题与删除按钮 */}
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '4px' }}>
+                      <input 
+                        value={lesson.title} 
+                        onChange={(e) => { const n = [...chapters]; n[cIdx].lessons[lIdx].title = e.target.value; setChapters(n); }}
+                        placeholder="课时标题" 
+                        style={{ ...inputStyle, marginBottom: 0, flex: 1, fontSize: '12px' }} 
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => deleteLesson(cIdx, lIdx)} 
+                        style={{ padding: '0 10px', height: '36px', background: 'transparent', border: '1px solid #ff4444', color: '#ff4444', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}
+                      >
+                        删除节
+                      </button>
+                    </div>
+
+                    {/* 上传控件 */}
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       <input type="file" accept={lesson.type === 'video' ? 'video/*' : '.pdf,.doc,.docx'} onChange={(e) => handleFileUpload(e, cIdx, lIdx, lesson.type)} style={{ fontSize: '11px', flex: 1 }} />
                       <span style={{ fontSize: '11px', color: 'var(--cyan)', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -139,6 +174,7 @@ export default function CoursesClient({ initialCourses }: { initialCourses: any[
                     </div>
                   </div>
                 ))}
+                
                 <button type="button" onClick={() => addLesson(cIdx)} style={{ marginLeft: '16px', background: 'transparent', border: '1px solid var(--border-subtle)', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>+ 添加课时</button>
               </div>
             ))}
