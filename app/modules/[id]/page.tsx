@@ -102,9 +102,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
             </div>
           </div>
 
-          <button style={{ width: '100%', marginTop: '24px', padding: '16px', borderRadius: '100px', background: 'linear-gradient(120deg, var(--cyan), #4ae0ff)', color: '#05070d', fontWeight: 800, fontSize: '16px', border: 'none', cursor: 'pointer', boxShadow: '0 0 30px rgba(0,212,255,0.3)' }}>
-            开始学习
-          </button>
+          <Link href={`/learn/${course.id}`} style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', marginTop: '24px', padding: '16px', borderRadius: '100px', background: 'linear-gradient(120deg, var(--cyan), #4ae0ff)', color: '#05070d', fontWeight: 800, fontSize: '16px', border: 'none', cursor: 'pointer', boxShadow: '0 0 30px rgba(0,212,255,0.3)' }}>
+  开始学习
+</Link>
         </div>
 
       </div>

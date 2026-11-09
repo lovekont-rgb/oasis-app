@@ -3,15 +3,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-// 辅助函数：解析视频文本域 (格式: 标题 | 时长 | 链接)
-function parseVideos(raw: string) {
-  if (!raw) return []
-  return raw.split('\n').filter(line => line.trim()).map(line => {
-    const [title, duration, url] = line.split('|').map(s => s.trim())
-    return { title: title || '未命名视频', duration: duration || '00:00', url: url || '#' }
-  })
-}
-
 export async function createCourse(formData: FormData) {
   const supabase = await createClient()
   const data = {
@@ -23,7 +14,7 @@ export async function createCourse(formData: FormData) {
     prereq: formData.get('prereq') as string,
     syllabus: (formData.get('syllabus') as string).split('\n').filter(s => s.trim() !== ''),
     chips: (formData.get('chips') as string).split(/[,，]/).map(c => c.trim()).filter(c => c !== ''),
-    video_list: parseVideos(formData.get('video_list') as string)
+    chapters: JSON.parse(formData.get('chapters') as string || '[]')
   }
 
   const { error } = await supabase.from('courses').insert(data)
@@ -45,7 +36,7 @@ export async function updateCourse(id: number, formData: FormData) {
     prereq: formData.get('prereq') as string,
     syllabus: (formData.get('syllabus') as string).split('\n').filter(s => s.trim() !== ''),
     chips: (formData.get('chips') as string).split(/[,，]/).map(c => c.trim()).filter(c => c !== ''),
-    video_list: parseVideos(formData.get('video_list') as string)
+    chapters: JSON.parse(formData.get('chapters') as string || '[]')
   }
 
   const { error } = await supabase.from('courses').update(data).eq('id', id)
@@ -53,7 +44,6 @@ export async function updateCourse(id: number, formData: FormData) {
   
   revalidatePath('/admin/courses')
   revalidatePath('/modules')
-  revalidatePath(`/modules/${id}`)
   return { success: true }
 }
 
