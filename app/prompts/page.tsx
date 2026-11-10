@@ -1,11 +1,13 @@
-export const instant = false
 import { createClient } from '@/lib/supabase/server'
 import PromptClient from './PromptClient'
 import styles from './prompts.module.css'
 import Link from 'next/link'
 
+export const instant = false
+
 export default async function PromptsPage() {
   const supabase = await createClient()
+  // 获取经典的文本模板（不包含瀑布流那些图片数据）
   const { data: prompts } = await supabase.from('prompts').select('*').order('id')
 
   return (
@@ -56,9 +58,9 @@ export default async function PromptsPage() {
         <div className="ui-card"><h4 className={styles.principleH4}>把 Prompt 当文档维护</h4><p className={styles.principleP}>版本化、注释、测试。好的 Prompt 不是灵感，是配方和执行文档。</p></div>
       </div>
 
-      {/* 新增：底部 CTA 按钮，链接到社区 */}
-      <div style={{ textAlign: 'center', marginTop: '80px', marginBottom: '20px' }}>
-        <Link href="/community" className="btn-primary">
+      {/* 👇 修改了底部按钮：指向全新的提示词库页面 */}
+      <div style={{ textAlign: 'center', marginTop: '80px' }}>
+        <Link href="/prompt-library" className={styles.btnPrimary}>
           去提示词库复制更多 →
         </Link>
       </div>

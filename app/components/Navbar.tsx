@@ -21,7 +21,7 @@ export default function Navbar() {
       case '/paths': return { text: '开始学习', href: '/paths' };
       case '/modules': return { text: '浏览工具', href: '/tools' };
       case '/tools': return { text: '看项目', href: '/projects' };
-      case '/prompts': return { text: '提示词库', href: '/prompts' };
+      case '/prompts': return { text: '提示词库', href: '/prompt-library' };
       case '/projects': return { text: '看作品', href: '/projects' };
       case '/community': return { text: '回首页', href: '/' };
       default: return { text: '开始学习', href: '/paths' };

@@ -1,0 +1,21 @@
+.layoutContainer { display: flex; gap: 32px; align-items: flex-start; margin-top: 20px; }
+.sidebar { width: 240px; flex-shrink: 0; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 24px 0; position: sticky; top: 100px; }
+.menuItem { padding: 10px 16px; cursor: pointer; color: var(--text-secondary); font-size: 15px; border-left: 3px solid transparent; }
+.menuItem:hover { background: rgba(255,255,255,0.02); color: var(--text-primary); }
+.menuItemActive { background: rgba(0, 212, 255, 0.1); color: var(--cyan); font-weight: bold; border-left-color: var(--cyan); }
+.masonryGrid { column-count: 3; column-gap: 20px; }
+.card { background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: 16px; overflow: hidden; break-inside: avoid; margin-bottom: 20px; transition: 0.3s; }
+.card:hover { border-color: var(--border-glow); transform: translateY(-4px); }
+.imageWrapper { width: 100%; max-height: 350px; overflow: hidden; }
+.cardImage { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cardContent { padding: 20px; }
+.cardTags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.mainTag { background: rgba(0, 212, 255, 0.1); color: var(--cyan); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+.subTag { background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); padding: 4px 8px; border-radius: 4px; font-size: 11px; }
+.cardTitle { font-size: 16px; font-weight: bold; color: var(--text-primary); margin-bottom: 12px; }
+.cardDesc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; margin-bottom: 16px; }
+.cardFooter { display: flex; gap: 8px; align-items: center; }
+.actionBtn { flex: 1; padding: 8px; background: rgba(0, 212, 255, 0.1); color: var(--cyan); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }
+.copied { background: var(--cyan); color: #05070d; }
+@media (max-width: 1024px) { .masonryGrid { column-count: 2; } .sidebar { display: none; } }
+@media (max-width: 768px) { .masonryGrid { column-count: 1; } }
