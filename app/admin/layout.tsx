@@ -45,6 +45,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/project-details" className={`${styles.menuItem}`}>
             📋 项目详情配置
           </Link>
+          <Link href="/admin/paths" className={`${styles.menuItem}`}>
+  🛣️ 学习路径配置
+</Link>
           <Link href="/admin/community" className={`${styles.menuItem}`}>
             🌐 社区作品
           </Link>
