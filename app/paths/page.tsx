@@ -10,96 +10,142 @@ export default async function PathsPage() {
 
   return (
     <main className="page-container">
+      {/* 头部区域 */}
       <div className="ui-badge"><span className="ui-badge-dot"></span>LEARNING PATHS</div>
       <h1 className="ui-title">
         <span style={{ fontFamily: 'Orbitron, monospace' }}>{paths?.length || 0}</span> 个阶段， <span className="ui-title-gradient">每一步都有交付物</span>
       </h1>
-      <p className="ui-subtitle">
+      <p className="ui-subtitle" style={{ marginBottom: '80px' }}>
         2026 年做 AIGC 学习，最大的误区是“学工具”。企业看的是交付能力：你能否独立完成一条商业短视频、一部 AI 漫剧、一套完整作品集。这条路径以交付为锚点，拆解每个阶段的具体任务。
       </p>
 
-      {/* 恢复最初的三列网格布局 */}
-      <div className="ui-grid-3" style={{ marginTop: '40px' }}>
-        {paths?.map((path) => (
+      {/* 垂直大阶段列表 */}
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {paths?.map((path, index) => (
           <Link 
             href={`/paths/${path.id}`} 
-            key={path.id} 
-            className="ui-card" 
+            key={path.id}
             style={{ 
               textDecoration: 'none', 
               display: 'flex', 
-              flexDirection: 'column',
-              padding: '28px 24px' // 恢复最初的宽裕内边距
+              gap: '40px', 
+              padding: '60px 0', 
+              borderBottom: index !== paths.length - 1 ? '1px dashed var(--border-subtle)' : 'none',
+              transition: 'opacity 0.3s',
+              cursor: 'pointer'
             }}
           >
-            {/* 恢复超大暗色数字 */}
+            {/* 左侧：巨大暗色数字 */}
             <div style={{ 
+              width: '120px', 
+              flexShrink: 0,
               fontFamily: 'Orbitron, monospace', 
-              fontSize: '2.5rem', 
+              fontSize: '4.5rem', 
               fontWeight: 900, 
-              color: 'rgba(0, 212, 255, 0.12)', 
-              lineHeight: 1, 
-              marginBottom: '14px' 
+              color: 'rgba(0, 212, 255, 0.1)', // 极暗的科技蓝
+              lineHeight: 1,
+              userSelect: 'none'
             }}>
               {path.num}
             </div>
 
-            {/* 标题 */}
-            <h3 style={{ 
-              fontFamily: 'Syne, sans-serif', 
-              fontSize: '1.2rem', 
-              fontWeight: 700, 
-              marginBottom: '8px',
-              color: 'var(--text-primary)'
-            }}>
-              {path.title}
-            </h3>
+            {/* 右侧：主要内容 */}
+            <div style={{ flex: 1 }}>
+              
+              {/* 标题与副标题 */}
+              <h2 style={{ 
+                fontFamily: 'Syne, sans-serif', 
+                fontSize: '2rem', 
+                fontWeight: 800, 
+                color: 'var(--text-primary)',
+                marginBottom: '12px'
+              }}>
+                {path.title}
+              </h2>
+              <div style={{ 
+                color: 'var(--cyan)', 
+                fontFamily: 'Orbitron, monospace', 
+                fontSize: '14px', 
+                letterSpacing: '0.05em',
+                marginBottom: '24px' 
+              }}>
+                {path.subtitle}
+              </div>
 
-            {/* 副标题/关注点 */}
-            <p style={{ 
-              fontSize: '13px', 
-              color: 'var(--text-secondary)', 
-              marginBottom: '16px' 
-            }}>
-              {path.subtitle}
-            </p>
+              {/* 描述 */}
+              <p style={{ 
+                fontSize: '15px', 
+                color: 'var(--text-secondary)', 
+                lineHeight: 1.8, 
+                marginBottom: '32px' 
+              }}>
+                {path.description}
+              </p>
 
-            {/* 工具栈标签 */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '24px' }}>
-              {path.tools?.slice(0, 3).map((tool: string, i: number) => (
-                <span 
-                  key={i} 
-                  style={{ 
-                    fontFamily: 'Orbitron, monospace', 
-                    fontSize: '11px', 
-                    padding: '4px 10px', 
+              {/* 三列信息卡片 (核心能力、工具栈、关键练习) */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
+                <div style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', padding: '20px', borderRadius: '12px' }}>
+                  <h4 style={{ fontSize: '11px', color: 'var(--text-dim)', marginBottom: '12px', fontFamily: 'Orbitron', textTransform: 'uppercase' }}>核心能力</h4>
+                  <p style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500, margin: 0, lineHeight: 1.6 }}>{path.core}</p>
+                </div>
+                
+                <div style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', padding: '20px', borderRadius: '12px' }}>
+                  <h4 style={{ fontSize: '11px', color: 'var(--text-dim)', marginBottom: '12px', fontFamily: 'Orbitron', textTransform: 'uppercase' }}>工具栈</h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {path.tools?.map((tool: string, i: number) => (
+                      <span key={i} style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '100px', background: 'rgba(0, 212, 255, 0.05)', border: '1px solid rgba(0, 212, 255, 0.2)', color: 'var(--cyan)' }}>
+                        {tool}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', padding: '20px', borderRadius: '12px' }}>
+                  <h4 style={{ fontSize: '11px', color: 'var(--text-dim)', marginBottom: '12px', fontFamily: 'Orbitron', textTransform: 'uppercase' }}>关键练习</h4>
+                  <p style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500, margin: 0, lineHeight: 1.6 }}>{path.practice}</p>
+                </div>
+              </div>
+
+              {/* 阶段交付物发光框 */}
+              <div style={{ 
+                background: 'rgba(0, 212, 255, 0.03)', 
+                border: '1px solid var(--border-glow)', 
+                padding: '20px 24px', 
+                borderRadius: '12px', 
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                marginBottom: '24px'
+              }}>
+                <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>阶段交付物：</span>
+                <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--cyan)' }}>{path.deliverable}</span>
+                <span style={{ fontSize: '13px', color: 'var(--text-dim)' }}>{path.deliverable_desc}</span>
+              </div>
+
+              {/* 通关标签 */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                {path.pass_criteria?.map((criteria: string, i: number) => (
+                  <span key={i} style={{ 
+                    fontSize: '13px', 
+                    padding: '6px 16px', 
                     borderRadius: '100px', 
-                    background: 'rgba(0, 212, 255, 0.05)', 
-                    border: '1px solid rgba(0, 212, 255, 0.2)', 
-                    color: 'var(--cyan)' 
-                  }}
-                >
-                  {tool}
-                </span>
-              ))}
-            </div>
+                    background: 'rgba(60, 220, 140, 0.05)', 
+                    border: '1px solid rgba(60, 220, 140, 0.2)', 
+                    color: 'var(--green)' 
+                  }}>
+                    通关：{criteria}
+                  </span>
+                ))}
+              </div>
 
-            {/* 底部交付物 */}
-            <div style={{ 
-              marginTop: 'auto', 
-              paddingTop: '16px', 
-              borderTop: '1px dashed var(--border-subtle)', 
-              fontSize: '13px', 
-              color: 'var(--text-dim)' 
-            }}>
-              交付物：<span style={{ color: 'var(--cyan)', fontWeight: 'bold' }}>{path.deliverable}</span>
             </div>
           </Link>
         ))}
       </div>
 
-      <div style={{ textAlign: 'center', marginTop: '60px' }}>
-        <Link href="/modules" className="btn-primary" style={{ padding: '16px 40px', borderRadius: '100px', background: 'linear-gradient(120deg, var(--cyan), #4ae0ff)', color: '#05070d', fontWeight: 'bold', textDecoration: 'none', boxShadow: '0 0 30px rgba(0,212,255,0.3)' }}>
+      {/* 底部按钮 */}
+      <div style={{ textAlign: 'center', marginTop: '80px' }}>
+        <Link href="/modules" style={{ padding: '16px 40px', borderRadius: '100px', background: 'linear-gradient(120deg, var(--cyan), #4ae0ff)', color: '#05070d', fontWeight: 'bold', fontSize: '16px', textDecoration: 'none', display: 'inline-block', boxShadow: '0 0 30px rgba(0,212,255,0.3)' }}>
           下一步：查看课程模块 →
         </Link>
       </div>
