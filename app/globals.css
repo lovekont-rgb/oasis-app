@@ -178,4 +178,74 @@ a {
 
 @media (max-width: 768px) {
   .ui-grid-4, .ui-grid-3, .ui-grid-2 { grid-template-columns: 1fr; }
+/* ==================== 全局 404 页面专属特效 ==================== */
+
+/* 故障霓虹字效果 */
+.error-code {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(8rem, 20vw, 15rem);
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 20px;
+  color: transparent;
+  -webkit-text-stroke: 2px var(--cyan);
+  position: relative;
+  letter-spacing: 10px;
+  /* 文字发光效果 */
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.4), 0 0 40px rgba(0, 212, 255, 0.2);
+  animation: glitch-pulse 3s infinite alternate;
+}
+
+/* 呼吸灯动画 */
+@keyframes glitch-pulse {
+  0% { text-shadow: 0 0 10px rgba(0,212,255,0.2); -webkit-text-stroke-color: rgba(0,212,255,0.5); }
+  100% { text-shadow: 0 0 30px rgba(0,212,255,0.8), 0 0 60px rgba(123,97,255,0.4); -webkit-text-stroke-color: rgba(0,212,255,1); }
+}
+
+/* 终端命令行框 */
+.terminal-box {
+  background: rgba(10, 15, 28, 0.8);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%;
+  max-width: 600px;
+  text-align: left;
+  font-family: 'Orbitron', monospace;
+  font-size: 13px;
+  color: var(--text-secondary);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.terminal-box p {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.terminal-box p:last-child {
+  margin-bottom: 0;
+}
+
+.terminal-cyan {
+  color: var(--cyan);
+  font-weight: bold;
+}
+
+.terminal-error {
+  color: #ff4444;
+}
+
+/* 闪烁光标 */
+.terminal-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: var(--cyan);
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
 }
