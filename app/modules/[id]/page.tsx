@@ -64,14 +64,30 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                     {chapter.chapterTitle}
                   </h4>
                   
-                  {/* 小节列表 */}
+                                    {/* 小节列表 */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginLeft: '12px' }}>
                     {chapter.lessons?.map((lesson: any, lIdx: number) => (
-                      <div key={lIdx} className="ui-card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.02)' }}>
-                        <span style={{ color: 'var(--cyan)', fontSize: '14px' }}>
-                          {lesson.type === 'video' ? '▶' : '📄'}
-                        </span>
-                        <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{lesson.title}</span>
+                      <div key={lIdx} className="ui-card" style={{ padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <span style={{ color: 'var(--cyan)', fontSize: '14px' }}>
+                            {lesson.type === 'video' ? '▶' : '📄'}
+                          </span>
+                          <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{lesson.title}</span>
+                        </div>
+                        
+                        {/* 👇 新增的按钮，传入了 cIdx(大章索引) 和 lIdx(小节索引) */}
+                        <Link 
+                          href={`/learn/${course.id}?c=${cIdx}&l=${lIdx}`}
+                          style={{ 
+                            padding: '6px 16px', borderRadius: '100px', 
+                            background: 'rgba(0, 212, 255, 0.1)', color: 'var(--cyan)', 
+                            border: '1px solid rgba(0, 212, 255, 0.3)', 
+                            textDecoration: 'none', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap',
+                            transition: '0.3s'
+                          }}
+                        >
+                          学习本节课程
+                        </Link>
                       </div>
                     ))}
                   </div>

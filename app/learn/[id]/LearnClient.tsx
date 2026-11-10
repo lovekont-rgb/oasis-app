@@ -3,11 +3,22 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
-export default function LearnClient({ courseId, course }: { courseId: string, course: any }) {
-  const [currentLesson, setCurrentLesson] = useState<any>(
-    course.chapters?.[0]?.lessons?.[0] || null
+export default function LearnClient({ 
+  courseId, 
+  course,
+  initialChapter = 0,
+  initialLesson = 0
+}: { 
+  courseId: string, 
+  course: any,
+  initialChapter?: number,
+  initialLesson?: number
+}) {  const [currentLesson, setCurrentLesson] = useState<any>(
+    course.chapters?.[initialChapter]?.lessons?.[initialLesson] || 
+    course.chapters?.[0]?.lessons?.[0] || 
+    null
   )
-  const [openChapters, setOpenChapters] = useState<number[]>([0])
+    const [openChapters, setOpenChapters] = useState<number[]>([initialChapter])
 
   const toggleChapter = (index: number) => {
     setOpenChapters(prev => prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index])
