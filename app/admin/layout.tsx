@@ -27,7 +27,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
 
           <div className={styles.menuTitle}>核心内容管理</div>
-                    <Link href="/admin/prompts" className={`${styles.menuItem}`}>
+          <Link href="/admin/prompts" className={`${styles.menuItem}`}>
             📝 基础模板 (提示词工程)
           </Link>
           <Link href="/admin/prompt-library" className={`${styles.menuItem}`}>
@@ -38,6 +38,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
           <Link href="/admin/courses" className={`${styles.menuItem}`}>
             🎓 课程与资源
+          </Link>
+          <Link href="/admin/projects" className={`${styles.menuItem}`}>
+            💼 项目实战
           </Link>
           <Link href="/admin/community" className={`${styles.menuItem}`}>
             🌐 社区作品
