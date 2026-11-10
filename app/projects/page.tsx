@@ -7,7 +7,6 @@ export const instant = false
 export default async function ProjectsPage() {
   const supabase = await createClient()
   
-  // 并行拉取项目和市场信号
   const [ { data: projects }, { data: signals } ] = await Promise.all([
     supabase.from('project_items').select('*').order('sort_order', { ascending: true }),
     supabase.from('market_signals').select('*').order('sort_order', { ascending: true })
@@ -23,11 +22,10 @@ export default async function ProjectsPage() {
         2026 年 AIGC 市场已经给出了明确的价格信号：AI 视频项目报价可达 1000 元 / 秒，一条 90 秒成品广告 9 万元，AI 短剧 60 秒以上商单报价 25.8 万元。这些数字的意义不是制造焦虑，而是告诉你：市场愿意为能交付的人付费。
       </p>
 
-      {/* 项目卡片网格 */}
       <div className="ui-grid-2">
         {projects?.map((proj) => (
+          /* 👇 注意这里的标签闭合情况 */
           <Link href={`/projects/${proj.id}`} key={proj.id} className="ui-card" style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none' }}>
-            
             <div className={styles.cardTag}>{proj.tag}</div>
             <h2 className={styles.cardTitle}>{proj.title}</h2>
             <p className={styles.cardDesc}>{proj.description}</p>
@@ -51,12 +49,11 @@ export default async function ProjectsPage() {
                 ))}
               </div>
             </div>
-
-          </div>
+          </Link>
+          /* 👆 这里是 Link 的闭合，绝对不能写成 </div> 或漏掉 */
         ))}
       </div>
 
-      {/* 真实市场信号 */}
       <h2 className="ui-section-title">真实市场信号</h2>
       <p className={styles.marketSubtitle}>
         以下数据来自 2026 年公开报道与创作者访谈，用于校准预期，而非承诺收益。
