@@ -1,24 +1,11 @@
-'use client'
-import { useRef } from 'react'
-import { useRouter } from 'next/navigation'
-import { createLibraryPrompt, deleteLibraryPromptAction } from './actions'
-
-export default function LibraryAdminClient({ initialPrompts }: { initialPrompts: any[] }) {
-  const formRef = useRef<HTMLFormElement>(null)
-  const router = useRouter()
-
-  const handleSubmit = async (formData: FormData) => {
-    const res = await createLibraryPrompt(formData)
-    if (res.success) {
-      alert('发布成功！')
-      formRef.current?.reset()
-      router.refresh()
-    } else {
-      alert('失败: ' + res.error)
-    }
-  }
+// 接收分类数据
+export default function LibraryAdminClient({ initialPrompts, categories }: { initialPrompts: any[], categories: any[] }) {
+  // ... 前面的代码不变 ...
 
   const inputStyle = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'var(--bg-void)', color: 'white', marginBottom: '12px' }
+  
+  // 只展示二级目录供选择
+  const childCategories = categories.filter(c => c.parent_id !== null)
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
@@ -26,7 +13,15 @@ export default function LibraryAdminClient({ initialPrompts }: { initialPrompts:
         <h3 style={{ fontSize: '1.2rem', marginBottom: '20px', color: 'var(--cyan)' }}>上架新提示词</h3>
         <form ref={formRef} action={handleSubmit}>
           <input name="title" placeholder="标题" required style={inputStyle} />
-          <input name="category" placeholder="分类 (image / writing / agent)" required style={inputStyle} />
+          
+          {/* 👇 修改这里：改为下拉选择分类 */}
+          <select name="category_id" required style={inputStyle}>
+            <option value="">请选择所属分类目录</option>
+            {childCategories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+
           <input name="model" placeholder="适用模型" required style={inputStyle} />
           <input name="image_url" placeholder="效果图链接 (选填)" style={inputStyle} />
           <input name="tags" placeholder="标签 (逗号隔开)" style={inputStyle} />
@@ -40,8 +35,9 @@ export default function LibraryAdminClient({ initialPrompts }: { initialPrompts:
           {initialPrompts.map(p => (
             <div key={p.id} style={{ padding: '12px', background: 'var(--bg-void)', border: '1px solid var(--border-subtle)', borderRadius: '8px' }}>
               {p.image_url && <img src={p.image_url} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '4px', marginBottom: '8px' }} />}
-              <h4 style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>{p.title}</h4>
-              <form action={deleteLibraryPromptAction}><input type="hidden" name="id" value={p.id} /><button type="submit" style={{ width: '100%', border: '1px solid #ff4444', color: '#ff4444', padding: '6px', borderRadius: '4px', background: 'transparent', cursor: 'pointer', fontSize: '12px' }}>下架</button></form>
+              <h4 style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>{p.title}</h4>
+              <span style={{ fontSize: '12px', color: 'var(--cyan)' }}>{p.prompt_categories?.name || '未分类'}</span>
+              <form action={deleteLibraryPromptAction} style={{ marginTop: '8px' }}><input type="hidden" name="id" value={p.id} /><button type="submit" style={{ width: '100%', border: '1px solid #ff4444', color: '#ff4444', padding: '4px', borderRadius: '4px', background: 'transparent', cursor: 'pointer', fontSize: '12px' }}>下架</button></form>
             </div>
           ))}
         </div>

@@ -5,7 +5,10 @@ export const instant = false
 
 export default async function PromptLibraryPage() {
   const supabase = await createClient()
-  const { data: prompts } = await supabase.from('prompt_library').select('*').order('id', { ascending: false })
+  const [ { data: prompts }, { data: categories } ] = await Promise.all([
+    supabase.from('prompt_library').select('*').order('id', { ascending: false }),
+    supabase.from('prompt_categories').select('*').order('sort_order')
+  ])
 
   return (
     <main className="page-container">
@@ -15,7 +18,7 @@ export default async function PromptLibraryPage() {
         汇集各类型高质量提示词，附带效果图与标签。点击即可复制，直接投入实战。
       </p>
       
-      <LibraryClient initialPrompts={prompts || []} />
+      <LibraryClient initialPrompts={prompts || []} categories={categories || []} />
     </main>
   )
 }

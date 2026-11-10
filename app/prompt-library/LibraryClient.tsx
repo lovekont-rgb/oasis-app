@@ -2,20 +2,15 @@
 import { useState } from 'react'
 import styles from './library.module.css'
 
-export default function LibraryClient({ initialPrompts }: { initialPrompts: any[] }) {
-  const [activeCat, setActiveCat] = useState('all')
+export default function LibraryClient({ initialPrompts, categories }: { initialPrompts: any[], categories: any[] }) {
+  const [activeCat, setActiveCat] = useState<number | 'all'>('all')
+  const [expandedCats, setExpandedCats] = useState<number[]>([]) // 存展开的一级目录 ID
   const [copiedId, setCopiedId] = useState<number | null>(null)
 
-  const menuData = [
-    { key: 'all', label: '精选推荐', icon: '⭐' },
-    { key: 'image', label: 'AI 画图', icon: '🎨' },
-    { key: 'writing', label: '文案生成', icon: '✍️' },
-    { key: 'agent', label: '代码开发', icon: '⌨️' },
-  ]
-
+  // 过滤数据逻辑
   const filteredPrompts = initialPrompts.filter((p) => {
     if (activeCat === 'all') return true
-    return p.category === activeCat
+    return p.category_id === activeCat
   })
 
   const handleCopy = async (id: number, content: string) => {
@@ -24,6 +19,12 @@ export default function LibraryClient({ initialPrompts }: { initialPrompts: any[
     setTimeout(() => setCopiedId(null), 2000)
   }
 
+  const toggleExpand = (id: number) => {
+    setExpandedCats(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
+  }
+
+  const roots = categories.filter(c => !c.parent_id)
+
   return (
     <div className={styles.layoutContainer}>
       <aside className={styles.sidebar}>
@@ -31,16 +32,52 @@ export default function LibraryClient({ initialPrompts }: { initialPrompts: any[
           <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>提示词分类</h3>
         </div>
         <ul style={{ listStyle: 'none', padding: 0 }}>
-          {menuData.map(menu => (
-            <li key={menu.key} style={{ marginBottom: '8px' }}>
-              <div 
-                onClick={() => setActiveCat(menu.key)}
-                className={`${styles.menuItem} ${activeCat === menu.key ? styles.menuItemActive : ''}`}
-              >
-                <span style={{ marginRight: '8px' }}>{menu.icon}</span>{menu.label}
-              </div>
-            </li>
-          ))}
+          
+          <li style={{ marginBottom: '8px' }}>
+            <div 
+              onClick={() => setActiveCat('all')}
+              className={`${styles.menuItem} ${activeCat === 'all' ? styles.menuItemActive : ''}`}
+            >
+              <span style={{ marginRight: '8px' }}>⭐</span>精选推荐
+            </div>
+          </li>
+
+          {/* 渲染一级目录 */}
+          {roots.map(root => {
+            const children = categories.filter(c => c.parent_id === root.id)
+            const isExpanded = expandedCats.includes(root.id)
+            
+            return (
+              <li key={root.id} style={{ marginBottom: '8px' }}>
+                <div 
+                  onClick={() => toggleExpand(root.id)}
+                  className={styles.menuItem}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                >
+                  <span>📁 {root.name}</span>
+                  <span style={{ fontSize: '10px' }}>{isExpanded ? '▼' : '▶'}</span>
+                </div>
+                
+                {/* 渲染二级目录 */}
+                {isExpanded && (
+                  <ul style={{ listStyle: 'none', padding: '0 0 0 32px', marginTop: '4px' }}>
+                    {children.map(child => (
+                      <li key={child.id}>
+                        <div
+                          onClick={() => setActiveCat(child.id)}
+                          className={`${styles.menuItem} ${activeCat === child.id ? styles.menuItemActive : ''}`}
+                          style={{ fontSize: '13px', padding: '8px 12px' }}
+                        >
+                          {child.name}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            )
+          })}
+
         </ul>
       </aside>
 
@@ -74,6 +111,7 @@ export default function LibraryClient({ initialPrompts }: { initialPrompts: any[
             </div>
           ))}
         </div>
+        {filteredPrompts.length === 0 && <p style={{ color: 'var(--text-dim)', marginTop: '20px' }}>该分类下暂无提示词。</p>}
       </div>
     </div>
   )
