@@ -103,14 +103,14 @@ a {
   padding: 60px 24px 100px; 
 }
 
-/* 导航栏内容容器 */
+/* 导航栏内容容器，使用 Grid 布局实现绝对居中 */
 .nav-container {
   max-width: 1120px;
   margin: 0 auto;
   width: 100%;
   padding: 16px 24px;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* 👈 核心改动：左中右三等分，中间自适应 */
   align-items: center;
   box-sizing: border-box;
 }

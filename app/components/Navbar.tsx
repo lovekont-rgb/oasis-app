@@ -59,9 +59,7 @@ export default function Navbar() {
           })}
         </nav>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <ThemeToggle />
-          <Link href={actionBtn.href} style={{
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', justifySelf: 'end' }}>           <Link href={actionBtn.href} style={{
             padding: '8px 20px', borderRadius: 100, background: 'var(--cyan)', color: '#05070d',
             fontWeight: 700, fontSize: 14, boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)', transition: '0.3s', textDecoration: 'none'
           }}>
