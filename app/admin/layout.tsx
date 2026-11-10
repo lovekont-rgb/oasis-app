@@ -27,8 +27,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
 
           <div className={styles.menuTitle}>核心内容管理</div>
-          <Link href="/admin/prompts" className={`${styles.menuItem}`}>
-            📝 提示词工程
+          <Link href="/admin/prompt-engineering" className={`${styles.menuItem}`}>
+            📐 提示词工程配置
           </Link>
           <Link href="/admin/prompt-library" className={`${styles.menuItem}`}>
             🖼️ 提示词库
