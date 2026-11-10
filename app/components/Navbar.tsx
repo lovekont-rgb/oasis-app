@@ -37,12 +37,9 @@ export default function Navbar() {
     }}>
       <div className="nav-container">
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, var(--violet), var(--cyan))',
-            display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 900, fontSize: 14,
-            boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)'
-          }}>O</div>
+          <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 900, fontSize: 14, boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)' }}>O</div>
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>OASIS</span>
+          <span style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'Orbitron, monospace', letterSpacing: '0.1em', marginLeft: 4 }}>创意无线增长</span>
         </Link>
 
         <nav style={{ display: 'flex', gap: '32px', fontSize: 14, fontWeight: 500 }}>
@@ -59,10 +56,10 @@ export default function Navbar() {
           })}
         </nav>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', justifySelf: 'end' }}>           <Link href={actionBtn.href} style={{
-            padding: '8px 20px', borderRadius: 100, background: 'var(--cyan)', color: '#05070d',
-            fontWeight: 700, fontSize: 14, boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)', transition: '0.3s', textDecoration: 'none'
-          }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', justifySelf: 'end' }}>
+          {/* 👇 核心：主题切换按钮 */}
+          <ThemeToggle />
+          <Link href={actionBtn.href} style={{ padding: '8px 20px', borderRadius: 100, background: 'var(--cyan)', color: '#05070d', fontWeight: 700, fontSize: 14, boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)', transition: '0.3s', textDecoration: 'none' }}>
             {actionBtn.text}
           </Link>
         </div>
