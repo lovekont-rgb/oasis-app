@@ -27,8 +27,9 @@ export default async function LearnPage({
     notFound()
   }
 
-  return (
+    return (
     <LearnClient 
+      key={`${courseId}-${initialChapter}-${initialLesson}`} // 👈 加上这一行，参数变了就强制重建
       courseId={courseId} 
       course={course} 
       initialChapter={initialChapter}

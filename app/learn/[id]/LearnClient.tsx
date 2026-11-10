@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 export default function LearnClient({ 
@@ -19,6 +19,14 @@ export default function LearnClient({
     null
   )
     const [openChapters, setOpenChapters] = useState<number[]>([initialChapter])
+      // 👈 新增：只要外部参数变化，立刻同步播放源和展开的章节
+  useEffect(() => {
+    const targetLesson = course.chapters?.[initialChapter]?.lessons?.[initialLesson]
+    if (targetLesson) {
+      setCurrentLesson(targetLesson)
+      setOpenChapters(prev => Array.from(new Set([...prev, initialChapter]))) // 确保对应章节展开
+    }
+  }, [initialChapter, initialLesson, course])
 
   const toggleChapter = (index: number) => {
     setOpenChapters(prev => prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index])
