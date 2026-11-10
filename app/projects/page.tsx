@@ -26,7 +26,7 @@ export default async function ProjectsPage() {
       {/* 项目卡片网格 */}
       <div className="ui-grid-2">
         {projects?.map((proj) => (
-          <div key={proj.id} className="ui-card" style={{ display: 'flex', flexDirection: 'column' }}>
+          <Link href={`/projects/${proj.id}`} key={proj.id} className="ui-card" style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none' }}>
             
             <div className={styles.cardTag}>{proj.tag}</div>
             <h2 className={styles.cardTitle}>{proj.title}</h2>

@@ -28,10 +28,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <div className={styles.menuTitle}>核心内容管理</div>
           <Link href="/admin/prompts" className={`${styles.menuItem}`}>
-            📝 基础模板 (提示词工程)
+            📝 提示词工程
           </Link>
           <Link href="/admin/prompt-library" className={`${styles.menuItem}`}>
-            🖼️ 瀑布流提示词库
+            🖼️ 提示词库
           </Link>
           <Link href="/admin/tools" className={`${styles.menuItem}`}>
             🛠️ 工具矩阵
@@ -41,6 +41,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
           <Link href="/admin/projects" className={`${styles.menuItem}`}>
             💼 项目实战
+          </Link>
+          <Link href="/admin/project-details" className={`${styles.menuItem}`}>
+            📋 项目详情配置
           </Link>
           <Link href="/admin/community" className={`${styles.menuItem}`}>
             🌐 社区作品
