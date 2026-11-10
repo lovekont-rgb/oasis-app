@@ -5,7 +5,7 @@ export const instant = false
 
 export default async function PromptLibraryPage() {
   const supabase = await createClient()
-  const { data: prompts } = await supabase.from('prompts').select('*').order('id', { ascending: false })
+  const { data: prompts } = await supabase.from('prompt_library').select('*').order('id', { ascending: false })
 
   return (
     <main className="page-container">

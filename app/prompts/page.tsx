@@ -7,7 +7,6 @@ export const instant = false
 
 export default async function PromptsPage() {
   const supabase = await createClient()
-  // 获取经典的文本模板（不包含瀑布流那些图片数据）
   const { data: prompts } = await supabase.from('prompts').select('*').order('id')
 
   return (
@@ -37,32 +36,11 @@ export default async function PromptsPage() {
         </div>
       </div>
 
-      <h2 className="ui-section-title">图像提示词的五个解剖层</h2>
-      <div className="ui-grid-2">
-        <div className="ui-card"><h4 className={styles.anatomyH4}>01 / 主体</h4><p className={styles.anatomyP}>谁 / 什么。人物、物体、场景的核心描述。越具体越好：年龄、材质、状态。</p></div>
-        <div className="ui-card"><h4 className={styles.anatomyH4}>02 / 动作与关系</h4><p className={styles.anatomyP}>主体在做什么，与其他元素的关系。动作姿态直接影响手部和肢体的稳定性。</p></div>
-        <div className="ui-card"><h4 className={styles.anatomyH4}>03 / 环境与光线</h4><p className={styles.anatomyP}>场景、时间、天气、光源方向、色温。光线是画面情绪的底层。</p></div>
-        <div className="ui-card"><h4 className={styles.anatomyH4}>04 / 镜头与构图</h4><p className={styles.anatomyP}>景别、机位、焦段、景深。镜头语言写清楚，回报会很直接。</p></div>
-        <div className="ui-card"><h4 className={styles.anatomyH4}>05 / 风格与约束</h4><p className={styles.anatomyP}>艺术风格、参考方向、画质约束、负面提示。约束不是限制，是让输出收敛。</p></div>
-        <div className="ui-card"><h4 className={styles.anatomyH4}>迭代原则</h4><p className={styles.anatomyP}>固定变量，单点调优。先锁定主体和风格，再逐层调整光线、镜头和细节。</p></div>
-      </div>
-
       <h2 className="ui-section-title">可复制模板库</h2>
       <PromptClient initialPrompts={prompts || []} />
 
-      <h2 className="ui-section-title">四条迭代原则</h2>
-      <div className="ui-grid-2">
-        <div className="ui-card"><h4 className={styles.principleH4}>先结构，后语义</h4><p className={styles.principleP}>角色、输入、输出、边界先立住，语义才有地方使劲。结构为零，模型只能替你猜。</p></div>
-        <div className="ui-card"><h4 className={styles.principleH4}>一次只改一个变量</h4><p className={styles.principleP}>同时改三个词，你无法判断哪个起了作用。单变量迭代才能沉淀可复用的方法。</p></div>
-        <div className="ui-card"><h4 className={styles.principleH4}>用示例代替形容词</h4><p className={styles.principleP}>“高级感”不如一张参考图或一段示例输出。Few-Shot 往往比一堆修饰词更有效。</p></div>
-        <div className="ui-card"><h4 className={styles.principleH4}>把 Prompt 当文档维护</h4><p className={styles.principleP}>版本化、注释、测试。好的 Prompt 不是灵感，是配方和执行文档。</p></div>
-      </div>
-
-      {/* 👇 修改了底部按钮：指向全新的提示词库页面 */}
       <div style={{ textAlign: 'center', marginTop: '80px' }}>
-        <Link href="/prompt-library" className={styles.btnPrimary}>
-          去提示词库复制更多 →
-        </Link>
+        <Link href="/prompt-library" className={styles.btnPrimary}>去提示词库复制更多 →</Link>
       </div>
     </main>
   )
