@@ -46,16 +46,11 @@ export default async function WeeklyDetailPage({ params }: { params: Promise<{ i
         </div>
       )}
 
-      {/* 正文内容 (使用 pre-wrap 保留后台输入的换行) */}
+      {/* 正文内容 */}
       <div style={{ 
-        fontSize: '16px', 
-        lineHeight: 2, 
-        color: 'var(--text-secondary)',
-        whiteSpace: 'pre-wrap',
-        background: 'var(--surface-card)',
-        padding: '40px',
-        borderRadius: '16px',
-        border: '1px solid var(--border-subtle)'
+        fontSize: '16px', lineHeight: 2, color: 'var(--text-secondary)',
+        whiteSpace: 'pre-wrap', background: 'var(--surface-card)',
+        padding: '40px', borderRadius: '16px', border: '1px solid var(--border-subtle)'
       }}>
         {weekly.content || weekly.description}
       </div>
