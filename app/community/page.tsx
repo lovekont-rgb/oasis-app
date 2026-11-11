@@ -7,13 +7,16 @@ export const instant = false
 export default async function CommunityPage() {
   const supabase = await createClient()
   
+  // 拉取所有板块数据
   const [ 
     { data: prompts }, 
     { data: works }, 
+    { data: weekly }, 
     { data: faqs } 
   ] = await Promise.all([
     supabase.from('prompts').select('*').limit(4),
     supabase.from('community_works').select('*').order('id', { ascending: false }).limit(4),
+    supabase.from('community_weekly').select('*').order('sort_order', { ascending: false }).limit(4), // 👈 获取4条周刊
     supabase.from('community_faqs').select('*').order('sort_order', { ascending: false })
   ])
 
@@ -82,23 +85,41 @@ export default async function CommunityPage() {
           </div>
         </Link>
 
-        {/* 3. AI 周刊 (入口卡片) */}
-        <Link href="/community/weekly" className="ui-card" style={{ ...cardContainerStyle, textDecoration: 'none', cursor: 'pointer', transition: '0.3s' }}>
+        {/* 3. AI 周刊 (恢复 4 条展示 + 左侧入口) */}
+        <div className="ui-card" style={cardContainerStyle}>
           <div>
             <div className={styles.cardHeader}>
               <h2>AI 周刊</h2>
               <span className={styles.badgeNum}>Weekly</span>
             </div>
             <p className={styles.cardDesc}>每周精选模型更新、工具迭代与值得回看的落地案例。不搬运新闻，只沉淀判断。</p>
-            <div style={{ display: 'inline-block', marginTop: '16px', color: 'var(--cyan)', fontWeight: 'bold', fontSize: '14px' }}>
+            <Link href="/community/weekly" style={{ display: 'inline-block', marginTop: '16px', color: 'var(--cyan)', fontWeight: 'bold', fontSize: '14px', textDecoration: 'none' }}>
               查看全部周刊 →
-            </div>
+            </Link>
           </div>
-          <div style={{ background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '8px', borderLeft: '3px solid var(--cyan)' }}>
-            <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-primary)' }}>最新期：结构化 Prompt 正在取代“魔法词”</h4>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>从堆词到配方和镜头表，一次只改一个变量的迭代方法正在成为共识。</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {weekly?.map((item) => (
+              <Link 
+                key={item.id} 
+                href={`/community/weekly/${item.id}`}
+                style={{ 
+                  textDecoration: 'none', display: 'flex', gap: '20px', 
+                  background: 'rgba(255,255,255,0.02)', padding: '16px', 
+                  borderRadius: '8px', border: '1px solid transparent',
+                  transition: '0.3s'
+                }} 
+                className="hover-card"
+              >
+                <span style={{ fontFamily: 'Orbitron', color: 'var(--cyan)', flexShrink: 0 }}>{item.vol}</span>
+                <div>
+                  <h4 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '6px', color: 'var(--text-primary)' }}>{item.title}</h4>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.description}</p>
+                </div>
+              </Link>
+            ))}
+            {weekly?.length === 0 && <span style={{ color: 'var(--text-dim)', fontSize: '13px' }}>暂无周刊内容。</span>}
           </div>
-        </Link>
+        </div>
 
         {/* 4. 问答与互助 */}
         <div className="ui-card" style={cardContainerStyle}>
