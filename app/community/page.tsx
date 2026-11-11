@@ -97,14 +97,14 @@ export default async function CommunityPage() {
             <p className={styles.cardDesc}>每周精选模型更新、工具迭代与值得回看的落地案例。不搬运新闻，只沉淀判断。</p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {weekly?.map((item) => (
-              <div key={item.id} style={{ display: 'flex', gap: '20px', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px' }}>
+              {weekly?.map((item) => (
+              <Link href={`/community/weekly/${item.id}`} key={item.id} style={{ textDecoration: 'none', display: 'flex', gap: '20px', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', transition: '0.3s' }} className="hover-card">
                 <span style={{ fontFamily: 'Orbitron', color: 'var(--cyan)', flexShrink: 0 }}>{item.vol}</span>
                 <div>
                   <h4 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '6px', color: 'var(--text-primary)' }}>{item.title}</h4>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>{item.description}</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

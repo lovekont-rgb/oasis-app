@@ -54,6 +54,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/community" className={`${styles.menuItem}`}>
             🌐 社区作品
           </Link>
+          <Link href="/admin/weekly" className={`${styles.menuItem}`}>
+            📰 AI 周刊管理
+          </Link>
         </div>
       </aside>
 
