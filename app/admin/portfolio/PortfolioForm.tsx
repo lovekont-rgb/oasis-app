@@ -79,7 +79,7 @@ export default function PortfolioForm({ initialData, action }: { initialData?: a
       <textarea name="content" defaultValue={initialData?.content} rows={4} style={{ ...inputStyle, resize: 'vertical' }} />
 
       <div style={{ border: '1px dashed var(--cyan)', padding: '20px', borderRadius: '8px', marginBottom: '24px', background: 'rgba(0,212,255,0.05)' }}>
-        <label style={{ display: 'block', marginBottom: '8px', color: 'var(--cyan)', fontWeight: 'bold' }}>上传源文件 (PDF < 20MB, MP4 < 50MB)</label>
+        <label style={{ display: 'block', marginBottom: '8px', color: 'var(--cyan)', fontWeight: 'bold' }}>上传源文件 (PDF &lt; 20MB, MP4 &lt; 50MB)</label>
         <input type="file" accept=".pdf,video/mp4" onChange={handleFileUpload} style={{ fontSize: '14px', color: 'var(--text-secondary)' }} />
         {uploading && <span style={{ marginLeft: '12px', color: 'var(--warn)' }}>正在上传...</span>}
         {fileUrl && !uploading && <span style={{ marginLeft: '12px', color: 'var(--green)' }}>✓ 文件已就绪</span>}
