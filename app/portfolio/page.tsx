@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import PortfolioClient from './PortfolioClient'
+import PortfolioClient from './PortfolioClient' // 👈 确保引入了它
 
 export const instant = false
 
@@ -15,6 +15,7 @@ export default async function PortfolioPage() {
         汇集学员的优秀 AIGC 实践作品、商业交付案例与创意灵感。在这里，见证从工具使用者到创作者的蜕变。
       </p>
       
+      {/* 👈 确保这里使用了它 */}
       <PortfolioClient initialData={portfolios || []} />
     </main>
   )
