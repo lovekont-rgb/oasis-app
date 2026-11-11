@@ -87,34 +87,24 @@ export default async function CommunityPage() {
           </div>
         </Link>
 
-                {/* 3. AI 周刊 (动态) */}
-        <div className="ui-card" style={cardContainerStyle}>
+                {/* 3. AI 周刊 (入口卡片) */}
+        <Link href="/community/weekly" className="ui-card" style={{ ...cardContainerStyle, textDecoration: 'none', cursor: 'pointer', transition: '0.3s' }}>
           <div>
             <div className={styles.cardHeader}>
               <h2>AI 周刊</h2>
               <span className={styles.badgeNum}>Weekly</span>
             </div>
             <p className={styles.cardDesc}>每周精选模型更新、工具迭代与值得回看的落地案例。不搬运新闻，只沉淀判断。</p>
+            <div style={{ display: 'inline-block', marginTop: '16px', color: 'var(--cyan)', fontWeight: 'bold', fontSize: '14px' }}>
+              查看全部周刊 →
+            </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {weekly?.map((item) => (
-              // 👇 确保这里是 Link 标签，并且 href 写对了
-              <Link 
-                href={`/community/weekly/${item.id}`} 
-                key={item.id} 
-                style={{ 
-                  textDecoration: 'none', display: 'flex', gap: '20px', 
-                  background: 'rgba(255,255,255,0.02)', padding: '16px', 
-                  borderRadius: '8px', transition: '0.3s' 
-                }} 
-                className="hover-card"
-              >
-                <span style={{ fontFamily: 'Orbitron', color: 'var(--cyan)', flexShrink: 0 }}>{item.vol}</span>
-                <div>
-                  <h4 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '6px', color: 'var(--text-primary)' }}>{item.title}</h4>
-                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>{item.description}</p>
-                </div>
-              </Link>
+          {/* 右侧只展示最新的一期预览，或者干脆展示一条通用占位 */}
+          <div style={{ background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '8px', borderLeft: '3px solid var(--cyan)' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-primary)' }}>最新期：结构化 Prompt 正在取代“魔法词”</h4>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>从堆词到配方和镜头表，一次只改一个变量的迭代方法正在成为共识。</p>
+          </div>
+        </Link>
             ))}
           </div>
         </div>
