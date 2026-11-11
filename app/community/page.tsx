@@ -55,7 +55,8 @@ export default async function CommunityPage() {
         </div>
 
         {/* 2. 作品广场 (动态) */}
-        <div className="ui-card">
+         {/* 卡片 2：作品广场 (改为动态读取数据库) */}
+        <Link href="/portfolio" className="ui-card" style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none', cursor: 'pointer', transition: 'all 0.3s' }}>
           <div className={styles.cardHeader}>
             <h2>作品广场</h2>
             <span className={styles.badgeNum}>{works?.length || 0}</span>
@@ -63,14 +64,19 @@ export default async function CommunityPage() {
           <p className={styles.cardDesc}>学习者发布的 AI 图集、短片、Agent 项目和商业交付案例，附带过程拆解。</p>
           
           <div className={styles.list}>
-            {works?.map((work) => (
+            {works?.slice(0, 4).map((work) => (
               <div key={work.id} className={styles.listItem}>
                 <h4>{work.title}</h4>
                 <p>{work.description} <span style={{ color: 'var(--cyan)', fontSize: '11px', marginLeft: '8px' }}>@{work.author}</span></p>
               </div>
             ))}
           </div>
-        </div>
+
+          {/* 👇 新增：底部跳转提示 */}
+          <div style={{ marginTop: 'auto', paddingTop: '20px', color: 'var(--cyan)', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            进入作品广场浏览更多 <span style={{ transition: 'transform 0.3s' }}>→</span>
+          </div>
+        </Link>
 
         {/* 3. AI 周刊 (动态) */}
         <div className="ui-card">

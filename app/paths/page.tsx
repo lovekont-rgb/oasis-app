@@ -42,7 +42,7 @@ export default async function PathsPage() {
               fontFamily: 'Orbitron, monospace', 
               fontSize: '4.5rem', 
               fontWeight: 900, 
-              color: 'rgba(0, 212, 255, 0.1)', // 极暗的科技蓝
+              color: 'var(--num-faint)', 
               lineHeight: 1,
               userSelect: 'none'
             }}>
