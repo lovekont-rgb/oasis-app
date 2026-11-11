@@ -7,20 +7,16 @@ export const instant = false
 export default async function CommunityPage() {
   const supabase = await createClient()
   
-  // 并行拉取四个板块的数据
   const [ 
     { data: prompts }, 
     { data: works }, 
-    { data: weekly }, 
     { data: faqs } 
   ] = await Promise.all([
     supabase.from('prompts').select('*').limit(4),
     supabase.from('community_works').select('*').order('id', { ascending: false }).limit(4),
-    supabase.from('community_weekly').select('*').order('sort_order', { ascending: false }),
     supabase.from('community_faqs').select('*').order('sort_order', { ascending: false })
   ])
 
-  // 定义所有卡片共用的外层容器样式
   const cardContainerStyle = {
     display: 'grid', 
     gridTemplateColumns: 'minmax(280px, 1fr) 2fr', 
@@ -39,7 +35,6 @@ export default async function CommunityPage() {
         提示词库、作品拆解、周刊与问答。把“学”和“做”放在同一个场域里。好的社区不是信息流，而是过滤器——从高密度噪音里筛出值得保存的判断、方法和样本。
       </p>
 
-      {/* 改为竖向排列的 Flex 容器 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         
         {/* 1. 提示词库 */}
@@ -87,7 +82,7 @@ export default async function CommunityPage() {
           </div>
         </Link>
 
-                {/* 3. AI 周刊 (入口卡片) */}
+        {/* 3. AI 周刊 (入口卡片) */}
         <Link href="/community/weekly" className="ui-card" style={{ ...cardContainerStyle, textDecoration: 'none', cursor: 'pointer', transition: '0.3s' }}>
           <div>
             <div className={styles.cardHeader}>
@@ -99,15 +94,11 @@ export default async function CommunityPage() {
               查看全部周刊 →
             </div>
           </div>
-          {/* 右侧只展示最新的一期预览，或者干脆展示一条通用占位 */}
           <div style={{ background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '8px', borderLeft: '3px solid var(--cyan)' }}>
             <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-primary)' }}>最新期：结构化 Prompt 正在取代“魔法词”</h4>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>从堆词到配方和镜头表，一次只改一个变量的迭代方法正在成为共识。</p>
           </div>
         </Link>
-            ))}
-          </div>
-        </div>
 
         {/* 4. 问答与互助 */}
         <div className="ui-card" style={cardContainerStyle}>
