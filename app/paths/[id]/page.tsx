@@ -27,24 +27,34 @@ export default async function PathDetailPage({ params }: { params: Promise<{ id:
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '40px', alignItems: 'start' }}>
+        
+        {/* 左侧主内容 */}
         <div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: '24px', marginBottom: '20px' }}>
-            <span style={{ fontSize: '6rem', fontWeight: 900, fontFamily: 'Orbitron', color: 'transparent', WebkitTextStroke: '2px rgba(0,212,255,0.3)', lineHeight: 0.8 }}>{path.num}</span>
+            <span style={{ fontSize: '6rem', fontWeight: 900, fontFamily: 'Orbitron', color: 'transparent', WebkitTextStroke: '2px rgba(0,212,255,0.3)', lineHeight: 0.8 }}>
+              {path.num}
+            </span>
             <div>
               <div className="ui-badge" style={{ marginBottom: '12px' }}><span className="ui-badge-dot"></span>LEARNING STAGE</div>
               <h1 className="ui-title" style={{ fontSize: '3rem', marginBottom: '8px' }}>{path.title}</h1>
-              <p style={{ color: 'var(--cyan)', fontFamily: 'Orbitron', fontSize: '14px' }}>{path.subtitle}</p>
+              <p style={{ color: 'var(--cyan)', fontFamily: 'Orbitron', fontSize: '14px', letterSpacing: '0.05em' }}>{path.subtitle}</p>
             </div>
           </div>
 
           <p className="ui-subtitle" style={{ maxWidth: '100%', marginBottom: '40px' }}>{path.description}</p>
 
-          <div className="ui-card" style={{ border: '1px solid var(--cyan)', background: 'rgba(0, 212, 255, 0.05)', padding: '32px', marginBottom: '40px' }}>
-            <h3 style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>🎯 阶段通关交付物</h3>
-            <p style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--cyan)' }}>{path.deliverable}</p>
+          {/* 阶段交付物 (发光卡片) */}
+          <div className="ui-card" style={{ border: '1px solid var(--cyan)', background: 'rgba(0, 212, 255, 0.05)', padding: '32px', marginBottom: '40px', boxShadow: '0 0 30px rgba(0,212,255,0.1)' }}>
+            <h3 style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '20px' }}>🎯</span> 阶段通关交付物
+            </h3>
+            <p style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--cyan)' }}>
+              {path.deliverable}
+            </p>
             <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px' }}>{path.deliverable_desc}</p>
           </div>
 
+          {/* 时间线任务 */}
           <h3 className="ui-section-title" style={{ marginTop: '0', marginBottom: '24px' }}>阶段核心任务</h3>
           <div style={{ borderLeft: '2px solid var(--border-subtle)', marginLeft: '12px', paddingLeft: '32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
             <div style={{ position: 'relative' }}>
@@ -60,6 +70,7 @@ export default async function PathDetailPage({ params }: { params: Promise<{ id:
           </div>
         </div>
 
+        {/* 右侧侧边栏 */}
         <div style={{ position: 'sticky', top: '100px' }}>
           <div className="ui-card" style={{ marginBottom: '24px' }}>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '20px' }}>通关标准</h3>
@@ -71,18 +82,25 @@ export default async function PathDetailPage({ params }: { params: Promise<{ id:
               ))}
             </ul>
           </div>
+
           <div className="ui-card" style={{ marginBottom: '24px' }}>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '16px' }}>涉及工具栈</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {path.tools?.map((tool: string, i: number) => (
-                <span key={i} style={{ fontSize: '12px', padding: '6px 14px', borderRadius: '100px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>{tool}</span>
+                <span key={i} style={{ fontSize: '12px', padding: '6px 14px', borderRadius: '100px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
+                  {tool}
+                </span>
               ))}
             </div>
           </div>
-          <Link href="/modules" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', padding: '16px', borderRadius: '100px', background: 'linear-gradient(120deg, var(--cyan), #4ae0ff)', color: '#05070d', fontWeight: 800, fontSize: '16px', boxShadow: '0 0 30px rgba(0,212,255,0.3)' }}>查看本阶段课程 →</Link>
+
+          <Link href="/modules" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', width: '100%', padding: '16px', borderRadius: '100px', background: 'linear-gradient(120deg, var(--cyan), #4ae0ff)', color: '#05070d', fontWeight: 800, fontSize: '16px', boxShadow: '0 0 30px rgba(0,212,255,0.3)' }}>
+            查看本阶段课程 →
+          </Link>
         </div>
       </div>
 
+      {/* 底部翻页 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '80px', paddingTop: '32px', borderTop: '1px solid var(--border-subtle)' }}>
         {prevPath ? (
           <Link href={`/paths/${prevPath.id}`} style={{ color: 'var(--text-secondary)', textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -90,6 +108,7 @@ export default async function PathDetailPage({ params }: { params: Promise<{ id:
             <span style={{ fontSize: '16px', color: 'var(--text-primary)', fontWeight: 'bold' }}>{prevPath.num} {prevPath.title}</span>
           </Link>
         ) : <div></div>}
+
         {nextPath ? (
           <Link href={`/paths/${nextPath.id}`} style={{ color: 'var(--text-secondary)', textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
             <span style={{ fontSize: '12px' }}>下一阶段 →</span>

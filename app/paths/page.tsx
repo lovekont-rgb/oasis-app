@@ -10,7 +10,6 @@ export default async function PathsPage() {
 
   return (
     <main className="page-container">
-      {/* 头部区域 */}
       <div className="ui-badge"><span className="ui-badge-dot"></span>LEARNING PATHS</div>
       <h1 className="ui-title">
         <span style={{ fontFamily: 'Orbitron, monospace' }}>{paths?.length || 0}</span> 个阶段， <span className="ui-title-gradient">每一步都有交付物</span>
@@ -30,7 +29,7 @@ export default async function PathsPage() {
               display: 'flex', 
               gap: '40px', 
               padding: '60px 0', 
-              borderBottom: index !== paths.length - 1 ? '1px dashed var(--border-subtle)' : 'none',
+              borderBottom: index !== (paths.length - 1) ? '1px dashed var(--border-subtle)' : 'none',
               transition: 'opacity 0.3s',
               cursor: 'pointer'
             }}
@@ -42,7 +41,7 @@ export default async function PathsPage() {
               fontFamily: 'Orbitron, monospace', 
               fontSize: '4.5rem', 
               fontWeight: 900, 
-              color: 'var(--num-faint)', 
+              color: 'var(--num-faint)', // 使用全局变量，适配深浅色
               lineHeight: 1,
               userSelect: 'none'
             }}>
