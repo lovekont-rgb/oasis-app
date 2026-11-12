@@ -13,7 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <Navbar />
-        <div style={{ paddingTop: '120px', minHeight: 'calc(100vh - 300px)' }}>
+        <div style={{ paddingTop: '90px', minHeight: 'calc(100vh - 300px)' }}>
           {children}
         </div>
         <Footer />

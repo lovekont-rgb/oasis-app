@@ -100,7 +100,7 @@ a {
 .page-container { 
   max-width: 1120px; 
   margin: 0 auto; 
-  padding: 60px 24px 100px; 
+  padding: 24px 24px 100px; 
 }
 
 /* 导航栏内容容器，使用 Grid 布局实现绝对居中 */
