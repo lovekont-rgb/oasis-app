@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { submitQuestion } from './actions'
 
-export default function QaClient({ questions }: { questions: any[] }) {
+export default function QaClient({ officialFaqs, userQuestions }: { officialFaqs: any[], userQuestions: any[] }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [showForm, setShowForm] = useState(false)
@@ -27,8 +27,27 @@ export default function QaClient({ questions }: { questions: any[] }) {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-        <h2 className="ui-section-title" style={{ margin: 0 }}>全部提问 ({questions.length})</h2>
+      {/* 官方经典 FAQ 版块 */}
+      <div style={{ marginBottom: '60px' }}>
+        <h2 className="ui-section-title" style={{ marginTop: 0, marginBottom: '24px' }}>官方精选问答</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {officialFaqs.map((faq) => (
+            <details key={faq.id} className="ui-card" style={{ padding: '16px 24px', cursor: 'pointer' }}>
+              <summary style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {faq.question}
+                <span style={{ color: 'var(--cyan)' }}>+</span>
+              </summary>
+              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px dashed var(--border-subtle)', fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                {faq.answer}
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+
+      {/* 用户互动提问版块 */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <h2 className="ui-section-title" style={{ margin: 0 }}>用户最新提问 ({userQuestions.length})</h2>
         <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 24px', background: 'var(--cyan)', color: '#05070d', borderRadius: '100px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
           {showForm ? '取消提问' : '+ 发起提问'}
         </button>
@@ -55,9 +74,9 @@ export default function QaClient({ questions }: { questions: any[] }) {
         </form>
       )}
 
-      {/* 问答列表 */}
+      {/* 用户提问列表 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {questions.map((q) => (
+        {userQuestions.map((q) => (
           <div key={q.id} className="ui-card" style={{ padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>{q.title}</h3>
@@ -67,7 +86,7 @@ export default function QaClient({ questions }: { questions: any[] }) {
             </div>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: 1.6 }}>{q.content}</p>
             
-            {/* 官方回复 */}
+            {/* 官方回复展示 */}
             {q.admin_reply && (
               <div style={{ background: 'rgba(0, 212, 255, 0.05)', borderLeft: '3px solid var(--cyan)', padding: '16px', borderRadius: '0 8px 8px 0' }}>
                 <span style={{ fontSize: '12px', color: 'var(--cyan)', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>🛡️ OASIS 官方回复</span>
@@ -76,7 +95,7 @@ export default function QaClient({ questions }: { questions: any[] }) {
             )}
           </div>
         ))}
-        {questions.length === 0 && <p style={{ color: 'var(--text-dim)' }}>暂无提问，快来抢占沙发！</p>}
+        {userQuestions.length === 0 && <p style={{ color: 'var(--text-dim)' }}>暂无提问，快来抢占沙发！</p>}
       </div>
     </div>
   )
