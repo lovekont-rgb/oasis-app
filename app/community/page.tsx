@@ -121,7 +121,7 @@ export default async function CommunityPage() {
           </div>
         </div>
 
-        {/* 4. 问答与互助 */}
+                {/* 4. 问答与互助 */}
         <div className="ui-card" style={cardContainerStyle}>
           <div>
             <div className={styles.cardHeader}>
@@ -134,10 +134,16 @@ export default async function CommunityPage() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {faqs?.map((faq) => (
-              <details key={faq.id} className={styles.faqItem}>
-                <summary className={styles.faqQ}>{faq.question}</summary>
-                <div className={styles.faqA}>{faq.answer}</div>
-              </details>
+              // 👇 这里把 details 换成了 Link，点击直接跳转到对应的锚点
+              <Link 
+                key={faq.id} 
+                href={`/community/qa#faq-${faq.id}`}
+                className="ui-card" 
+                style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textDecoration: 'none', transition: '0.3s' }}
+              >
+                <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)' }}>{faq.question}</span>
+                <span style={{ color: 'var(--cyan)', fontSize: '18px' }}>→</span>
+              </Link>
             ))}
           </div>
         </div>

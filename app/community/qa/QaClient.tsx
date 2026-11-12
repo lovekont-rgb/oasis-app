@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { submitQuestion } from './actions'
 
@@ -7,6 +7,22 @@ export default function QaClient({ officialFaqs, userQuestions }: { officialFaqs
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [showForm, setShowForm] = useState(false)
+
+  // 👇 核心逻辑：监听 URL 的 hash（比如 #faq-1），自动展开并滚动
+  useEffect(() => {
+    const hash = window.location.hash
+    if (hash && hash.startsWith('#faq-')) {
+      const element = document.getElementById(hash.replace('#', '')) as HTMLDetailsElement
+      if (element) {
+        // 自动展开折叠面板
+        element.open = true
+        // 平滑滚动到该元素
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }, 100)
+      }
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -32,7 +48,8 @@ export default function QaClient({ officialFaqs, userQuestions }: { officialFaqs
         <h2 className="ui-section-title" style={{ marginTop: 0, marginBottom: '24px' }}>官方精选问答</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {officialFaqs.map((faq) => (
-            <details key={faq.id} className="ui-card" style={{ padding: '16px 24px', cursor: 'pointer' }}>
+            // 👇 给 details 加上动态的 id，供锚点跳转
+            <details key={faq.id} id={`faq-${faq.id}`} className="ui-card" style={{ padding: '16px 24px', cursor: 'pointer', scrollMarginTop: '100px' }}>
               <summary style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 {faq.question}
                 <span style={{ color: 'var(--cyan)' }}>+</span>
@@ -58,7 +75,7 @@ export default function QaClient({ officialFaqs, userQuestions }: { officialFaqs
         <form onSubmit={handleSubmit} className="ui-card" style={{ padding: '32px', marginBottom: '40px', border: '1px solid var(--cyan)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px' }}>您的称呼 (未来将自动带入)</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px' }}>您的称呼</label>
               <input name="user_name" required placeholder="请输入昵称" style={inputStyle} />
             </div>
             <div>
@@ -86,7 +103,6 @@ export default function QaClient({ officialFaqs, userQuestions }: { officialFaqs
             </div>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: 1.6 }}>{q.content}</p>
             
-            {/* 官方回复展示 */}
             {q.admin_reply && (
               <div style={{ background: 'rgba(0, 212, 255, 0.05)', borderLeft: '3px solid var(--cyan)', padding: '16px', borderRadius: '0 8px 8px 0' }}>
                 <span style={{ fontSize: '12px', color: 'var(--cyan)', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>🛡️ OASIS 官方回复</span>
