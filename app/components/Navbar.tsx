@@ -58,6 +58,34 @@ export default function Navbar() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', justifySelf: 'end' }}>
           {/* 👇 核心：主题切换按钮 */}
+          // 找到这一行代码附近：
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', justifySelf: 'end' }}>
+          
+          {/* 👇 新增：全局搜索框 */}
+          <form 
+            action="/search" 
+            method="GET" 
+            style={{ position: 'relative', display: 'flex', alignItems: 'center' }}
+          >
+            <input 
+              type="text" 
+              name="q" 
+              placeholder="全局搜索..." 
+              style={{ 
+                width: '180px', 
+                padding: '6px 12px 6px 30px', 
+                borderRadius: '100px', 
+                background: 'var(--bg-void)', 
+                border: '1px solid var(--border-subtle)', 
+                color: 'var(--text-primary)', 
+                fontSize: '13px',
+                outline: 'none',
+                transition: 'border-color 0.3s'
+              }}
+            />
+            <span style={{ position: 'absolute', left: '10px', color: 'var(--text-dim)', fontSize: '14px' }}>🔍</span>
+          </form>
+
           <ThemeToggle />
           <Link href={actionBtn.href} style={{ padding: '8px 20px', borderRadius: 100, background: 'var(--cyan)', color: '#05070d', fontWeight: 700, fontSize: 14, boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)', transition: '0.3s', textDecoration: 'none' }}>
             {actionBtn.text}
