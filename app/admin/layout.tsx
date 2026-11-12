@@ -60,6 +60,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/qa" className={`${styles.menuItem}`}>
             💬 问答互助管理
           </Link>
+          <Link href="/admin/progress" className={`${styles.menuItem}`}>
+            📈 学习进度看板
+          </Link>
         </div>
       </aside>
 
