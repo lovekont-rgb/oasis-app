@@ -121,23 +121,27 @@ export default async function CommunityPage() {
           </div>
         </div>
 
-        {/* 4. 问答与互助 */}
-        <div className="ui-card" style={cardContainerStyle}>
+                {/* 4. 问答与互助 */}
+        <Link href="/community/qa" className="ui-card" style={{ ...cardContainerStyle, textDecoration: 'none', cursor: 'pointer' }}>
           <div>
             <div className={styles.cardHeader}>
               <h2>问答与互助</h2>
+              <span className={styles.badgeNum}>Q&A</span>
             </div>
             <p className={styles.cardDesc}>工具报错、工作流卡点、商业接单疑问——有人踩过坑，也有人正在解决。</p>
+            <div style={{ display: 'inline-block', marginTop: '16px', color: 'var(--cyan)', fontWeight: 'bold', fontSize: '14px' }}>
+              进入提问与交流 →
+            </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {faqs?.map((faq) => (
-              <details key={faq.id} className={styles.faqItem}>
-                <summary className={styles.faqQ}>{faq.question}</summary>
-                <div className={styles.faqA}>{faq.answer}</div>
-              </details>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {faqs?.slice(0, 2).map((faq) => (
+              <div key={faq.id} style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', borderLeft: '2px solid var(--cyan)' }}>
+                <h4 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '6px', color: 'var(--text-primary)' }}>{faq.question}</h4>
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{faq.answer}</p>
+              </div>
             ))}
           </div>
-        </div>
+        </Link>
 
       </div>
 
