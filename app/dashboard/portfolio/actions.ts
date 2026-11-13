@@ -42,3 +42,20 @@ export async function deleteMyPortfolio(id: number) {
   revalidatePath('/portfolio')
   return { success: true }
 }
+// 编辑作品
+export async function updateMyPortfolio(id: number, data: any) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: '未登录' }
+
+  const { error } = await supabase.from('portfolios')
+    .update(data)
+    .eq('id', id)
+    .eq('user_id', user.id) // 安全校验
+  
+  if (error) return { success: false, error: error.message }
+  revalidatePath('/dashboard/portfolio')
+  revalidatePath(`/portfolio/${id}`)
+  revalidatePath('/portfolio')
+  return { success: true }
+}

@@ -7,16 +7,20 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // 并行统计当前用户的真实数据
+    // 并行统计当前用户的真实数据
   const [
     { count: learningCount },
-    { count: portfolioCount },
+    { data: userPortfolios }, // 👈 把原来的 count 改成查数据，为了算总赞数
     { count: qaCount }
   ] = await Promise.all([
     supabase.from('learning_progress').select('*', { count: 'exact', head: true }).eq('user_id', user?.id),
-    supabase.from('portfolios').select('*', { count: 'exact', head: true }).eq('user_id', user?.id),
+    supabase.from('portfolios').select('likes_count').eq('user_id', user?.id), // 👈 查出来
     supabase.from('community_questions').select('*', { count: 'exact', head: true }).eq('user_id', user?.id)
   ])
+
+  // 计算总赞数
+  const totalLikes = userPortfolios?.reduce((acc, curr) => acc + (curr.likes_count || 0), 0) || 0
+  const portfolioCount = userPortfolios?.length || 0
 
   return (
     <div>
@@ -27,39 +31,36 @@ export default async function DashboardPage() {
         这里是你的专属创作大本营。
       </p>
 
-      {/* 核心数据看板（可点击跳转） */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+            {/* 核心数据看板（改为4列网格） */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
         
-        {/* 1. 学习进度卡片 */}
-        <Link href="/dashboard/learning" className="ui-card" style={{ padding: '32px', textAlign: 'center', textDecoration: 'none', cursor: 'pointer', transition: 'all 0.3s' }}>
-          <div style={{ fontSize: '32px', marginBottom: '12px' }}>🎓</div>
-          <h3 style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '8px' }}>已学完课时</h3>
-          <p style={{ fontSize: '32px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>
-            {learningCount || 0}
-          </p>
-          <span style={{ fontSize: '12px', color: 'var(--text-dim)', marginTop: '8px', display: 'block' }}>查看详情 →</span>
+        {/* 1. 学习进度 */}
+        <Link href="/dashboard/learning" className="ui-card" style={{ padding: '24px', textAlign: 'center', textDecoration: 'none' }}>
+          <div style={{ fontSize: '28px', marginBottom: '8px' }}>🎓</div>
+          <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>已学完课时</h3>
+          <p style={{ fontSize: '28px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>{learningCount || 0}</p>
         </Link>
 
-        {/* 2. 作品卡片 */}
-        <Link href="/dashboard/portfolio" className="ui-card" style={{ padding: '32px', textAlign: 'center', textDecoration: 'none', cursor: 'pointer', transition: 'all 0.3s' }}>
-          <div style={{ fontSize: '32px', marginBottom: '12px' }}>🎨</div>
-          <h3 style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '8px' }}>发布的作品</h3>
-          <p style={{ fontSize: '32px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>
-            {portfolioCount || 0}
-          </p>
-          <span style={{ fontSize: '12px', color: 'var(--text-dim)', marginTop: '8px', display: 'block' }}>管理作品 →</span>
+        {/* 2. 作品数 */}
+        <Link href="/dashboard/portfolio" className="ui-card" style={{ padding: '24px', textAlign: 'center', textDecoration: 'none' }}>
+          <div style={{ fontSize: '28px', marginBottom: '8px' }}>🎨</div>
+          <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>发布的作品</h3>
+          <p style={{ fontSize: '28px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>{portfolioCount}</p>
         </Link>
 
-        {/* 3. 问答卡片 */}
-        <Link href="/dashboard/qa" className="ui-card" style={{ padding: '32px', textAlign: 'center', textDecoration: 'none', cursor: 'pointer', transition: 'all 0.3s' }}>
-          <div style={{ fontSize: '32px', marginBottom: '12px' }}>💬</div>
-          <h3 style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '8px' }}>发起的问答</h3>
-          <p style={{ fontSize: '32px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>
-            {qaCount || 0}
-          </p>
-          <span style={{ fontSize: '12px', color: 'var(--text-dim)', marginTop: '8px', display: 'block' }}>查看问答 →</span>
-        </Link>
+        {/* 3. 👇 新增：收到的赞 */}
+        <div className="ui-card" style={{ padding: '24px', textAlign: 'center' }}>
+          <div style={{ fontSize: '28px', marginBottom: '8px' }}>❤️</div>
+          <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>收到的赞</h3>
+          <p style={{ fontSize: '28px', fontWeight: '900', color: '#ff4444', fontFamily: 'Orbitron' }}>{totalLikes}</p>
+        </div>
 
+        {/* 4. 问答数 */}
+        <Link href="/dashboard/qa" className="ui-card" style={{ padding: '24px', textAlign: 'center', textDecoration: 'none' }}>
+          <div style={{ fontSize: '28px', marginBottom: '8px' }}>💬</div>
+          <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>发起的问答</h3>
+          <p style={{ fontSize: '28px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>{qaCount || 0}</p>
+        </Link>
       </div>
 
       <div className="ui-card" style={{ marginTop: '32px', padding: '40px', textAlign: 'center', borderStyle: 'dashed' }}>
