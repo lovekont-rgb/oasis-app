@@ -109,28 +109,33 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-          {initialData.map(item => (
+                    {initialData.map(item => (
             <div key={item.id} className="ui-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
-                <img src={item.cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'var(--cyan)', color: '#05070d', padding: '2px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 'bold' }}>
-                  已发布
+              
+              {/* 👇 用 Link 包裹图片和文字部分，点击跳转详情 */}
+              <Link href={`/portfolio/${item.id}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
+                  <img src={item.cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'var(--cyan)', color: '#05070d', padding: '2px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 'bold' }}>
+                    已发布
+                  </div>
                 </div>
-              </div>
-              <div style={{ padding: '16px 20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '8px', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.title}</h3>
-                <span style={{ fontSize: '12px', color: 'var(--cyan)', marginBottom: '16px' }}>{item.category}</span>
                 
-                <div style={{ marginTop: 'auto', display: 'flex', gap: '8px' }}>
-                  <button onClick={() => handleDelete(item.id)} style={{ flex: 1, padding: '8px', background: 'rgba(255,68,68,0.1)', color: '#ff4444', border: '1px solid rgba(255,68,68,0.3)', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', transition: '0.3s' }}>
-                    删除
-                  </button>
+                <div style={{ padding: '16px 20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '8px', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.title}</h3>
+                  <span style={{ fontSize: '12px', color: 'var(--cyan)' }}>{item.category}</span>
                 </div>
+              </Link>
+
+              {/* 👇 删除按钮放在 Link 外部，底部对齐 */}
+              <div style={{ padding: '0 20px 16px' }}>
+                <button onClick={() => handleDelete(item.id)} style={{ width: '100%', padding: '8px', background: 'rgba(255,68,68,0.1)', color: '#ff4444', border: '1px solid rgba(255,68,68,0.3)', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', transition: '0.3s' }}>
+                  删除
+                </button>
               </div>
+
             </div>
           ))}
-        </div>
-      )}
 
       {/* 上传弹窗 */}
       {isModalOpen && (
