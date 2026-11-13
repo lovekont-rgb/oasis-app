@@ -9,7 +9,7 @@ export default async function MyLearningPage() {
   
   if (!user) return null
 
-  // 1. 获取该用户所有的学习打卡记录（按时间降序）
+  // 1. 获取该用户所有的学习打卡记录
   const { data: progressRecords } = await supabase
     .from('learning_progress')
     .select('course_id, lesson_title, created_at')
@@ -33,26 +33,21 @@ export default async function MyLearningPage() {
     )
   }
 
-  // 2. 提取去重后的课程 ID 列表
   const uniqueCourseIds = Array.from(new Set(progressRecords.map(r => r.course_id)))
 
-  // 3. 获取这些课程的详细信息（包含章节 chapters）
   const { data: courses } = await supabase
     .from('courses')
     .select('id, title, chapters')
     .in('id', uniqueCourseIds)
 
-  // 4. 构建数据模型
   const learningData = uniqueCourseIds.map(courseId => {
     const course = courses?.find(c => c.id === courseId)
     if (!course) return null
 
-    // 提取该课程所有的打卡记录
     const courseRecords = progressRecords.filter(r => r.course_id === courseId)
     const completedLessonTitles = new Set(courseRecords.map(r => r.lesson_title))
-    const lastLearnedAt = courseRecords[0]?.created_at // 因为记录是降序，第一条就是最后时间
+    const lastLearnedAt = courseRecords[0]?.created_at
 
-    // 计算总课时
     const totalLessons = course.chapters?.reduce((acc: number, chap: any) => acc + (chap.lessons?.length || 0), 0) || 0
     const completedCount = courseRecords.length
 
@@ -65,7 +60,7 @@ export default async function MyLearningPage() {
       totalLessons,
       completedCount
     }
-  }).filter(Boolean) // 过滤掉找不到课程的情况
+  }).filter(Boolean)
 
   return (
     <div>
@@ -85,7 +80,7 @@ export default async function MyLearningPage() {
           return (
             <div key={course.id} className="ui-card" style={{ padding: '0', overflow: 'hidden' }}>
               
-              {/* 👇 模块一：章节详情进度 */}
+              {/* 章节详情进度 */}
               <div style={{ padding: '32px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid var(--border-subtle)' }}>
                 <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '4px' }}>
                   {course.title}
@@ -94,38 +89,55 @@ export default async function MyLearningPage() {
                   最后学习：{new Date(course.lastLearnedAt).toLocaleString()}
                 </p>
 
-                {/* 遍历章节渲染 */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {course.chapters.map((chapter: any, cIdx: number) => (
                     <div key={cIdx} style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '8px', overflow: 'hidden' }}>
-                      {/* 章节标题 */}
                       <div style={{ padding: '12px 16px', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--border-subtle)' }}>
                         <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--cyan)', margin: 0 }}>
                           {chapter.chapterTitle}
                         </h4>
                       </div>
                       
-                      {/* 课时列表 */}
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         {chapter.lessons?.map((lesson: any, lIdx: number) => {
                           const isCompleted = course.completedLessonTitles.has(lesson.title)
+                          // 👇 精准定位的跳转链接
+                          const lessonLink = `/learn/${course.id}?c=${cIdx}&l=${lIdx}`
+                          
                           return (
                             <div key={lIdx} style={{ 
-                              padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '12px',
+                              padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
                               borderBottom: lIdx !== chapter.lessons.length - 1 ? '1px dashed var(--border-subtle)' : 'none'
                             }}>
-                              <span style={{ 
-                                width: '16px', height: '16px', borderRadius: '50%', 
-                                display: 'grid', placeItems: 'center', fontSize: '10px',
-                                background: isCompleted ? 'rgba(60,220,140,0.2)' : 'rgba(255,255,255,0.05)',
-                                color: isCompleted ? 'var(--green)' : 'transparent',
-                                border: isCompleted ? '1px solid var(--green)' : '1px solid var(--border-subtle)'
+                              {/* 左侧：打勾状态与标题 */}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <span style={{ 
+                                  width: '16px', height: '16px', borderRadius: '50%', 
+                                  display: 'grid', placeItems: 'center', fontSize: '10px',
+                                  background: isCompleted ? 'rgba(60,220,140,0.2)' : 'rgba(255,255,255,0.05)',
+                                  color: isCompleted ? 'var(--green)' : 'transparent',
+                                  border: isCompleted ? '1px solid var(--green)' : '1px solid var(--border-subtle)'
+                                }}>
+                                  {isCompleted && '✓'}
+                                </span>
+                                <span style={{ fontSize: '13px', color: isCompleted ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                                  {lesson.title}
+                                </span>
+                              </div>
+
+                              {/* 👇 右侧：新增的跳转按钮 */}
+                              <Link href={lessonLink} style={{
+                                fontSize: '12px', fontWeight: 'bold', textDecoration: 'none',
+                                padding: '4px 12px', borderRadius: '100px',
+                                transition: '0.3s',
+                                // 已完成是灰青色，未完成是亮青色
+                                color: isCompleted ? 'var(--text-dim)' : 'var(--cyan)',
+                                border: isCompleted ? '1px solid var(--border-subtle)' : '1px solid var(--cyan)',
+                                background: isCompleted ? 'transparent' : 'rgba(0, 212, 255, 0.05)',
+                                whiteSpace: 'nowrap'
                               }}>
-                                {isCompleted && '✓'}
-                              </span>
-                              <span style={{ fontSize: '13px', color: isCompleted ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
-                                {lesson.title}
-                              </span>
+                                {isCompleted ? '再看一遍' : '继续学习'}
+                              </Link>
                             </div>
                           )
                         })}
@@ -135,10 +147,8 @@ export default async function MyLearningPage() {
                 </div>
               </div>
 
-              {/* 👇 模块二：整体学习情况总结 */}
+              {/* 整体学习情况总结 */}
               <div style={{ padding: '24px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '32px', flexWrap: 'wrap', background: 'rgba(0,212,255,0.02)' }}>
-                
-                {/* 总体进度条 */}
                 <div style={{ flex: '1 1 300px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>课程总进度</span>
@@ -158,7 +168,6 @@ export default async function MyLearningPage() {
                   </div>
                 </div>
 
-                {/* 继续学习按钮 */}
                 <div>
                   <Link href={`/learn/${course.id}`} style={{ 
                     display: 'inline-block', padding: '10px 24px', borderRadius: '100px', 
@@ -169,11 +178,11 @@ export default async function MyLearningPage() {
                     boxShadow: isAllCompleted ? 'none' : '0 0 20px rgba(0, 212, 255, 0.2)',
                     fontSize: '14px'
                   }}>
-                    {isAllCompleted ? '✓ 已完成，去复习' : '继续学习 →'}
+                    {isAllCompleted ? '✓ 已完成，去复习' : '进入课程 →'}
                   </Link>
                 </div>
-
               </div>
+
             </div>
           )
         })}
