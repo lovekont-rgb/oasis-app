@@ -43,21 +43,34 @@ export default function PortfolioClient({ initialData }: { initialData: any[] })
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
         {filteredData.map((item) => (
-          <Link href={`/portfolio/${item.id}`} key={item.id} className="ui-card" style={{ padding: 0, overflow: 'hidden', textDecoration: 'none', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
-              <img src={item.cover_url} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-            <div style={{ padding: '16px 20px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '12px' }}>{item.title}</h3>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>{item.author_name}</span>
-                <span style={{ fontSize: '12px', color: '#ff4444' }}>❤️ {item.likes_count || 0}</span>
-              </div>
-            </div>
-          </Link>
+          <div key={item.id} className="ui-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+  
+  {/* 上半部分：图片和标题，点击去详情 */}
+  <Link href={`/portfolio/${item.id}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', flex: 1 }}>
+    <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
+      <img src={item.cover_url} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+    </div>
+    <div style={{ padding: '16px 20px 8px' }}>
+      <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '4px' }}>{item.title}</h3>
+      <span style={{ fontSize: '12px', color: 'var(--cyan)' }}>{item.category}</span>
+    </div>
+  </Link>
+
         ))}
       </div>
 
+      <div style={{ padding: '8px 20px 16px', marginTop: 'auto', borderTop: '1px dashed var(--border-subtle)' }}>
+    <Link href={`/portfolio/author/${encodeURIComponent(item.author_name)}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', fontSize: '10px', color: 'white', fontWeight: 'bold' }}>
+          {item.author_name?.charAt(0).toUpperCase()}
+        </div>
+        <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{item.author_name}</span>
+      </div>
+      <span style={{ fontSize: '12px', color: '#ff4444' }}>❤️ {item.likes_count || 0}</span>
+    </Link>
+  </div>
+</div>
       {/* 右下角悬浮发布按钮 */}
       <Link href="/dashboard/portfolio" style={{
         position: 'fixed', bottom: '40px', right: '40px', zIndex: 50,
