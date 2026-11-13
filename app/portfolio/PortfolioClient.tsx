@@ -16,9 +16,9 @@ export default function PortfolioClient({ initialData }: { initialData: any[] })
   // 再按排序规则处理
   filteredData = filteredData.sort((a, b) => {
     if (sortBy === 'hot') {
-      return (b.likes_count || 0) - (a.likes_count || 0) // 按点赞数降序
+      return (b.likes_count || 0) - (a.likes_count || 0)
     }
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime() // 按时间降序
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   })
 
   return (
@@ -43,34 +43,38 @@ export default function PortfolioClient({ initialData }: { initialData: any[] })
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
         {filteredData.map((item) => (
+          
+          /* 👇 这里是完整的卡片外层包裹 */
           <div key={item.id} className="ui-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-  
-  {/* 上半部分：图片和标题，点击去详情 */}
-  <Link href={`/portfolio/${item.id}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', flex: 1 }}>
-    <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
-      <img src={item.cover_url} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-    </div>
-    <div style={{ padding: '16px 20px 8px' }}>
-      <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '4px' }}>{item.title}</h3>
-      <span style={{ fontSize: '12px', color: 'var(--cyan)' }}>{item.category}</span>
-    </div>
-  </Link>
+            
+            {/* 上半部分：图片和标题，点击去详情 */}
+            <Link href={`/portfolio/${item.id}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', flex: 1 }}>
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
+                <img src={item.cover_url} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+              <div style={{ padding: '16px 20px 8px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '4px' }}>{item.title}</h3>
+                <span style={{ fontSize: '12px', color: 'var(--cyan)' }}>{item.category}</span>
+              </div>
+            </Link>
 
+            {/* 下半部分：作者信息，点击去创作者主页 */}
+            <div style={{ padding: '8px 20px 16px', marginTop: 'auto', borderTop: '1px dashed var(--border-subtle)' }}>
+              <Link href={`/portfolio/author/${encodeURIComponent(item.author_name)}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', fontSize: '10px', color: 'white', fontWeight: 'bold' }}>
+                    {item.author_name?.charAt(0).toUpperCase()}
+                  </div>
+                  <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{item.author_name}</span>
+                </div>
+                <span style={{ fontSize: '12px', color: '#ff4444' }}>❤️ {item.likes_count || 0}</span>
+              </Link>
+            </div>
+            
+          </div>
         ))}
       </div>
 
-      <div style={{ padding: '8px 20px 16px', marginTop: 'auto', borderTop: '1px dashed var(--border-subtle)' }}>
-    <Link href={`/portfolio/author/${encodeURIComponent(item.author_name)}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', fontSize: '10px', color: 'white', fontWeight: 'bold' }}>
-          {item.author_name?.charAt(0).toUpperCase()}
-        </div>
-        <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{item.author_name}</span>
-      </div>
-      <span style={{ fontSize: '12px', color: '#ff4444' }}>❤️ {item.likes_count || 0}</span>
-    </Link>
-  </div>
-</div>
       {/* 右下角悬浮发布按钮 */}
       <Link href="/dashboard/portfolio" style={{
         position: 'fixed', bottom: '40px', right: '40px', zIndex: 50,
