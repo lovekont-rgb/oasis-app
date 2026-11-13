@@ -1,4 +1,4 @@
-import AuthForm from '@/components/AuthForm'
+import AuthForm from '@/app/components/AuthForm'
 
 export const metadata = { title: '注册 | OASIS' }
 
