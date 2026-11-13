@@ -143,7 +143,7 @@ export default function Navbar() {
                     style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px', transition: '0.2s' }}
                     className="dropdown-item"
                   >
-                    💼 个人工作台
+                    💼 个人创作中心
                   </Link>
                   
                   <button 

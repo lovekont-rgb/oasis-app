@@ -20,9 +20,20 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className={styles.dashboardLayout}>
       
-      {/* 左侧侧边栏 */}
       <aside className={styles.sidebar}>
         
+        {/* 👇 新增：侧边栏主标题 */}
+        <div style={{ 
+          fontFamily: 'Syne, sans-serif', fontSize: '20px', fontWeight: 800, 
+          color: 'var(--text-primary)', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '10px' 
+        }}>
+          <div style={{ 
+            width: 28, height: 28, borderRadius: 8, background: 'linear-gradient(135deg, var(--cyan), var(--violet))', 
+            display: 'grid', placeItems: 'center', fontSize: '14px', color: '#05070d', fontWeight: 900 
+          }}>O</div>
+          个人创作中心
+        </div>
+
         <div className={styles.userProfile}>
           <div className={styles.avatar}>{avatarLetter}</div>
           <div className={styles.email}>{user.email}</div>
