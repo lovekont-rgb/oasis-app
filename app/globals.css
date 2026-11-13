@@ -179,6 +179,7 @@ a {
 
 @media (max-width: 768px) {
   .ui-grid-4, .ui-grid-3, .ui-grid-2 { grid-template-columns: 1fr; }
+}
 /* ==================== 全局 404 页面专属特效 ==================== */
 
 /* 故障霓虹字效果 */
