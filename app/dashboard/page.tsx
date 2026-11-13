@@ -1,82 +1,42 @@
-import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 
-// 1. 抽取动态数据部分
-async function DashboardData() {
+export const instant = false
+
+export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) redirect('/login')
-
-  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-  const role = profile?.role || 'student'
 
   return (
-    <>
-      <h1 className="ui-title">
-        欢迎回来， <span className="ui-title-gradient">{user.email?.split('@')[0]}</span>
+    <div>
+      <h1 className="ui-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>
+        欢迎回来，<span className="ui-title-gradient">{user?.email?.split('@')[0]}</span>
       </h1>
-      <p className="ui-subtitle">当前身份：<strong style={{ color: 'var(--cyan)' }}>{role === 'student' ? '学生' : role === 'teacher' ? '教师' : '管理员'}</strong></p>
+      <p className="ui-subtitle" style={{ marginBottom: '40px' }}>
+        这里是你的专属创作大本营。
+      </p>
 
-      <div className="ui-grid-2" style={{ marginTop: '40px' }}>
-        {role === 'student' && (
-          <>
-            <div className="ui-card">
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>我的学习进度</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>目前你还没有开始课程。去学习路径开始你的第一节课吧。</p>
-              <a href="/paths" style={{ display: 'inline-block', marginTop: '16px', color: 'var(--cyan)' }}>去学习 →</a>
-            </div>
-            <div className="ui-card">
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>我的作品集</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>提交你的第一个 AI 实战项目。</p>
-            </div>
-          </>
-        )}
-
-        {role === 'teacher' && (
-          <>
-            <div className="ui-card">
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>课程与资源管理</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>在这里上传视频、发布课程、更新工具库。</p>
-            </div>
-            <div className="ui-card">
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>学员作业批改</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>有 5 份新作业待批改。</p>
-            </div>
-          </>
-        )}
-
-        {role === 'admin' && (
-          <>
-            <div className="ui-card">
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>全局数据看板</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>平台总注册用户、今日活跃度与收益统计。</p>
-            </div>
-            <div className="ui-card">
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>用户与角色管理</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>审核新用户，给老师分配权限。</p>
-            </div>
-          </>
-        )}
-      </div>
-    </>
-  )
-}
-
-// 2. 静态外壳，包裹 Suspense
-export default function DashboardPage() {
-  return (
-    <main className="page-container">
-      <div className="ui-badge"><span className="ui-badge-dot"></span>WORKSPACE</div>
-      
-      <Suspense fallback={
-        <div style={{ padding: '60px 0', textAlign: 'center', color: 'var(--text-secondary)' }}>
-          正在加载工作台数据...
+      {/* 数据看板 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+        <div className="ui-card" style={{ padding: '32px', textAlign: 'center' }}>
+          <div style={{ fontSize: '32px', marginBottom: '12px' }}>🎓</div>
+          <h3 style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '8px' }}>已学完课时</h3>
+          <p style={{ fontSize: '28px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>0</p>
         </div>
-      }>
-        <DashboardData />
-      </Suspense>
-    </main>
+        <div className="ui-card" style={{ padding: '32px', textAlign: 'center' }}>
+          <div style={{ fontSize: '32px', marginBottom: '12px' }}>🎨</div>
+          <h3 style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '8px' }}>发布的作品</h3>
+          <p style={{ fontSize: '28px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>0</p>
+        </div>
+        <div className="ui-card" style={{ padding: '32px', textAlign: 'center' }}>
+          <div style={{ fontSize: '32px', marginBottom: '12px' }}>💬</div>
+          <h3 style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '8px' }}>发起的问答</h3>
+          <p style={{ fontSize: '28px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>0</p>
+        </div>
+      </div>
+
+      <div className="ui-card" style={{ marginTop: '32px', padding: '40px', textAlign: 'center', borderStyle: 'dashed' }}>
+        <p style={{ color: 'var(--text-dim)' }}>更多数据统计和最近学习记录正在开发中...</p>
+      </div>
+    </div>
   )
 }
