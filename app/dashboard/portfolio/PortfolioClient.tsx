@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { deleteMyPortfolio } from './actions'
+import { deleteMyPortfolio, createMyPortfolio } from './actions'
 
 export default function PortfolioClient({ initialData, userEmail }: { initialData: any[], userEmail: string }) {
   const router = useRouter()
@@ -29,7 +30,7 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
     }
   }
 
-  // 文件上传操作（带回大小限制）
+  // 文件上传操作
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -62,17 +63,14 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
     if (!fileUrl) return alert('请先上传作品文件 (PDF 或 视频)')
     
     setLoading(true)
-    // 这里为了省事，直接用了个 action，需要引入 createMyPortfolio
-    const { createMyPortfolio } = await import('./actions')
-    
     const res = await createMyPortfolio({
       title, 
       category, 
       content, 
       file_url: fileUrl, 
       file_type: fileType,
-      author_name: userEmail.split('@')[0], // 自动用邮箱前缀做作者名
-      cover_url: category === '作品集' ? 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop' : null // 默认封面
+      author_name: userEmail.split('@')[0],
+      cover_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop'
     })
 
     setLoading(false)
@@ -109,10 +107,10 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-                    {initialData.map(item => (
+          {initialData.map(item => (
             <div key={item.id} className="ui-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
               
-              {/* 👇 用 Link 包裹图片和文字部分，点击跳转详情 */}
+              {/* 点击跳转详情 */}
               <Link href={`/portfolio/${item.id}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', flex: 1 }}>
                 <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
                   <img src={item.cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -127,7 +125,7 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
                 </div>
               </Link>
 
-              {/* 👇 删除按钮放在 Link 外部，底部对齐 */}
+              {/* 删除按钮 */}
               <div style={{ padding: '0 20px 16px' }}>
                 <button onClick={() => handleDelete(item.id)} style={{ width: '100%', padding: '8px', background: 'rgba(255,68,68,0.1)', color: '#ff4444', border: '1px solid rgba(255,68,68,0.3)', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', transition: '0.3s' }}>
                   删除
@@ -136,6 +134,8 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
 
             </div>
           ))}
+        </div>
+      )}
 
       {/* 上传弹窗 */}
       {isModalOpen && (
