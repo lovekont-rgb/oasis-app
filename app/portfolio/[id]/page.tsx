@@ -48,7 +48,12 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
         <div style={{ position: 'sticky', top: '100px' }}>
           <div className="ui-card" style={{ marginBottom: '24px' }}>
             <h1 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '12px', color: 'var(--text-primary)' }}>{item.title}</h1>
-<Link href={`/portfolio/author/${encodeURIComponent(item.author_name)}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px dashed var(--border-subtle)', textDecoration: 'none' }}>
+            
+            {/* 👇 点击作者头像跳转主页 */}
+            <Link 
+              href={`/portfolio/author/${encodeURIComponent(item.author_name)}`} 
+              style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px dashed var(--border-subtle)', textDecoration: 'none', cursor: 'pointer' }}
+            >
               <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: 'white', fontWeight: 'bold' }}>
                 {item.author_name?.charAt(0).toUpperCase()}
               </div>
@@ -56,14 +61,7 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
                 <div style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>{item.author_name}</div>
                 <div style={{ fontSize: '12px', color: 'var(--cyan)' }}>点击进入主页 →</div>
               </div>
-            </Link>              <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: 'white', fontWeight: 'bold' }}>
-                {item.author_name?.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <div style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>{item.author_name}</div>
-                <div style={{ fontSize: '12px', color: 'var(--cyan)' }}>{item.category}</div>
-              </div>
-            </div>
+            </Link>
             
             <h4 style={{ fontSize: '13px', color: 'var(--text-dim)', marginBottom: '12px' }}>使用工具栈</h4>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
