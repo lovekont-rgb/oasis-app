@@ -5,30 +5,23 @@ import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import ThemeToggle from './ThemeToggle'
 
-export default function Navbar() {
+export default function Navbar({ initialUser }: { initialUser: any }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
   
   const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [user, setUser] = useState<any>(null)
+  // 👇 核心修改：用传进来的 initialUser 初始化状态
+  const [user, setUser] = useState<any>(initialUser)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // 监听登录状态
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-    }
-    getUser()
-
-    // 实时监听认证状态变化（比如在其他标签页退出登录，这里也会同步）
+    // 只在客户端发生状态变化时更新（比如点退出登录、或者在其他标签页切换账号）
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null)
     })
 
-    // 点击空白处关闭下拉菜单
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false)
@@ -42,7 +35,6 @@ export default function Navbar() {
     }
   }, [])
 
-  // 退出登录
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setIsDropdownOpen(false)
@@ -60,7 +52,6 @@ export default function Navbar() {
     { name: '社区', href: '/community' },
   ]
 
-  // 提取邮箱首字母作为头像
   const avatarLetter = user?.email ? user.email.charAt(0).toUpperCase() : 'U'
 
   return (
@@ -71,13 +62,11 @@ export default function Navbar() {
     }}>
       <div className="nav-container" style={{ position: 'relative' }}>
         
-        {/* 左侧 Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 2 }}>
           <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 900, fontSize: 14, boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)' }}>O</div>
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>OASIS</span>
         </Link>
 
-        {/* 中间导航：绝对居中锁死 */}
         <nav style={{ 
           position: 'absolute', left: '50%', transform: 'translateX(-50%)', 
           display: 'flex', gap: '24px', fontSize: 14, fontWeight: 500, zIndex: 1
@@ -95,10 +84,8 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* 右侧按钮组 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', zIndex: 2 }}>
           
-          {/* 搜索文字按钮 */}
           <button 
             onClick={() => setIsSearchOpen(!isSearchOpen)}
             style={{ background: 'none', border: 'none', color: isSearchOpen ? 'var(--cyan)' : 'var(--text-secondary)', fontSize: '14px', cursor: 'pointer', fontWeight: 500, transition: '0.3s' }}
@@ -108,10 +95,9 @@ export default function Navbar() {
 
           <ThemeToggle />
           
-          {/* 👇 核心改造：根据登录状态展示不同内容 */}
+          {/* 核心渲染逻辑：根据 user 状态渲染 */}
           {user ? (
             <div style={{ position: 'relative' }} ref={dropdownRef}>
-              {/* 用户头像按钮 */}
               <button 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 style={{
@@ -124,7 +110,6 @@ export default function Navbar() {
                 {avatarLetter}
               </button>
 
-              {/* 下拉菜单 */}
               {isDropdownOpen && (
                 <div style={{
                   position: 'absolute', top: '48px', right: 0, width: '200px',
@@ -176,7 +161,6 @@ export default function Navbar() {
 
         </div>
 
-        {/* 搜索框 */}
         {isSearchOpen && (
           <div style={{
             position: 'absolute', top: '100%', left: 0, right: 0,
