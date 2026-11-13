@@ -1,12 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 export default function ThemeToggle() {
-  const [mounted, setMounted] = useState(false)
-
   useEffect(() => {
-    setMounted(true)
     // 监听系统外观变化（如果是跟随系统模式）
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
     const handler = () => {
@@ -20,9 +17,7 @@ export default function ThemeToggle() {
 
   const toggle = () => {
     const ORDER = ['dark', 'light', 'system']
-    // 直接从 html 标签上读取当前状态（完美避免状态不同步）
     const currentPref = document.documentElement.getAttribute('data-theme-pref') || 'dark'
-    
     const next = ORDER[(ORDER.indexOf(currentPref) + 1) % ORDER.length]
     
     localStorage.setItem('oasis-theme', next)
@@ -30,11 +25,6 @@ export default function ThemeToggle() {
     const isDark = next === 'dark' || (next === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
     document.documentElement.setAttribute('data-theme-pref', next)
-  }
-
-  // 如果未挂载，给个透明占位符，保证服务端和客户端结构一致
-  if (!mounted) {
-    return <div style={{ width: 36, height: 36 }} />
   }
 
   return (
