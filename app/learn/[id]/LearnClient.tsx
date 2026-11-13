@@ -53,7 +53,7 @@ export default function LearnClient({ courseId, course, initialChapter = 0, init
   const handleMarkComplete = async () => {
     if (!currentLesson || !userId || completedLessons.includes(currentLesson.title)) return
     setIsSaving(true)
-    const res = await markLessonComplete(userId, Number(courseId), currentLesson.title)
+    const res = await markLessonComplete( Number(courseId), currentLesson.title)
     if (res.success) {
       setCompletedLessons([...completedLessons, currentLesson.title])
     }
