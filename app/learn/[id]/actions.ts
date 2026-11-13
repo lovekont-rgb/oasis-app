@@ -2,20 +2,24 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function markLessonComplete(userId: string, courseId: number, lessonTitle: string) {
+export async function markLessonComplete(courseId: number, lessonTitle: string) {
   const supabase = await createClient()
-  
-  // 写入进度表
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return { success: false, error: '请先登录' }
+
   const { error } = await supabase.from('learning_progress').insert({
-    user_id: userId,
+    user_id: user.id, // 👈 使用真实用户ID
     course_id: courseId,
     lesson_title: lessonTitle
   })
 
-  if (error && error.code !== '23505') { // 忽略唯一约束冲突（说明已经标记过了）
+  if (error && error.code !== '23505') { 
     return { success: false, error: error.message }
   }
   
   revalidatePath(`/learn/${courseId}`)
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/learning')
   return { success: true }
 }
