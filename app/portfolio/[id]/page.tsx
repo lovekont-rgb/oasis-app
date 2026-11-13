@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
+import DetailInteraction from './DetailInteraction'
 
 export const instant = false
 
@@ -10,6 +11,8 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
 
   const supabase = await createClient()
   const { data: item } = await supabase.from('portfolios').select('*').eq('id', id).single()
+  const { data: { user } } = await supabase.auth.getUser()
+
   if (!item) notFound()
 
   return (
@@ -33,18 +36,21 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
           </div>
           
           <div style={{ marginTop: '32px' }}>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '16px' }}>创作说明</h3>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>创作说明</h3>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>{item.content || '作者暂无补充说明。'}</p>
           </div>
+
+          {/* 👇 核心：点赞与评论组件 */}
+          <DetailInteraction portfolioId={item.id} initialLikes={item.likes_count || 0} user={user} />
         </div>
 
         {/* 右侧：侧边栏 */}
         <div style={{ position: 'sticky', top: '100px' }}>
           <div className="ui-card" style={{ marginBottom: '24px' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '12px' }}>{item.title}</h1>
+            <h1 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '12px', color: 'var(--text-primary)' }}>{item.title}</h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px dashed var(--border-subtle)' }}>
               <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: 'white', fontWeight: 'bold' }}>
-                {item.author_name.charAt(0)}
+                {item.author_name?.charAt(0).toUpperCase()}
               </div>
               <div>
                 <div style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>{item.author_name}</div>
@@ -55,14 +61,14 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
             <h4 style={{ fontSize: '13px', color: 'var(--text-dim)', marginBottom: '12px' }}>使用工具栈</h4>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {item.tools?.map((tool: string, i: number) => (
-                <span key={i} style={{ fontSize: '12px', padding: '4px 12px', background: 'rgba(0,212,255,0.05)', border: '1px solid var(--border-subtle)', borderRadius: '100px' }}>{tool}</span>
+                <span key={i} style={{ fontSize: '12px', padding: '4px 12px', background: 'rgba(0,212,255,0.05)', border: '1px solid var(--border-subtle)', borderRadius: '100px', color: 'var(--text-secondary)' }}>{tool}</span>
               ))}
               {(!item.tools || item.tools.length === 0) && <span style={{ color: 'var(--text-dim)', fontSize: '12px' }}>未填写</span>}
             </div>
           </div>
 
           {item.category === '兼职接单' && (
-            <button style={{ width: '100%', padding: '16px', borderRadius: '100px', background: 'linear-gradient(120deg, var(--cyan), #4ae0ff)', color: '#05070d', fontWeight: 800, fontSize: '16px', border: 'none', cursor: 'pointer' }}>
+            <button style={{ width: '100%', padding: '16px', borderRadius: '100px', background: 'linear-gradient(120deg, var(--cyan), #4ae0ff)', color: '#05070d', fontWeight: 800, fontSize: '16px', border: 'none', cursor: 'pointer', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}>
               联系作者接单
             </button>
           )}
