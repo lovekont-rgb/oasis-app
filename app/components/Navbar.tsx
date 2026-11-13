@@ -1,14 +1,55 @@
 'use client'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { useState, useEffect, useRef } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import ThemeToggle from './ThemeToggle'
 
 export default function Navbar() {
   const pathname = usePathname()
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const router = useRouter()
+  const supabase = createClient()
   
-  // 1. 导航栏新增“首页”
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // 监听登录状态
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+    }
+    getUser()
+
+    // 实时监听认证状态变化（比如在其他标签页退出登录，这里也会同步）
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null)
+    })
+
+    // 点击空白处关闭下拉菜单
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      subscription.unsubscribe()
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  // 退出登录
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setIsDropdownOpen(false)
+    router.push('/')
+    router.refresh()
+  }
+
   const links = [
     { name: '首页', href: '/' },
     { name: '学习路径', href: '/paths' },
@@ -18,6 +59,9 @@ export default function Navbar() {
     { name: '项目实战', href: '/projects' },
     { name: '社区', href: '/community' },
   ]
+
+  // 提取邮箱首字母作为头像
+  const avatarLetter = user?.email ? user.email.charAt(0).toUpperCase() : 'U'
 
   return (
     <header style={{
@@ -64,22 +108,75 @@ export default function Navbar() {
 
           <ThemeToggle />
           
-          {/* 注册与登录 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: '8px' }}>
-            <Link href="/register" style={{ color: 'var(--text-secondary)', fontSize: '14px', textDecoration: 'none', fontWeight: 500, transition: '0.3s' }}>
-              注册
-            </Link>
-            <Link href="/login" style={{ 
-              padding: '6px 16px', borderRadius: '100px', border: '1px solid var(--cyan)', 
-              color: 'var(--cyan)', fontSize: '14px', textDecoration: 'none', fontWeight: 'bold',
-              transition: '0.3s'
-            }}>
-              登录
-            </Link>
-          </div>
+          {/* 👇 核心改造：根据登录状态展示不同内容 */}
+          {user ? (
+            <div style={{ position: 'relative' }} ref={dropdownRef}>
+              {/* 用户头像按钮 */}
+              <button 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                style={{
+                  width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))',
+                  border: '2px solid var(--border-subtle)', color: '#fff', fontWeight: 'bold', fontSize: '16px',
+                  display: 'grid', placeItems: 'center', cursor: 'pointer', transition: '0.3s',
+                  boxShadow: isDropdownOpen ? '0 0 15px rgba(0, 212, 255, 0.4)' : 'none'
+                }}
+              >
+                {avatarLetter}
+              </button>
+
+              {/* 下拉菜单 */}
+              {isDropdownOpen && (
+                <div style={{
+                  position: 'absolute', top: '48px', right: 0, width: '200px',
+                  background: 'var(--surface-card)', border: '1px solid var(--border-subtle)',
+                  borderRadius: '12px', padding: '8px', backdropFilter: 'blur(20px)',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '4px'
+                }}>
+                  <div style={{ padding: '8px 12px', borderBottom: '1px dashed var(--border-subtle)', marginBottom: '4px' }}>
+                    <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>已登录账号</p>
+                    <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
+                  </div>
+                  
+                  <Link 
+                    href="/dashboard" 
+                    onClick={() => setIsDropdownOpen(false)}
+                    style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px', transition: '0.2s' }}
+                    className="dropdown-item"
+                  >
+                    💼 个人工作台
+                  </Link>
+                  
+                  <button 
+                    onClick={handleLogout}
+                    style={{ 
+                      padding: '10px 12px', fontSize: '14px', color: '#ff4444', background: 'transparent', 
+                      border: 'none', borderRadius: '6px', textAlign: 'left', cursor: 'pointer', transition: '0.2s' 
+                    }}
+                    className="dropdown-item"
+                  >
+                    🚪 退出登录
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: '8px' }}>
+              <Link href="/register" style={{ color: 'var(--text-secondary)', fontSize: '14px', textDecoration: 'none', fontWeight: 500, transition: '0.3s' }}>
+                注册
+              </Link>
+              <Link href="/login" style={{ 
+                padding: '6px 16px', borderRadius: '100px', border: '1px solid var(--cyan)', 
+                color: 'var(--cyan)', fontSize: '14px', textDecoration: 'none', fontWeight: 'bold',
+                transition: '0.3s'
+              }}>
+                登录
+              </Link>
+            </div>
+          )}
+
         </div>
 
-        {/* 点击搜索后向下弹出的搜索框 */}
+        {/* 搜索框 */}
         {isSearchOpen && (
           <div style={{
             position: 'absolute', top: '100%', left: 0, right: 0,
@@ -107,6 +204,10 @@ export default function Navbar() {
         @keyframes fadeInDown {
           from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-item:hover {
+          background: rgba(0, 212, 255, 0.1) !important;
+          color: var(--cyan) !important;
         }
       `}} />
     </header>
