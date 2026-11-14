@@ -95,41 +95,26 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
 
           <ThemeToggle />
           
-          {/* 核心渲染逻辑：根据 user 状态渲染 */}
-          {user ? (
-            <div style={{ position: 'relative' }} ref={dropdownRef}>
-              <button 
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                style={{
-                  width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))',
-                  border: '2px solid var(--border-subtle)', color: '#fff', fontWeight: 'bold', fontSize: '16px',
-                  display: 'grid', placeItems: 'center', cursor: 'pointer', transition: '0.3s',
-                  boxShadow: isDropdownOpen ? '0 0 15px rgba(0, 212, 255, 0.4)' : 'none'
-                }}
-              >
-                {avatarLetter}
-              </button>
-
-              {isDropdownOpen && (
-                <div style={{
-                  position: 'absolute', top: '48px', right: 0, width: '200px',
-                  background: 'var(--surface-card)', border: '1px solid var(--border-subtle)',
-                  borderRadius: '12px', padding: '8px', backdropFilter: 'blur(20px)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '4px'
-                }}>
-                  <div style={{ padding: '8px 12px', borderBottom: '1px dashed var(--border-subtle)', marginBottom: '4px' }}>
-                    <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>已登录账号</p>
-                    <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
-                  </div>
-                  
-                  <Link 
-                    href="/dashboard" 
-                    onClick={() => setIsDropdownOpen(false)}
-                    style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px', transition: '0.2s' }}
-                    className="dropdown-item"
-                  >
-                    💼 个人创作中心
-                  </Link>
+          {/* 👇 根据邮箱动态判断显示哪个入口 */}
+                  {user.email === 'sj2282@sina.com' ? (
+                    <Link 
+                      href="/admin" 
+                      onClick={() => setIsDropdownOpen(false)}
+                      style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--cyan)', textDecoration: 'none', borderRadius: '6px', transition: '0.2s' }}
+                      className="dropdown-item"
+                    >
+                      👑 核心管理后台
+                    </Link>
+                  ) : (
+                    <Link 
+                      href="/dashboard" 
+                      onClick={() => setIsDropdownOpen(false)}
+                      style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px', transition: '0.2s' }}
+                      className="dropdown-item"
+                    >
+                      💼 个人创作中心
+                    </Link>
+                  )}
                   
                   <button 
                     onClick={handleLogout}

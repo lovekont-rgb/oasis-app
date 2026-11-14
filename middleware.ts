@@ -31,11 +31,15 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. 管理员权限拦截：保护 /admin
-  if (user && path.startsWith('/admin')) {
-    // 🚨 核心限制：只有这个特定的邮箱可以访问全站后台
-    if (user.email !== 'sj2282@sina.com') {
+  if (path.startsWith('/admin')) {
+    // 如果没登录，或者登录的不是超管邮箱
+    if (!user || user.email !== 'sj2282@sina.com') {
+      // 如果他访问的已经是登录页，放行
+      if (path === '/admin/login') return response; 
+      
+      // 否则，全部踢到专属的管理员登录页
       const url = request.nextUrl.clone()
-      url.pathname = '/' // 直接踢回首页
+      url.pathname = '/admin/login'
       return NextResponse.redirect(url)
     }
   }
