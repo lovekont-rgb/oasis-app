@@ -32,13 +32,10 @@ export async function middleware(request: NextRequest) {
 
   // 2. 管理员权限拦截：保护 /admin
   if (user && path.startsWith('/admin')) {
-    // 去数据库查当前用户的角色
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-    
-    if (profile?.role !== 'admin') {
-      // 如果不是管理员，踢回首页
+    // 🚨 核心限制：只有这个特定的邮箱可以访问全站后台
+    if (user.email !== 'sj2282@sina.com') {
       const url = request.nextUrl.clone()
-      url.pathname = '/' 
+      url.pathname = '/' // 直接踢回首页
       return NextResponse.redirect(url)
     }
   }
