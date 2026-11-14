@@ -35,14 +35,18 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
 
     try {
       if (isLogin) {
-        // 【登录逻辑】
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        // 登录逻辑
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
         
-        // 登录成功
-        setIsSuccess(true)
-        setMsg('登录成功，正在进入...')
-        router.push('/')
+        // 👇 修改这里：
+        // 如果当前邮箱是你的超管账号，去后台
+        if (data.user?.email === 'sj2282@sina.com') {
+          router.push('/admin')
+        } else {
+          // 普通用户，去个人创作中心
+          router.push('/dashboard')
+        }
         router.refresh()
       } else {
         // 【注册逻辑】
