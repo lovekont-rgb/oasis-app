@@ -30,6 +30,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/messages" className={`${styles.menuItem}`}>
             💬 留言管理
           </Link>
+          <Link href="/admin/users" className={`${styles.menuItem}`}>
+            👥 用户权限管理
+          </Link>
 
           {/* 核心内容管理 */}
           <div className={styles.menuTitle}>核心内容管理</div>

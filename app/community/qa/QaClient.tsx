@@ -65,6 +65,8 @@ export default function QaClient({ officialFaqs, userQuestions }: { officialFaqs
       {/* 用户互动提问版块 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <h2 className="ui-section-title" style={{ margin: 0 }}>用户最新提问 ({userQuestions.length})</h2>
+        
+        {/* 👇 如果 userQuestions 是登录用户才能发的，我们可以在页面加载时把用户状态传进来，或者直接用问号判断 */}
         <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 24px', background: 'var(--cyan)', color: '#05070d', borderRadius: '100px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
           {showForm ? '取消提问' : '+ 发起提问'}
         </button>
