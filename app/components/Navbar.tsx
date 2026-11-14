@@ -1,4 +1,5 @@
 'use client'
+
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
@@ -11,13 +12,11 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
   const supabase = createClient()
   
   const [isSearchOpen, setIsSearchOpen] = useState(false)
-  // 👇 核心修改：用传进来的 initialUser 初始化状态
   const [user, setUser] = useState<any>(initialUser)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // 只在客户端发生状态变化时更新（比如点退出登录、或者在其他标签页切换账号）
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null)
     })
@@ -62,11 +61,13 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
     }}>
       <div className="nav-container" style={{ position: 'relative' }}>
         
+        {/* 左侧 Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 2 }}>
           <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 900, fontSize: 14, boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)' }}>O</div>
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>OASIS</span>
         </Link>
 
+        {/* 中间导航 */}
         <nav style={{ 
           position: 'absolute', left: '50%', transform: 'translateX(-50%)', 
           display: 'flex', gap: '24px', fontSize: 14, fontWeight: 500, zIndex: 1
@@ -84,6 +85,7 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
           })}
         </nav>
 
+        {/* 右侧按钮组 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', zIndex: 2 }}>
           
           <button 
@@ -95,7 +97,35 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
 
           <ThemeToggle />
           
-          {/* 👇 根据邮箱动态判断显示哪个入口 */}
+          {/* 👇 用户状态判断开始 */}
+          {user ? (
+            <div style={{ position: 'relative' }} ref={dropdownRef}>
+              <button 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                style={{
+                  width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))',
+                  border: '2px solid var(--border-subtle)', color: '#fff', fontWeight: 'bold', fontSize: '16px',
+                  display: 'grid', placeItems: 'center', cursor: 'pointer', transition: '0.3s',
+                  boxShadow: isDropdownOpen ? '0 0 15px rgba(0, 212, 255, 0.4)' : 'none'
+                }}
+              >
+                {avatarLetter}
+              </button>
+
+              {/* 下拉菜单 */}
+              {isDropdownOpen && (
+                <div style={{
+                  position: 'absolute', top: '48px', right: 0, width: '200px',
+                  background: 'var(--surface-card)', border: '1px solid var(--border-subtle)',
+                  borderRadius: '12px', padding: '8px', backdropFilter: 'blur(20px)',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '4px'
+                }}>
+                  <div style={{ padding: '8px 12px', borderBottom: '1px dashed var(--border-subtle)', marginBottom: '4px' }}>
+                    <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>已登录账号</p>
+                    <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
+                  </div>
+                  
+                  {/* 👇 根据邮箱动态判断显示哪个入口 */}
                   {user.email === 'sj2282@sina.com' ? (
                     <Link 
                       href="/admin" 
@@ -143,9 +173,11 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
               </Link>
             </div>
           )}
+          {/* 👆 用户状态判断结束 */}
 
         </div>
 
+        {/* 搜索框 */}
         {isSearchOpen && (
           <div style={{
             position: 'absolute', top: '100%', left: 0, right: 0,
