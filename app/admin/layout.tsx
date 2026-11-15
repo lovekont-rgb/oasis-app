@@ -8,8 +8,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
-  // 判断是否是唯一的超级管理员
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user?.id || '').single()
   const isSuperAdmin = user?.email === 'sj2282@sina.com'
+  const isAdmin = profile?.role === 'admin'
 
   return (
     <div className={styles.adminLayout}>
@@ -38,8 +39,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             💬 留言管理
           </Link>
 
-          {/* 👇 核心控制：只有超级管理员才能看到这个菜单 */}
-          {isSuperAdmin && (
+          {/* 👇 只要角色是 admin，就能看到这个菜单 */}
+          {(isSuperAdmin || isAdmin) && (
             <Link href="/admin/users" className={`${styles.menuItem}`}>
               👥 用户权限管理
             </Link>
@@ -96,7 +97,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <header className={styles.topbar}>
           <div className={styles.topbarTitle}>后台管理系统</div>
           <div className={styles.userInfo}>
-            <span>👤 {isSuperAdmin ? '超级管理员' : '普通管理员'}</span>
+            <span>👤 {isSuperAdmin ? '超级管理员' : isAdmin ? '普通管理员' : '无权限'}</span>
           </div>
         </header>
         

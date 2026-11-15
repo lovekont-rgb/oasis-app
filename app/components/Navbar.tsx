@@ -121,14 +121,15 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
                     <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
                   </div>
                   
-                  {/* 👇 核心判断：超管或普通管理员都会看到后台入口 */}
-                  {isSuperOrAdmin ? (
-                    <Link href="/admin" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px' }}>
+                  {/* 个人创作中心 */}
+                  <Link href="/dashboard" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>
+                    💼 个人创作中心
+                  </Link>
+
+                  {/* 只有超管和普通管理员才会多出一个后台入口 */}
+                  {isSuperOrAdmin && (
+                    <Link href="/admin" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px', background: 'rgba(255, 215, 0, 0.05)' }}>
                       👑 后台管理系统
-                    </Link>
-                  ) : (
-                    <Link href="/dashboard" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>
-                      💼 个人创作中心
                     </Link>
                   )}
                   

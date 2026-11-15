@@ -6,7 +6,7 @@ import { Suspense } from 'react'
 
 export const metadata = { title: 'OASIS | 创意无线增长' }
 
-// 1. 获取用户信息和角色
+// 1. 获取用户信息及其角色
 async function NavbarWrapper() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

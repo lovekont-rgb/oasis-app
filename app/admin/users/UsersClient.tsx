@@ -1,25 +1,23 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
-  const router = useRouter()
   const supabase = createClient()
   
   const [search, setSearch] = useState('')
   const [users, setUsers] = useState(initialUsers)
   const [loadingId, setLoadingId] = useState<string | null>(null)
-
   const [currentAdminEmail, setCurrentAdminEmail] = useState('')
-  
-  useState(() => {
+
+  useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user?.email) setCurrentAdminEmail(data.user.email)
     })
-  })
+  }, [])
 
+  // 判断当前操作者是谁
   const isSuperAdmin = currentAdminEmail === 'sj2282@sina.com'
 
   const filteredUsers = users.filter(u => 
@@ -27,7 +25,9 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
   )
 
   const handleRoleChange = async (id: string, newRole: string, targetEmail: string) => {
+    if (!isSuperAdmin) return alert('只有超级管理员才能修改角色！')
     if (targetEmail === 'sj2282@sina.com') return alert('无法修改拥有者权限！')
+    
     setLoadingId(id)
     await supabase.from('profiles').update({ role: newRole }).eq('id', id)
     setUsers(users.map(u => u.id === id ? { ...u, role: newRole } : u))
@@ -44,11 +44,9 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
     setLoadingId(null)
   }
 
-  // 👇 新增：禁言/解禁逻辑
-  const handleToggleMute = async (id: string, current: boolean, targetEmail: string, targetRole: string) => {
+  const handleToggleMute = async (id: string, current: boolean, targetEmail: string) => {
     if (targetEmail === 'sj2282@sina.com') return alert('无法禁言网站拥有者！')
-    // 普通Admin不能禁言其他Admin（可选保护，看你需要，这里我设置为可以禁言）
-    if (!confirm(current ? '确定要解除禁言吗？' : '确定要禁言该用户吗？禁言期间无法发布任何内容。')) return
+    if (!confirm(current ? '确定要解除禁言吗？' : '确定要禁言该用户吗？')) return
 
     setLoadingId(id)
     await supabase.from('profiles').update({ is_muted: !current }).eq('id', id)
@@ -61,14 +59,13 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>用户与权限管理</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>全站注册用户列表。</p>
+          <p style={{ color: 'var(--text-secondary)' }}>
+            当前操作员：{isSuperAdmin ? '超级管理员 (拥有全部权限)' : '普通管理员 (仅可禁言/封禁)'}
+          </p>
         </div>
         
         <input 
-          type="text" 
-          placeholder="搜索用户邮箱..." 
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          type="text" placeholder="搜索用户邮箱..." value={search} onChange={(e) => setSearch(e.target.value)}
           style={{ padding: '10px 16px', borderRadius: '100px', width: '300px', background: 'var(--bg-void)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', outline: 'none', fontSize: '14px' }}
         />
       </div>
@@ -85,8 +82,10 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
           <tbody>
             {filteredUsers.map((u) => {
               const isTargetSuper = u.email === 'sj2282@sina.com'
+              // 只有超管能改角色，且不能改超管的
               const canManageRole = isSuperAdmin && !isTargetSuper
-              const canBan = !isTargetSuper
+              // 任何管理员都能封禁和禁言，但不能动超管
+              const canModerate = !isTargetSuper
 
               return (
                 <tr key={u.id} style={{ borderBottom: '1px solid var(--border-subtle)', fontSize: '14px', opacity: u.is_banned ? 0.5 : 1 }}>
@@ -105,26 +104,29 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
                   </td>
                   <td style={{ padding: '16px', textAlign: 'right', display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                     
+                    {/* 角色下拉框：只有超管能看见且能操作 */}
                     {canManageRole ? (
                       <select value={u.role} disabled={loadingId === u.id} onChange={(e) => handleRoleChange(u.id, e.target.value, u.email)} style={{ padding: '6px', borderRadius: '6px', background: 'var(--bg-void)', color: 'white', border: '1px solid var(--border-subtle)', fontSize: '12px' }}>
                         <option value="user">普通用户</option>
                         <option value="admin">管理员</option>
                       </select>
-                    ) : null}
-
-                    {/* 👇 禁言按钮 */}
-                    {canBan && (
-                      <button onClick={() => handleToggleMute(u.id, u.is_muted, u.email, u.role)} disabled={loadingId === u.id} style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', background: u.is_muted ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 180, 60, 0.1)', color: u.is_muted ? 'var(--green)' : 'var(--warn)', border: `1px solid ${u.is_muted ? 'var(--green)' : 'var(--warn)'}` }}>
-                        {u.is_muted ? '解禁言' : '禁言'}
-                      </button>
+                    ) : (
+                      <span style={{ fontSize: '12px', color: 'var(--text-dim)', display: 'flex', alignItems: 'center' }}>无权改角色</span>
                     )}
 
-                    {/* 封禁按钮 */}
-                    {canBan && (
+                    {/* 禁言按钮：所有人都能用（除了对超管） */}
+                    {canModerate ? (
+                      <button onClick={() => handleToggleMute(u.id, u.is_muted, u.email)} disabled={loadingId === u.id} style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', background: u.is_muted ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 180, 60, 0.1)', color: u.is_muted ? 'var(--green)' : 'var(--warn)', border: `1px solid ${u.is_muted ? 'var(--green)' : 'var(--warn)'}` }}>
+                        {u.is_muted ? '解禁言' : '禁言'}
+                      </button>
+                    ) : null}
+
+                    {/* 封禁按钮：所有人都能用（除了对超管） */}
+                    {canModerate ? (
                       <button onClick={() => handleToggleBan(u.id, u.is_banned, u.email)} disabled={loadingId === u.id} style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', background: u.is_banned ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 68, 68, 0.1)', color: u.is_banned ? 'var(--green)' : '#ff4444', border: `1px solid ${u.is_banned ? 'var(--green)' : '#ff4444'}` }}>
                         {u.is_banned ? '解封' : '封禁'}
                       </button>
-                    )}
+                    ) : null}
                   </td>
                 </tr>
               )
