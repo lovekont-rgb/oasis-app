@@ -7,6 +7,7 @@ import NetworkStatus from './components/NetworkStatus'
 
 export const metadata = { title: 'OASIS | 创意无线增长' }
 
+// 优化：只在服务端获取一次，不缓存，保证数据准确且极快
 async function NavbarWrapper() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
