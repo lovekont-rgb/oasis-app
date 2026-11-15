@@ -19,17 +19,11 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
   const router = useRouter()
   const supabase = createClient()
 
+  // 👇 核心清理逻辑：只要用户通过后退回到这里，立刻清空残留信息
   useEffect(() => {
-    const checkAuthAndRedirect = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (session?.user) {
-        if (session.user.email === 'sj2282@sina.com') {
-          router.replace('/admin')
-        } else {
-          router.replace('/dashboard')
-        }
-      } else {
+    // 如果页面是从浏览器缓存恢复的
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
         setEmail('')
         setPassword('')
         setMsg('')
@@ -38,14 +32,19 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
       }
     }
 
-    const handlePageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) {
-        checkAuthAndRedirect()
+    // 挂载时检查一次是否已登录，如果已登录直接踢去工作台（防止未清空的情况）
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        if (session.user.email === 'sj2282@sina.com') {
+          router.replace('/admin')
+        } else {
+          router.replace('/dashboard')
+        }
       }
     }
+    checkAuth()
 
-    checkAuthAndRedirect()
-    
     window.addEventListener('pageshow', handlePageShow)
     return () => window.removeEventListener('pageshow', handlePageShow)
   }, [router, supabase])
@@ -65,20 +64,20 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
 
     try {
       if (isLogin) {
+        // ============ 登录逻辑 ============
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
         
-        setIsSuccess(true)
-        setMsg('登录成功，正在进入...')
-        
+        // 👇 核心修改：直接跳转，不显示残留的成功提示，使用 replace 替换历史记录
         if (data.user?.email === 'sj2282@sina.com') {
-          router.push('/admin')
+          router.replace('/admin')
         } else {
-          router.push('/dashboard')
+          router.replace('/dashboard')
         }
         router.refresh() 
 
       } else {
+        // ============ 注册逻辑 ============
         const { data, error } = await supabase.auth.signUp({ email, password })
         if (error) throw error
 
@@ -89,7 +88,7 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
         } else if (data.session) {
           setIsSuccess(true)
           setMsg('注册成功，正在自动登录...')
-          router.push('/dashboard')
+          router.replace('/dashboard')
           router.refresh()
         }
       }
@@ -123,6 +122,7 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
           <button className={`${styles.tabBtn} ${!isLogin ? styles.tabBtnActive : ''}`} onClick={() => switchTab(false)} type="button">注册</button>
         </div>
 
+        {/* 错误提示框 */}
         {msg && (
           <div style={{ 
             padding: '14px', marginBottom: '24px', borderRadius: '10px', fontSize: '14px', textAlign: 'center', lineHeight: '1.5',
