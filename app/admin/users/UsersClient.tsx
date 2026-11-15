@@ -21,7 +21,6 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
 
   const filteredUsers = users.filter(u => {
     const matchesSearch = u.email?.toLowerCase().includes(search.toLowerCase())
-    // 普通管理员看不到超级管理员
     if (!isSuperAdmin && u.email === 'sj2282@sina.com') return false
     return matchesSearch
   })
@@ -38,7 +37,6 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
 
   const handleToggleBan = async (id: string, current: boolean) => {
     if (!confirm(current ? '确定要解封该账号吗？' : '确定要封禁该账号吗？')) return
-
     setLoadingId(id)
     await supabase.from('profiles').update({ is_banned: !current }).eq('id', id)
     setUsers(users.map(u => u.id === id ? { ...u, is_banned: !current } : u))
@@ -47,7 +45,6 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
 
   const handleToggleMute = async (id: string, current: boolean) => {
     if (!confirm(current ? '确定要解除禁言吗？' : '确定要禁言该用户吗？')) return
-
     setLoadingId(id)
     await supabase.from('profiles').update({ is_muted: !current }).eq('id', id)
     setUsers(users.map(u => u.id === id ? { ...u, is_muted: !current } : u))
@@ -82,53 +79,59 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
           <tbody>
             {filteredUsers.map((u) => {
               const isTargetSuper = u.email === 'sj2282@sina.com'
-              const isSelf = u.email === currentAdminEmail // 👈 判断是不是自己
+              const isSelf = u.email === currentAdminEmail
 
-              // 逻辑修正
               const canManageRole = isSuperAdmin && !isTargetSuper && !isSelf
-              // 不能动超管，也不能动自己
               const canModerate = !isTargetSuper && !isSelf 
 
               return (
                 <tr key={u.id} style={{ borderBottom: '1px solid var(--border-subtle)', fontSize: '14px', opacity: u.is_banned ? 0.5 : 1 }}>
-                  <td style={{ padding: '16px' }}>
-                    {u.email}
-                    {isTargetSuper && <span style={{ marginLeft: '8px', fontSize: '10px', color: '#ffd700', border: '1px solid #ffd700', padding: '2px 6px', borderRadius: '4px' }}>拥有者</span>}
-                    {isSelf && <span style={{ marginLeft: '8px', fontSize: '10px', color: 'var(--cyan)', border: '1px solid var(--cyan)', padding: '2px 6px', borderRadius: '4px' }}>当前账号</span>}
-                  </td>
-                  <td style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <span style={{ fontSize: '12px', color: u.role === 'admin' ? 'var(--cyan)' : 'var(--text-secondary)' }}>
-                      {isTargetSuper ? '超级管理员' : u.role === 'admin' ? '管理员' : '普通用户'}
-                    </span>
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      {u.is_banned && <span style={{ fontSize: '10px', color: '#ff4444', border: '1px solid #ff4444', padding: '1px 4px', borderRadius: '4px' }}>已封禁</span>}
-                      {u.is_muted && <span style={{ fontSize: '10px', color: 'var(--warn)', border: '1px solid var(--warn)', padding: '1px 4px', borderRadius: '4px' }}>已禁言</span>}
+                  <td style={{ padding: '16px', verticalAlign: 'middle' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {u.email}
+                      {isTargetSuper && <span style={{ fontSize: '10px', color: '#ffd700', border: '1px solid #ffd700', padding: '2px 6px', borderRadius: '4px' }}>拥有者</span>}
+                      {isSelf && <span style={{ fontSize: '10px', color: 'var(--cyan)', border: '1px solid var(--cyan)', padding: '2px 6px', borderRadius: '4px' }}>当前账号</span>}
                     </div>
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'right', display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                    
-                    {canManageRole ? (
-                      <select value={u.role} disabled={loadingId === u.id} onChange={(e) => handleRoleChange(u.id, e.target.value, u.email)} style={{ padding: '6px', borderRadius: '6px', background: 'var(--bg-void)', color: 'white', border: '1px solid var(--border-subtle)', fontSize: '12px' }}>
-                        <option value="user">普通用户</option>
-                        <option value="admin">管理员</option>
-                      </select>
-                    ) : (
-                      <span style={{ fontSize: '12px', color: 'var(--text-dim)', display: 'flex', alignItems: 'center' }}>
-                        {isTargetSuper ? '最高权限' : isSelf ? '当前账号' : '无权改角色'}
+                  <td style={{ padding: '16px', verticalAlign: 'middle' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <span style={{ fontSize: '12px', color: u.role === 'admin' ? 'var(--cyan)' : 'var(--text-secondary)' }}>
+                        {isTargetSuper ? '超级管理员' : u.role === 'admin' ? '管理员' : '普通用户'}
                       </span>
-                    )}
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        {u.is_banned && <span style={{ fontSize: '10px', color: '#ff4444', border: '1px solid #ff4444', padding: '1px 4px', borderRadius: '4px' }}>已封禁</span>}
+                        {u.is_muted && <span style={{ fontSize: '10px', color: 'var(--warn)', border: '1px solid var(--warn)', padding: '1px 4px', borderRadius: '4px' }}>已禁言</span>}
+                      </div>
+                    </div>
+                  </td>
+                  <td style={{ padding: '16px', textAlign: 'right', verticalAlign: 'middle' }}>
+                    <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                      
+                      {canManageRole ? (
+                        <select value={u.role} disabled={loadingId === u.id} onChange={(e) => handleRoleChange(u.id, e.target.value, u.email)} style={{ padding: '6px', borderRadius: '6px', background: 'var(--bg-void)', color: 'white', border: '1px solid var(--border-subtle)', fontSize: '12px', height: '32px' }}>
+                          <option value="user">普通用户</option>
+                          <option value="admin">管理员</option>
+                        </select>
+                      ) : (
+                        <span style={{ fontSize: '12px', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', height: '32px' }}>
+                          {/* 👇 优化后的文案，更专业且不重复 */}
+                          {isTargetSuper ? '不可操作' : isSelf ? '受保护' : '无权限'}
+                        </span>
+                      )}
 
-                    {canModerate ? (
-                      <>
-                        <button onClick={() => handleToggleMute(u.id, u.is_muted)} disabled={loadingId === u.id} style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', background: u.is_muted ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 180, 60, 0.1)', color: u.is_muted ? 'var(--green)' : 'var(--warn)', border: `1px solid ${u.is_muted ? 'var(--green)' : 'var(--warn)'}` }}>
-                          {u.is_muted ? '解禁言' : '禁言'}
-                        </button>
+                      {canModerate ? (
+                        <>
+                          <button onClick={() => handleToggleMute(u.id, u.is_muted)} disabled={loadingId === u.id} style={{ padding: '0 10px', height: '32px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', background: u.is_muted ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 180, 60, 0.1)', color: u.is_muted ? 'var(--green)' : 'var(--warn)', border: `1px solid ${u.is_muted ? 'var(--green)' : 'var(--warn)'}` }}>
+                            {u.is_muted ? '解禁言' : '禁言'}
+                          </button>
 
-                        <button onClick={() => handleToggleBan(u.id, u.is_banned)} disabled={loadingId === u.id} style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', background: u.is_banned ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 68, 68, 0.1)', color: u.is_banned ? 'var(--green)' : '#ff4444', border: `1px solid ${u.is_banned ? 'var(--green)' : '#ff4444'}` }}>
-                          {u.is_banned ? '解封' : '封禁'}
-                        </button>
-                      </>
-                    ) : null}
+                          <button onClick={() => handleToggleBan(u.id, u.is_banned)} disabled={loadingId === u.id} style={{ padding: '0 10px', height: '32px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', background: u.is_banned ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 68, 68, 0.1)', color: u.is_banned ? 'var(--green)' : '#ff4444', border: `1px solid ${u.is_banned ? 'var(--green)' : '#ff4444'}` }}>
+                            {u.is_banned ? '解封' : '封禁'}
+                          </button>
+                        </>
+                      ) : null}
+
+                    </div>
                   </td>
                 </tr>
               )
