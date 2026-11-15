@@ -4,54 +4,63 @@ import { Suspense } from 'react'
 
 export const instant = false
 
-// 1. 将查询数据的逻辑抽离成单独的组件
 async function DashboardStats() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-  const [
-    { count: learningCount },
-    { data: userPortfolios },
-    { count: qaCount }
-  ] = await Promise.all([
-    supabase.from('learning_progress').select('*', { count: 'exact', head: true }).eq('user_id', user?.id),
-    supabase.from('portfolios').select('likes_count').eq('user_id', user?.id),
-    supabase.from('community_questions').select('*', { count: 'exact', head: true }).eq('user_id', user?.id)
-  ])
+    const [
+      { count: learningCount },
+      { data: userPortfolios },
+      { count: qaCount }
+    ] = await Promise.all([
+      supabase.from('learning_progress').select('*', { count: 'exact', head: true }).eq('user_id', user?.id),
+      supabase.from('portfolios').select('likes_count').eq('user_id', user?.id),
+      supabase.from('community_questions').select('*', { count: 'exact', head: true }).eq('user_id', user?.id)
+    ])
 
-  const totalLikes = userPortfolios?.reduce((acc, curr) => acc + (curr.likes_count || 0), 0) || 0
-  const portfolioCount = userPortfolios?.length || 0
+    const totalLikes = userPortfolios?.reduce((acc, curr) => acc + (curr.likes_count || 0), 0) || 0
+    const portfolioCount = userPortfolios?.length || 0
 
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
-      <Link href="/dashboard/learning" className="ui-card" style={{ padding: '24px', textAlign: 'center', textDecoration: 'none' }}>
-        <div style={{ fontSize: '28px', marginBottom: '8px' }}>🎓</div>
-        <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>已学完课时</h3>
-        <p style={{ fontSize: '28px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>{learningCount || 0}</p>
-      </Link>
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
+        <Link href="/dashboard/learning" className="ui-card" style={{ padding: '24px', textAlign: 'center', textDecoration: 'none' }}>
+          <div style={{ fontSize: '28px', marginBottom: '8px' }}>🎓</div>
+          <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>已学完课时</h3>
+          <p style={{ fontSize: '28px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>{learningCount || 0}</p>
+        </Link>
 
-      <Link href="/dashboard/portfolio" className="ui-card" style={{ padding: '24px', textAlign: 'center', textDecoration: 'none' }}>
-        <div style={{ fontSize: '28px', marginBottom: '8px' }}>🎨</div>
-        <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>发布的作品</h3>
-        <p style={{ fontSize: '28px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>{portfolioCount}</p>
-      </Link>
+        <Link href="/dashboard/portfolio" className="ui-card" style={{ padding: '24px', textAlign: 'center', textDecoration: 'none' }}>
+          <div style={{ fontSize: '28px', marginBottom: '8px' }}>🎨</div>
+          <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>发布的作品</h3>
+          <p style={{ fontSize: '28px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>{portfolioCount}</p>
+        </Link>
 
-      <div className="ui-card" style={{ padding: '24px', textAlign: 'center' }}>
-        <div style={{ fontSize: '28px', marginBottom: '8px' }}>❤️</div>
-        <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>收到的赞</h3>
-        <p style={{ fontSize: '28px', fontWeight: '900', color: '#ff4444', fontFamily: 'Orbitron' }}>{totalLikes}</p>
+        <div className="ui-card" style={{ padding: '24px', textAlign: 'center' }}>
+          <div style={{ fontSize: '28px', marginBottom: '8px' }}>❤️</div>
+          <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>收到的赞</h3>
+          <p style={{ fontSize: '28px', fontWeight: '900', color: '#ff4444', fontFamily: 'Orbitron' }}>{totalLikes}</p>
+        </div>
+
+        <Link href="/dashboard/qa" className="ui-card" style={{ padding: '24px', textAlign: 'center', textDecoration: 'none' }}>
+          <div style={{ fontSize: '28px', marginBottom: '8px' }}>💬</div>
+          <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>发起的问答</h3>
+          <p style={{ fontSize: '28px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>{qaCount || 0}</p>
+        </Link>
       </div>
-
-      <Link href="/dashboard/qa" className="ui-card" style={{ padding: '24px', textAlign: 'center', textDecoration: 'none' }}>
-        <div style={{ fontSize: '28px', marginBottom: '8px' }}>💬</div>
-        <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>发起的问答</h3>
-        <p style={{ fontSize: '28px', fontWeight: '900', color: 'var(--cyan)', fontFamily: 'Orbitron' }}>{qaCount || 0}</p>
-      </Link>
-    </div>
-  )
+    )
+  } catch (err) {
+    // 👇 安全气囊：网络不好时不会崩溃，而是展示这个卡片
+    return (
+      <div className="ui-card" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-dim)' }}>
+        <div style={{ fontSize: '32px', marginBottom: '16px' }}>📡</div>
+        <h3>无法获取你的最新数据</h3>
+        <p>请检查网络连接。</p>
+      </div>
+    )
+  }
 }
 
-// 2. 页面外壳瞬间渲染，数据部分用 Suspense 包裹
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
