@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react' // 👈 加上 useEffect
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -13,7 +12,6 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   
-  // 状态管理：文字、颜色、等待验证
   const [msg, setMsg] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
   const [isAwaitingVerify, setIsAwaitingVerify] = useState(false)
@@ -21,15 +19,15 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
   const router = useRouter()
   const supabase = createClient()
 
-    // 👇 核心修复：监听浏览器的前进/后退事件，清空残留状态
+  // 修复浏览器后退导致的表单残留
   useEffect(() => {
     const handlePageShow = (event: PageTransitionEvent) => {
-      // 如果是从缓存中恢复的页面 (persisted)
       if (event.persisted) {
         setEmail('')
         setPassword('')
         setMsg('')
         setIsSuccess(false)
+        setIsAwaitingVerify(false)
       }
     }
     window.addEventListener('pageshow', handlePageShow)
@@ -51,15 +49,13 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
 
     try {
       if (isLogin) {
-        // ============ 登录逻辑 ============
+        // 登录逻辑
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
         
-        // 成功提示：绿色文字
         setIsSuccess(true)
         setMsg('登录成功，正在进入...')
         
-        // 👇 使用 router.push 软跳转，速度极快，并且提前刷新服务端组件
         if (data.user?.email === 'sj2282@sina.com') {
           router.push('/admin')
         } else {
@@ -68,7 +64,7 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
         router.refresh() 
 
       } else {
-        // ============ 注册逻辑 ============
+        // 注册逻辑
         const { data, error } = await supabase.auth.signUp({ email, password })
         if (error) throw error
 
@@ -113,7 +109,6 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
           <button className={`${styles.tabBtn} ${!isLogin ? styles.tabBtnActive : ''}`} onClick={() => switchTab(false)} type="button">注册</button>
         </div>
 
-        {/* 👇 提示框：根据 isSuccess 动态改变颜色 */}
         {msg && (
           <div style={{ 
             padding: '14px', marginBottom: '24px', borderRadius: '10px', fontSize: '14px', textAlign: 'center', lineHeight: '1.5',
