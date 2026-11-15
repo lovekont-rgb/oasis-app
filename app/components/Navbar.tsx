@@ -12,15 +12,19 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
   
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [user, setUser] = useState<any>(initialUser)
+  const [role, setRole] = useState(userRole || 'user') // 👈 状态实时化
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // 路由变化时关闭下拉菜单
   useEffect(() => {
-    setIsDropdownOpen(false)
-  }, [pathname])
+    // 1. 如果服务端没传 role，或者为了防缓存，我们在客户端再确认一次
+    if (user) {
+      supabase.from('profiles').select('role').eq('id', user.id).single().then(({ data }) => {
+        if (data?.role) setRole(data.role)
+      })
+    }
 
-  useEffect(() => {
+    // 2. 监听认证状态
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null)
     })
@@ -36,13 +40,17 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
       subscription.unsubscribe()
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [])
+  }, [user, supabase])
 
-    const handleLogout = async () => {
+  // 路由变化时关闭下拉菜单
+  useEffect(() => {
+    setIsDropdownOpen(false)
+  }, [pathname])
+
+  const handleLogout = async () => {
     await supabase.auth.signOut()
     setIsDropdownOpen(false)
-    // 极速软导航
-    window.location.replace('/login') 
+    window.location.replace('/login')
   }
 
   const links = [
@@ -56,7 +64,8 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
   ]
 
   const avatarLetter = user?.email ? user.email.charAt(0).toUpperCase() : 'U'
-  const isSuperOrAdmin = user?.email === 'sj2282@sina.com' || userRole === 'admin'
+  // 👇 核心判断：只要邮箱是超管，或者数据库里的角色是 admin，就显示后台
+  const isSuperOrAdmin = user?.email === 'sj2282@sina.com' || role === 'admin'
 
   return (
     <header style={{
@@ -126,6 +135,7 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
                     💼 个人创作中心
                   </Link>
 
+                  {/* 👇 核心：根据权限显示后台入口 */}
                   {isSuperOrAdmin && (
                     <Link href="/admin" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px', background: 'rgba(255, 215, 0, 0.05)' }}>
                       👑 后台管理系统
