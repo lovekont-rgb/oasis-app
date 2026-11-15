@@ -12,28 +12,31 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
   
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [user, setUser] = useState<any>(initialUser)
-  const [role, setRole] = useState(userRole || 'user') // 👈 状态实时化
+  const [role, setRole] = useState(userRole || 'user')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // 1. 如果服务端没传 role，或者为了防缓存，我们在客户端再确认一次
+    // 1. 客户端再次确认角色
     if (user) {
       supabase.from('profiles').select('role').eq('id', user.id).single().then(({ data }) => {
         if (data?.role) setRole(data.role)
       })
     }
 
-    // 2. 监听认证状态
+    // 2. 监听登录状态
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null)
     })
 
+    // 3. 点击外部关闭下拉菜单
     const handleClickOutside = (event: MouseEvent) => {
+      // 如果下拉菜单存在，且点击的目标不是下拉菜单内部
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false)
       }
     }
+    
     document.addEventListener('mousedown', handleClickOutside)
 
     return () => {
@@ -64,22 +67,23 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
   ]
 
   const avatarLetter = user?.email ? user.email.charAt(0).toUpperCase() : 'U'
-  // 👇 核心判断：只要邮箱是超管，或者数据库里的角色是 admin，就显示后台
   const isSuperOrAdmin = user?.email === 'sj2282@sina.com' || role === 'admin'
 
   return (
     <header style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, // 👈 层级拉满，防止被任何东西遮挡
       background: 'var(--nav-bg)', backdropFilter: 'blur(20px)',
       borderBottom: '1px solid var(--border-subtle)', transition: 'all 0.3s'
     }}>
       <div className="nav-container" style={{ position: 'relative' }}>
         
+        {/* 左侧 Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 2 }}>
           <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 900, fontSize: 14, boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)' }}>O</div>
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>OASIS</span>
         </Link>
 
+        {/* 中间导航 */}
         <nav style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '24px', fontSize: 14, fontWeight: 500, zIndex: 1 }}>
           {links.map(link => {
             const isActive = pathname === link.href
@@ -94,6 +98,7 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
           })}
         </nav>
 
+        {/* 右侧操作区 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', zIndex: 2 }}>
           <button 
             onClick={() => setIsSearchOpen(!isSearchOpen)}
@@ -106,25 +111,32 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
           
           {user ? (
             <div style={{ position: 'relative' }} ref={dropdownRef}>
+              {/* 头像按钮 */}
               <button 
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault(); // 防止某些浏览器吞掉点击
+                  setIsDropdownOpen(!isDropdownOpen);
+                }}
                 style={{
                   width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))',
                   border: '2px solid var(--border-subtle)', color: '#fff', fontWeight: 'bold', fontSize: '16px',
                   display: 'grid', placeItems: 'center', cursor: 'pointer', transition: '0.3s',
-                  boxShadow: isDropdownOpen ? '0 0 15px rgba(0, 212, 255, 0.4)' : 'none'
+                  boxShadow: isDropdownOpen ? '0 0 15px rgba(0, 212, 255, 0.4)' : 'none',
+                  padding: 0
                 }}
               >
                 {avatarLetter}
               </button>
 
+              {/* 下拉菜单 */}
               {isDropdownOpen && (
                 <div style={{
                   position: 'absolute', top: '48px', right: 0, width: '220px',
                   background: 'var(--surface-card)', border: '1px solid var(--border-subtle)',
                   borderRadius: '12px', padding: '8px', backdropFilter: 'blur(20px)',
                   boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '4px',
-                  zIndex: 9999
+                  zIndex: 10000 // 👈 下拉菜单层级比 header 还高
                 }}>
                   <div style={{ padding: '8px 12px', borderBottom: '1px dashed var(--border-subtle)', marginBottom: '4px' }}>
                     <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>已登录账号</p>
@@ -135,7 +147,6 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
                     💼 个人创作中心
                   </Link>
 
-                  {/* 👇 核心：根据权限显示后台入口 */}
                   {isSuperOrAdmin && (
                     <Link href="/admin" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px', background: 'rgba(255, 215, 0, 0.05)' }}>
                       👑 后台管理系统
@@ -160,6 +171,7 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
           )}
         </div>
 
+        {/* 搜索框 */}
         {isSearchOpen && (
           <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, padding: '20px 24px', background: 'var(--nav-bg)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', animation: 'fadeInDown 0.3s ease' }}>
             <form action="/search" method="GET" style={{ width: '100%', maxWidth: '600px', position: 'relative' }}>
