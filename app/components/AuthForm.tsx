@@ -19,7 +19,6 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
   const router = useRouter()
   const supabase = createClient()
 
-  // 修复浏览器后退导致的表单残留
   useEffect(() => {
     const handlePageShow = (event: PageTransitionEvent) => {
       if (event.persisted) {
@@ -49,7 +48,6 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
 
     try {
       if (isLogin) {
-        // 登录逻辑
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
         
@@ -64,7 +62,6 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
         router.refresh() 
 
       } else {
-        // 注册逻辑
         const { data, error } = await supabase.auth.signUp({ email, password })
         if (error) throw error
 
