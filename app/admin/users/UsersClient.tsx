@@ -17,19 +17,12 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
     })
   }, [])
 
-  // 判断当前操作者是不是超级管理员
   const isSuperAdmin = currentAdminEmail === 'sj2282@sina.com'
 
-  // 👇 核心修改：数据过滤逻辑
   const filteredUsers = users.filter(u => {
-    // 1. 搜索词匹配
     const matchesSearch = u.email?.toLowerCase().includes(search.toLowerCase())
-    
-    // 2. 权限拦截：如果当前是普通管理员，且目标账号是超级管理员，则不展示
-    if (!isSuperAdmin && u.email === 'sj2282@sina.com') {
-      return false
-    }
-    
+    // 普通管理员看不到超级管理员
+    if (!isSuperAdmin && u.email === 'sj2282@sina.com') return false
     return matchesSearch
   })
 
@@ -43,8 +36,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
     setLoadingId(null)
   }
 
-  const handleToggleBan = async (id: string, current: boolean, targetEmail: string) => {
-    if (targetEmail === 'sj2282@sina.com') return alert('无法封禁网站拥有者！')
+  const handleToggleBan = async (id: string, current: boolean) => {
     if (!confirm(current ? '确定要解封该账号吗？' : '确定要封禁该账号吗？')) return
 
     setLoadingId(id)
@@ -53,8 +45,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
     setLoadingId(null)
   }
 
-  const handleToggleMute = async (id: string, current: boolean, targetEmail: string) => {
-    if (targetEmail === 'sj2282@sina.com') return alert('无法禁言网站拥有者！')
+  const handleToggleMute = async (id: string, current: boolean) => {
     if (!confirm(current ? '确定要解除禁言吗？' : '确定要禁言该用户吗？')) return
 
     setLoadingId(id)
@@ -91,14 +82,19 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
           <tbody>
             {filteredUsers.map((u) => {
               const isTargetSuper = u.email === 'sj2282@sina.com'
-              const canManageRole = isSuperAdmin && !isTargetSuper
-              const canModerate = !isTargetSuper
+              const isSelf = u.email === currentAdminEmail // 👈 判断是不是自己
+
+              // 逻辑修正
+              const canManageRole = isSuperAdmin && !isTargetSuper && !isSelf
+              // 不能动超管，也不能动自己
+              const canModerate = !isTargetSuper && !isSelf 
 
               return (
                 <tr key={u.id} style={{ borderBottom: '1px solid var(--border-subtle)', fontSize: '14px', opacity: u.is_banned ? 0.5 : 1 }}>
                   <td style={{ padding: '16px' }}>
                     {u.email}
                     {isTargetSuper && <span style={{ marginLeft: '8px', fontSize: '10px', color: '#ffd700', border: '1px solid #ffd700', padding: '2px 6px', borderRadius: '4px' }}>拥有者</span>}
+                    {isSelf && <span style={{ marginLeft: '8px', fontSize: '10px', color: 'var(--cyan)', border: '1px solid var(--cyan)', padding: '2px 6px', borderRadius: '4px' }}>当前账号</span>}
                   </td>
                   <td style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <span style={{ fontSize: '12px', color: u.role === 'admin' ? 'var(--cyan)' : 'var(--text-secondary)' }}>
@@ -118,20 +114,20 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
                       </select>
                     ) : (
                       <span style={{ fontSize: '12px', color: 'var(--text-dim)', display: 'flex', alignItems: 'center' }}>
-                        {isTargetSuper ? '最高权限' : '无权改角色'}
+                        {isTargetSuper ? '最高权限' : isSelf ? '当前账号' : '无权改角色'}
                       </span>
                     )}
 
                     {canModerate ? (
-                      <button onClick={() => handleToggleMute(u.id, u.is_muted, u.email)} disabled={loadingId === u.id} style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', background: u.is_muted ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 180, 60, 0.1)', color: u.is_muted ? 'var(--green)' : 'var(--warn)', border: `1px solid ${u.is_muted ? 'var(--green)' : 'var(--warn)'}` }}>
-                        {u.is_muted ? '解禁言' : '禁言'}
-                      </button>
-                    ) : null}
+                      <>
+                        <button onClick={() => handleToggleMute(u.id, u.is_muted)} disabled={loadingId === u.id} style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', background: u.is_muted ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 180, 60, 0.1)', color: u.is_muted ? 'var(--green)' : 'var(--warn)', border: `1px solid ${u.is_muted ? 'var(--green)' : 'var(--warn)'}` }}>
+                          {u.is_muted ? '解禁言' : '禁言'}
+                        </button>
 
-                    {canModerate ? (
-                      <button onClick={() => handleToggleBan(u.id, u.is_banned, u.email)} disabled={loadingId === u.id} style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', background: u.is_banned ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 68, 68, 0.1)', color: u.is_banned ? 'var(--green)' : '#ff4444', border: `1px solid ${u.is_banned ? 'var(--green)' : '#ff4444'}` }}>
-                        {u.is_banned ? '解封' : '封禁'}
-                      </button>
+                        <button onClick={() => handleToggleBan(u.id, u.is_banned)} disabled={loadingId === u.id} style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', background: u.is_banned ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 68, 68, 0.1)', color: u.is_banned ? 'var(--green)' : '#ff4444', border: `1px solid ${u.is_banned ? 'var(--green)' : '#ff4444'}` }}>
+                          {u.is_banned ? '解封' : '封禁'}
+                        </button>
+                      </>
                     ) : null}
                   </td>
                 </tr>
