@@ -125,23 +125,13 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
                     <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
                   </div>
                   
-                  {/* 👇 根据邮箱动态判断显示哪个入口 */}
+                                    {/* 👇 修改这里的判断逻辑： */}
                   {user.email === 'sj2282@sina.com' ? (
-                    <Link 
-                      href="/admin" 
-                      onClick={() => setIsDropdownOpen(false)}
-                      style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--cyan)', textDecoration: 'none', borderRadius: '6px', transition: '0.2s' }}
-                      className="dropdown-item"
-                    >
-                      👑 核心管理后台
+                    <Link href="/admin" className={`dropdown-item`} style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px' }}>
+                      👑 超级管理后台
                     </Link>
                   ) : (
-                    <Link 
-                      href="/dashboard" 
-                      onClick={() => setIsDropdownOpen(false)}
-                      style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px', transition: '0.2s' }}
-                      className="dropdown-item"
-                    >
+                    <Link href="/dashboard" className={`dropdown-item`} style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>
                       💼 个人创作中心
                     </Link>
                   )}

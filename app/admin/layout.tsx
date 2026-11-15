@@ -1,10 +1,18 @@
 import Link from 'next/link'
 import styles from './admin.module.css'
+import { createClient } from '@/lib/supabase/server'
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export const instant = false
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  // 判断是否是唯一的超级管理员
+  const isSuperAdmin = user?.email === 'sj2282@sina.com'
+
   return (
     <div className={styles.adminLayout}>
-      {/* 左侧边栏 */}
       <aside className={styles.sidebar}>
         <div className={styles.logoArea}>
           <div className={styles.logoMark}>O</div>
@@ -13,7 +21,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <div className={styles.menuGroup}>
           
-          {/* 网站管理 */}
           <div className={styles.menuTitle}>网站管理</div>
           <Link href="/admin" className={`${styles.menuItem}`}>
             📊 数据概览
@@ -30,11 +37,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/messages" className={`${styles.menuItem}`}>
             💬 留言管理
           </Link>
-          <Link href="/admin/users" className={`${styles.menuItem}`}>
-            👥 用户权限管理
-          </Link>
 
-          {/* 核心内容管理 */}
+          {/* 👇 只有超级管理员才能看到这个菜单 */}
+          {isSuperAdmin && (
+            <Link href="/admin/users" className={`${styles.menuItem}`}>
+              👥 用户权限管理
+            </Link>
+          )}
+
           <div className={styles.menuTitle}>核心内容管理</div>
           <Link href="/admin/prompt-engineering" className={`${styles.menuItem}`}>
             📐 提示词工程配置
@@ -52,7 +62,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             🌐 社区管理
           </Link>
 
-          {/* 教学与互动管理 */}
           <div className={styles.menuTitle}>教学与互动管理</div>
           <Link href="/admin/paths" className={`${styles.menuItem}`}>
             🛣️ 学习路径配置
@@ -83,12 +92,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </Link>
       </aside>
 
-      {/* 右侧内容区 */}
       <main className={styles.mainContent}>
         <header className={styles.topbar}>
           <div className={styles.topbarTitle}>后台管理系统</div>
           <div className={styles.userInfo}>
-            <span>👤 管理员 (Admin)</span>
+            <span>👤 {isSuperAdmin ? '超级管理员' : '普通管理员'}</span>
           </div>
         </header>
         
