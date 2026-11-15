@@ -35,9 +35,17 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
 
     try {
       if (isLogin) {
-        // 登录逻辑
+                // 登录逻辑
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
+        
+        // 👇 核心优化：放弃 router.push，使用原生硬跳转，速度飞快
+        setMsg('登录成功，正在进入...')
+        if (data.user?.email === 'sj2282@sina.com') {
+          window.location.href = '/admin'
+        } else {
+          window.location.href = '/dashboard'
+        }
         
         // 👇 修改这里：
         // 如果当前邮箱是你的超管账号，去后台
