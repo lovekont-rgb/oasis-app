@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import styles from './auth.module.css'
 
@@ -11,24 +12,11 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
   const [password, setPassword] = useState('')
   
   const [loading, setLoading] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
   const [msg, setMsg] = useState('')
+  const [isSuccess, setIsSuccess] = useState(false)
   
+  const router = useRouter()
   const supabase = createClient()
-
-  useEffect(() => {
-    const handlePageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) {
-        setEmail('')
-        setPassword('')
-        setMsg('')
-        setIsSuccess(false)
-        setLoading(false)
-      }
-    }
-    window.addEventListener('pageshow', handlePageShow)
-    return () => window.removeEventListener('pageshow', handlePageShow)
-  }, [])
 
   const switchTab = (loginMode: boolean) => {
     setIsLogin(loginMode)
@@ -44,32 +32,45 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
 
     try {
       if (isLogin) {
+        // ============ 登录逻辑 ============
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
         
         setIsSuccess(true)
         setMsg('登录成功，正在进入...')
         
-        // 👇 核心修复：登录成功也使用 replace，防止后退回登录页
-        setTimeout(() => {
-          if (data.user?.email === 'sj2282@sina.com') {
-            window.location.replace('/admin')
-          } else {
-            window.location.replace('/dashboard')
-          }
-        }, 300)
+        // 👇 极速软导航，去掉所有延迟！并立刻刷新服务端组件
+        const isAdminEmail = data.user?.email === 'sj2282@sina.com'
+        // 如果是超管或者数据库里角色是admin（这里简化处理，只要不是超管先去dashboard，或者都去admin）
+        // 根据你的需求：超管和普通管理员默认进admin，普通用户进dashboard
+        // 为了严谨，这里不查数据库，直接根据邮箱和常规情况跳。
+        // 如果你需要普通管理员也准确进admin，可以在前面通过getUser查profile，但为了极速，这里用路由拦截兜底
+        
+        // 只要不是普通用户，我们先统一去 /admin，门卫会自动校验
+        if (isAdminEmail) {
+          router.replace('/admin')
+        } else {
+          // 对于普通用户，去 dashboard
+          // （如果普通管理员被拦截了，门卫会自动处理）
+          router.replace('/dashboard')
+        }
+        router.refresh() 
 
       } else {
+        // ============ 注册逻辑 ============
         const { data, error } = await supabase.auth.signUp({ email, password })
         if (error) throw error
 
         if (data.user && data.session === null) {
           setIsSuccess(true)
-          setMsg('注册成功！请前往邮箱查收验证链接，验证后方可登录。')
+          setMsg('注册成功！请前往邮箱查收验证链接。')
+          setIsLogin(true)
+          setLoading(false)
         } else if (data.session) {
           setIsSuccess(true)
           setMsg('注册成功，正在自动登录...')
-          setTimeout(() => { window.location.replace('/dashboard') }, 300)
+          router.replace('/dashboard')
+          router.refresh()
         }
       }
     } catch (error: any) {
@@ -129,11 +130,12 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
             className={styles.submitBtn}
             style={{
               background: isSuccess ? 'var(--green)' : 'linear-gradient(120deg, var(--cyan), #4ae0ff)',
-              color: isSuccess ? '#05070d' : '#05070d',
-              cursor: (loading || isSuccess) ? 'not-allowed' : 'pointer'
+              color: '#05070d',
+              cursor: (loading || isSuccess) ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s'
             }}
           >
-            {loading ? '处理中...' : isSuccess ? '登录成功' : (isLogin ? '登 录' : '注 册')}
+            {loading ? '验证中...' : isSuccess ? '跳转中...' : (isLogin ? '登 录' : '注 册')}
           </button>
         </form>
 

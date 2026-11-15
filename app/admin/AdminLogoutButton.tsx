@@ -1,13 +1,16 @@
 'use client'
 import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 
 export default function AdminLogoutButton() {
   const supabase = createClient()
+  const router = useRouter()
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    // 👇 核心修复：使用 replace 抹除历史记录，防止后退
-    window.location.replace('/login')
+    // 极速软导航返回登录页
+    router.replace('/login')
+    router.refresh()
   }
 
   return (

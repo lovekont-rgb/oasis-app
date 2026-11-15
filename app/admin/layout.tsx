@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import styles from './admin.module.css'
 import { createClient } from '@/lib/supabase/server'
-import AdminLogoutButton from './AdminLogoutButton' // 我们马上建这个组件
+import AdminLogoutButton from './AdminLogoutButton'
+import BFCacheGuard from '../dashboard/BFCacheGuard' // 复用上面写的安检组件
 
 export const instant = false
 
@@ -15,6 +16,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className={styles.adminLayout}>
+      {/* 👇 核心安检：防止浏览器缓存倒退 */}
+      <BFCacheGuard />
+      
       <aside className={styles.sidebar}>
         <div className={styles.logoArea}>
           <div className={styles.logoMark}>O</div>
@@ -22,13 +26,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
 
         <div className={styles.menuGroup}>
-          
           <div className={styles.menuTitle}>网站管理</div>
           <Link href="/admin" className={`${styles.menuItem}`}>📊 数据概览</Link>
           <Link href="/admin/site/about" className={`${styles.menuItem}`}>🏢 关于我们</Link>
           <Link href="/admin/site/contact" className={`${styles.menuItem}`}>✉️ 联系我们</Link>
           <Link href="/admin/site/privacy" className={`${styles.menuItem}`}>📜 隐私政策</Link>
           <Link href="/admin/messages" className={`${styles.menuItem}`}>💬 留言管理</Link>
+          
           {(isSuperAdmin || isAdmin) && (
             <Link href="/admin/users" className={`${styles.menuItem}`}>👥 用户权限管理</Link>
           )}
@@ -56,20 +60,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <main className={styles.mainContent}>
         <header className={styles.topbar}>
           <div className={styles.topbarTitle}>后台管理系统</div>
-          
-          {/* 👇 右侧操作区 */}
           <div className={styles.userInfo} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <span style={{ color: isSuperAdmin ? '#ffd700' : 'var(--cyan)' }}>
               👤 {isSuperAdmin ? '超级管理员' : '普通管理员'}
             </span>
-            {/* 引入退出按钮组件 */}
             <AdminLogoutButton />
           </div>
         </header>
-        
-        <div className={styles.contentBody}>
-          {children}
-        </div>
+        <div className={styles.contentBody}>{children}</div>
       </main>
     </div>
   )

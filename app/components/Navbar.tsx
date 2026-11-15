@@ -38,11 +38,11 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
     }
   }, [])
 
-  const handleLogout = async () => {
+    const handleLogout = async () => {
     await supabase.auth.signOut()
     setIsDropdownOpen(false)
-    // 👇 核心修复：使用 replace 抹除当前页面记录
-    window.location.replace('/')
+    // 极速软导航
+    window.location.replace('/login') 
   }
 
   const links = [
