@@ -3,10 +3,10 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import { createClient } from '@/lib/supabase/server'
 import { Suspense } from 'react'
+import NetworkStatus from './components/NetworkStatus' // 👈 引入断网提示组件
 
 export const metadata = { title: 'OASIS | 创意无线增长' }
 
-// 1. 获取用户信息及其角色
 async function NavbarWrapper() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -27,6 +27,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('oasis-theme')||'dark';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');document.documentElement.setAttribute('data-theme-pref',t);}catch(e){}})();` }} />
       </head>
       <body>
+        {/* 👇 挂载全局断网监听，优先级最高 */}
+        <NetworkStatus />
+
         <Suspense fallback={<div style={{ height: '72px', background: 'var(--nav-bg)', borderBottom: '1px solid var(--border-subtle)' }} />}>
           <NavbarWrapper />
         </Suspense>
