@@ -1,17 +1,9 @@
 import AuthForm from '@/app/components/AuthForm'
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+
+export const instant = false // 👈 告诉 Next.js 16 跳过这个页面的预渲染
 
 export const metadata = { title: '注册 | OASIS' }
 
-export default async function RegisterPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (user) {
-    if (user.email === 'sj2282@sina.com') redirect('/admin')
-    else redirect('/dashboard')
-  }
-
+export default function RegisterPage() {
   return <AuthForm initialMode="register" />
 }
