@@ -47,14 +47,12 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
         // 如果你需要普通管理员也准确进admin，可以在前面通过getUser查profile，但为了极速，这里用路由拦截兜底
         
         // 只要不是普通用户，我们先统一去 /admin，门卫会自动校验
+        // 👇 修改为如下：
         if (isAdminEmail) {
           router.replace('/admin')
         } else {
-          // 对于普通用户，去 dashboard
-          // （如果普通管理员被拦截了，门卫会自动处理）
           router.replace('/dashboard')
         }
-        router.refresh() 
 
       } else {
         // ============ 注册逻辑 ============
