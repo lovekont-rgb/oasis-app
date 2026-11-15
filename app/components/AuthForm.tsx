@@ -19,21 +19,17 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
   const router = useRouter()
   const supabase = createClient()
 
-    // 👇 核心安全与清理逻辑
   useEffect(() => {
     const checkAuthAndRedirect = async () => {
-      // 1. 检查当前是否已经登录
       const { data: { session } } = await supabase.auth.getSession()
       
       if (session?.user) {
-        // 已经登录了！直接强制跳转（用 replace 替换历史记录，防止用户再次后退回来）
         if (session.user.email === 'sj2282@sina.com') {
           router.replace('/admin')
         } else {
           router.replace('/dashboard')
         }
       } else {
-        // 2. 如果没登录（说明是正常的退出登录后返回），立刻清空所有残留信息
         setEmail('')
         setPassword('')
         setMsg('')
@@ -42,19 +38,30 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
       }
     }
 
-    // 监听浏览器的前进/后退（BFCache恢复时触发）
     const handlePageShow = (event: PageTransitionEvent) => {
       if (event.persisted) {
         checkAuthAndRedirect()
       }
     }
 
-    // 组件挂载时检查一次
     checkAuthAndRedirect()
     
     window.addEventListener('pageshow', handlePageShow)
     return () => window.removeEventListener('pageshow', handlePageShow)
   }, [router, supabase])
+
+  const switchTab = (loginMode: boolean) => {
+    setIsLogin(loginMode)
+    setMsg('')
+    setIsSuccess(false)
+    setIsAwaitingVerify(false)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setMsg('')
+    setIsSuccess(false)
 
     try {
       if (isLogin) {
