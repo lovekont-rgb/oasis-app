@@ -38,7 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             💬 留言管理
           </Link>
 
-          {/* 👇 只有超级管理员才能看到这个菜单 */}
+          {/* 👇 核心控制：只有超级管理员才能看到这个菜单 */}
           {isSuperAdmin && (
             <Link href="/admin/users" className={`${styles.menuItem}`}>
               👥 用户权限管理

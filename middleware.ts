@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const path = request.nextUrl.pathname
 
-  // 1. 未登录用户拦截：保护 /learn, /dashboard 和 /admin
+  // 1. 未登录用户拦截：保护需要登录的页面
   if (!user && (path.startsWith('/learn') || path.startsWith('/dashboard') || path.startsWith('/admin'))) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
@@ -32,26 +32,25 @@ export async function middleware(request: NextRequest) {
 
   // 2. 管理员权限拦截
   if (path.startsWith('/admin')) {
-    // 如果访问的是专属登录页，直接放行
     if (path === '/admin/login') return response;
 
-    // 查数据库获取角色
+    // 查询数据库中的角色
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user?.id || '').single()
     
     const isSuperAdmin = user?.email === 'sj2282@sina.com'
     const isAdmin = profile?.role === 'admin'
 
-    // 如果不是超管，也不是普通管理员，踢回管理员登录页
+    // 既不是超管，也不是普通管理员，踢回专属登录页
     if (!isSuperAdmin && !isAdmin) {
       const url = request.nextUrl.clone()
       url.pathname = '/admin/login'
       return NextResponse.redirect(url)
     }
 
-    // 🚨 核心防线：如果是普通管理员试图访问“用户权限管理”页面
+    // 🚨 核心防线：普通管理员试图越权访问“用户权限管理”页面，直接踢回后台首页
     if (path.startsWith('/admin/users') && !isSuperAdmin) {
       const url = request.nextUrl.clone()
-      url.pathname = '/admin' // 直接踢回后台首页
+      url.pathname = '/admin'
       return NextResponse.redirect(url)
     }
   }
