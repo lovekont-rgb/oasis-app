@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import ThemeToggle from './ThemeToggle'
 
-export default function Navbar({ initialUser }: { initialUser: any }) {
+export default function Navbar({ initialUser, userRole }: { initialUser: any, userRole?: string }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -16,18 +16,16 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // 👇 核心修复 1：只要路由变了，立刻关闭下拉菜单
+  // 路由变化时关闭下拉菜单
   useEffect(() => {
     setIsDropdownOpen(false)
   }, [pathname])
 
   useEffect(() => {
-    // 监听认证状态变化
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null)
     })
 
-    // 点击空白处关闭下拉菜单
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false)
@@ -44,8 +42,7 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setIsDropdownOpen(false)
-    router.push('/')
-    router.refresh()
+    window.location.href = '/'
   }
 
   const links = [
@@ -59,6 +56,7 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
   ]
 
   const avatarLetter = user?.email ? user.email.charAt(0).toUpperCase() : 'U'
+  const isSuperOrAdmin = user?.email === 'sj2282@sina.com' || userRole === 'admin'
 
   return (
     <header style={{
@@ -68,17 +66,12 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
     }}>
       <div className="nav-container" style={{ position: 'relative' }}>
         
-        {/* 左侧 Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 2 }}>
           <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 900, fontSize: 14, boxShadow: '0 0 20px rgba(0, 212, 255, 0.3)' }}>O</div>
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>OASIS</span>
         </Link>
 
-        {/* 中间导航 */}
-        <nav style={{ 
-          position: 'absolute', left: '50%', transform: 'translateX(-50%)', 
-          display: 'flex', gap: '24px', fontSize: 14, fontWeight: 500, zIndex: 1
-        }}>
+        <nav style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '24px', fontSize: 14, fontWeight: 500, zIndex: 1 }}>
           {links.map(link => {
             const isActive = pathname === link.href
             return (
@@ -92,9 +85,7 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
           })}
         </nav>
 
-        {/* 右侧按钮组 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', zIndex: 2 }}>
-          
           <button 
             onClick={() => setIsSearchOpen(!isSearchOpen)}
             style={{ background: 'none', border: 'none', color: isSearchOpen ? 'var(--cyan)' : 'var(--text-secondary)', fontSize: '14px', cursor: 'pointer', fontWeight: 500, transition: '0.3s' }}
@@ -120,7 +111,7 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
 
               {isDropdownOpen && (
                 <div style={{
-                  position: 'absolute', top: '48px', right: 0, width: '200px',
+                  position: 'absolute', top: '48px', right: 0, width: '220px',
                   background: 'var(--surface-card)', border: '1px solid var(--border-subtle)',
                   borderRadius: '12px', padding: '8px', backdropFilter: 'blur(20px)',
                   boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '4px'
@@ -130,9 +121,10 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
                     <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
                   </div>
                   
-                  {user.email === 'sj2282@sina.com' ? (
+                  {/* 👇 核心判断：超管或普通管理员都会看到后台入口 */}
+                  {isSuperOrAdmin ? (
                     <Link href="/admin" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px' }}>
-                      👑 超级管理后台
+                      👑 后台管理系统
                     </Link>
                   ) : (
                     <Link href="/dashboard" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>
@@ -152,30 +144,16 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: '8px' }}>
-              <Link href="/register" style={{ color: 'var(--text-secondary)', fontSize: '14px', textDecoration: 'none', fontWeight: 500, transition: '0.3s' }}>
-                注册
-              </Link>
-              <Link href="/login" style={{ padding: '6px 16px', borderRadius: '100px', border: '1px solid var(--cyan)', color: 'var(--cyan)', fontSize: '14px', textDecoration: 'none', fontWeight: 'bold', transition: '0.3s' }}>
-                登录
-              </Link>
+              <Link href="/register" style={{ color: 'var(--text-secondary)', fontSize: '14px', textDecoration: 'none', fontWeight: 500, transition: '0.3s' }}>注册</Link>
+              <Link href="/login" style={{ padding: '6px 16px', borderRadius: '100px', border: '1px solid var(--cyan)', color: 'var(--cyan)', fontSize: '14px', textDecoration: 'none', fontWeight: 'bold', transition: '0.3s' }}>登录</Link>
             </div>
           )}
-
         </div>
 
-        {/* 搜索框 */}
         {isSearchOpen && (
-          <div style={{
-            position: 'absolute', top: '100%', left: 0, right: 0,
-            padding: '20px 24px', background: 'var(--nav-bg)', backdropFilter: 'blur(20px)',
-            borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'center',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)', animation: 'fadeInDown 0.3s ease'
-          }}>
+          <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, padding: '20px 24px', background: 'var(--nav-bg)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', animation: 'fadeInDown 0.3s ease' }}>
             <form action="/search" method="GET" style={{ width: '100%', maxWidth: '600px', position: 'relative' }}>
-              <input 
-                type="text" name="q" placeholder="搜索课程、工具、提示词..." autoFocus
-                style={{ width: '100%', padding: '12px 20px 12px 40px', borderRadius: '100px', background: 'var(--bg-void)', border: '1px solid var(--border-glow)', color: 'var(--text-primary)', fontSize: '15px', outline: 'none', boxShadow: '0 0 20px rgba(0,212,255,0.1)' }}
-              />
+              <input type="text" name="q" placeholder="搜索课程、工具、提示词..." autoFocus style={{ width: '100%', padding: '12px 20px 12px 40px', borderRadius: '100px', background: 'var(--bg-void)', border: '1px solid var(--border-glow)', color: 'var(--text-primary)', fontSize: '15px', outline: 'none', boxShadow: '0 0 20px rgba(0,212,255,0.1)' }} />
               <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--cyan)' }}>🔍</span>
             </form>
           </div>
@@ -183,13 +161,8 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
       </div>
 
       <style dangerouslySetInnerHTML={{__html: `
-        @keyframes fadeInDown {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .dropdown-item:hover {
-          background: rgba(0, 212, 255, 0.1) !important;
-        }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .dropdown-item:hover { background: rgba(0, 212, 255, 0.1) !important; }
       `}} />
     </header>
   )

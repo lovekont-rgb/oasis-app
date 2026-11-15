@@ -6,11 +6,18 @@ import { Suspense } from 'react'
 
 export const metadata = { title: 'OASIS | 创意无线增长' }
 
-// 1. 将获取用户信息的逻辑抽离成一个独立的组件
+// 1. 获取用户信息和角色
 async function NavbarWrapper() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  return <Navbar initialUser={user} />
+  
+  let role = null
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    role = profile?.role
+  }
+
+  return <Navbar initialUser={user} userRole={role} />
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -20,7 +27,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('oasis-theme')||'dark';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');document.documentElement.setAttribute('data-theme-pref',t);}catch(e){}})();` }} />
       </head>
       <body>
-        {/* 2. 用 Suspense 包裹，并提供导航栏高度的占位，避免布局跳动 */}
         <Suspense fallback={<div style={{ height: '72px', background: 'var(--nav-bg)', borderBottom: '1px solid var(--border-subtle)' }} />}>
           <NavbarWrapper />
         </Suspense>
