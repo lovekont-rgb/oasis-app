@@ -1,22 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
+export default function UsersClient({ initialUsers, currentAdminEmail }: { initialUsers: any[], currentAdminEmail: string }) {
   const supabase = createClient()
   
   const [search, setSearch] = useState('')
   const [users, setUsers] = useState(initialUsers)
   const [loadingId, setLoadingId] = useState<string | null>(null)
-  const [currentAdminEmail, setCurrentAdminEmail] = useState('')
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user?.email) setCurrentAdminEmail(data.user.email)
-    })
-  }, [])
-
+  // 👈 移除异步获取邮箱，直接使用服务端传过来的，页面瞬间到位，绝不闪烁
   const isSuperAdmin = currentAdminEmail === 'sj2282@sina.com'
 
   const filteredUsers = users.filter(u => {
@@ -79,7 +73,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
           <tbody>
             {filteredUsers.map((u) => {
               const isTargetSuper = u.email === 'sj2282@sina.com'
-              const isSelf = u.email === currentAdminEmail
+              const isSelf = u.email === currentAdminEmail // 👈 这里现在一秒钟就能判断准确
 
               const canManageRole = isSuperAdmin && !isTargetSuper && !isSelf
               const canModerate = !isTargetSuper && !isSelf 
@@ -114,8 +108,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
                         </select>
                       ) : (
                         <span style={{ fontSize: '12px', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', height: '32px' }}>
-                          {/* 👇 优化后的文案，更专业且不重复 */}
-                          {isTargetSuper ? '不可操作' : isSelf ? '受保护' : '无权限'}
+                          {isTargetSuper ? '最高权限' : isSelf ? '受保护' : '无权改角色'}
                         </span>
                       )}
 
@@ -130,7 +123,6 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
                           </button>
                         </>
                       ) : null}
-
                     </div>
                   </td>
                 </tr>
