@@ -10,7 +10,6 @@ export default function UsersClient({ initialUsers, currentAdminEmail }: { initi
   const [users, setUsers] = useState(initialUsers)
   const [loadingId, setLoadingId] = useState<string | null>(null)
 
-  // 👈 移除异步获取邮箱，直接使用服务端传过来的，页面瞬间到位，绝不闪烁
   const isSuperAdmin = currentAdminEmail === 'sj2282@sina.com'
 
   const filteredUsers = users.filter(u => {
@@ -19,10 +18,14 @@ export default function UsersClient({ initialUsers, currentAdminEmail }: { initi
     return matchesSearch
   })
 
-  const handleRoleChange = async (id: string, newRole: string, targetEmail: string) => {
-    if (!isSuperAdmin) return alert('只有超级管理员才能修改角色！')
+  const handleRoleChange = async (id: string, newRole: string, targetEmail: string, targetRole: string) => {
     if (targetEmail === 'sj2282@sina.com') return alert('无法修改拥有者权限！')
     
+    // 核心权限校验：普通管理员不能修改其他管理员
+    if (!isSuperAdmin && targetRole === 'admin') {
+      return alert('您无权修改其他管理员的角色！')
+    }
+
     setLoadingId(id)
     await supabase.from('profiles').update({ role: newRole }).eq('id', id)
     setUsers(users.map(u => u.id === id ? { ...u, role: newRole } : u))
@@ -51,7 +54,7 @@ export default function UsersClient({ initialUsers, currentAdminEmail }: { initi
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>用户与权限管理</h1>
           <p style={{ color: 'var(--text-secondary)' }}>
-            当前操作员：{isSuperAdmin ? '超级管理员 (拥有全部权限)' : '普通管理员 (仅可禁言/封禁)'}
+            当前操作员：{isSuperAdmin ? '超级管理员 (拥有全部权限)' : '普通管理员 (仅可管理普通用户)'}
           </p>
         </div>
         
@@ -73,9 +76,17 @@ export default function UsersClient({ initialUsers, currentAdminEmail }: { initi
           <tbody>
             {filteredUsers.map((u) => {
               const isTargetSuper = u.email === 'sj2282@sina.com'
-              const isSelf = u.email === currentAdminEmail // 👈 这里现在一秒钟就能判断准确
+              const isSelf = u.email === currentAdminEmail
+              const isTargetAdmin = u.role === 'admin'
 
-              const canManageRole = isSuperAdmin && !isTargetSuper && !isSelf
+              // 判断是否可以修改角色：
+              // 1. 不能改超管和自己
+              // 2. 如果是超管，可以改所有人
+              // 3. 如果是普管，只能改普通用户
+              const canManageRole = !isTargetSuper && !isSelf && (isSuperAdmin || !isTargetAdmin)
+              
+              // 判断是否可以封禁/禁言：
+              // 只要不是超管且不是自己，都能操作
               const canModerate = !isTargetSuper && !isSelf 
 
               return (
@@ -89,8 +100,8 @@ export default function UsersClient({ initialUsers, currentAdminEmail }: { initi
                   </td>
                   <td style={{ padding: '16px', verticalAlign: 'middle' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <span style={{ fontSize: '12px', color: u.role === 'admin' ? 'var(--cyan)' : 'var(--text-secondary)' }}>
-                        {isTargetSuper ? '超级管理员' : u.role === 'admin' ? '管理员' : '普通用户'}
+                      <span style={{ fontSize: '12px', color: isTargetAdmin ? 'var(--cyan)' : 'var(--text-secondary)' }}>
+                        {isTargetSuper ? '超级管理员' : isTargetAdmin ? '管理员' : '普通用户'}
                       </span>
                       <div style={{ display: 'flex', gap: '4px' }}>
                         {u.is_banned && <span style={{ fontSize: '10px', color: '#ff4444', border: '1px solid #ff4444', padding: '1px 4px', borderRadius: '4px' }}>已封禁</span>}
@@ -102,7 +113,7 @@ export default function UsersClient({ initialUsers, currentAdminEmail }: { initi
                     <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', alignItems: 'center' }}>
                       
                       {canManageRole ? (
-                        <select value={u.role} disabled={loadingId === u.id} onChange={(e) => handleRoleChange(u.id, e.target.value, u.email)} style={{ padding: '6px', borderRadius: '6px', background: 'var(--bg-void)', color: 'white', border: '1px solid var(--border-subtle)', fontSize: '12px', height: '32px' }}>
+                        <select value={u.role} disabled={loadingId === u.id} onChange={(e) => handleRoleChange(u.id, e.target.value, u.email, u.role)} style={{ padding: '6px', borderRadius: '6px', background: 'var(--bg-void)', color: 'white', border: '1px solid var(--border-subtle)', fontSize: '12px', height: '32px' }}>
                           <option value="user">普通用户</option>
                           <option value="admin">管理员</option>
                         </select>
