@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
-export async function middleware(request: NextRequest) {
+// 👈 注意：函数名从 middleware 改为了 proxy
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request: { headers: request.headers } })
 
   const supabase = createServerClient(
@@ -23,10 +24,11 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const path = request.nextUrl.pathname
 
+  // 1. 如果用户已登录，检查封禁状态
   if (user) {
     const { data: profile } = await supabase.from('profiles').select('role, is_banned').eq('id', user.id).single()
     
-    // 如果被封禁，强制登出
+    // 🚨 核心防线：如果被封禁，强制登出并踢回登录页
     if (profile?.is_banned) {
       await supabase.auth.signOut()
       const url = request.nextUrl.clone()
@@ -35,14 +37,14 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url)
     }
 
-    // 后台权限
+    // 2. 后台权限拦截
     if (path.startsWith('/admin')) {
       if (path === '/admin/login') return response;
 
       const isSuperAdmin = user.email === 'sj2282@sina.com'
       const isAdmin = profile?.role === 'admin'
 
-      // 不是超管也不是普管，踢回专属登录页
+      // 既不是超管也不是普管，踢回专属登录页
       if (!isSuperAdmin && !isAdmin) {
         const url = request.nextUrl.clone()
         url.pathname = '/admin/login'
@@ -50,7 +52,7 @@ export async function middleware(request: NextRequest) {
       }
     }
   } else {
-    // 未登录拦截
+    // 3. 未登录用户拦截
     if (path.startsWith('/learn') || path.startsWith('/dashboard') || path.startsWith('/admin')) {
       const url = request.nextUrl.clone()
       url.pathname = '/login'
