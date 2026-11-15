@@ -7,46 +7,6 @@ import { createClient } from '@/lib/supabase/client'
 import ThemeToggle from './ThemeToggle'
 
 export default function Navbar({ initialUser }: { initialUser: any }) {
-  const pathname = usePathname() // 👈 获取当前路由
-  const router = useRouter()
-  const supabase = createClient()
-  
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [user, setUser] = useState<any>(initialUser)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
-  // 👇 核心修复：监听路由变化，只要路由变了，立刻关闭下拉菜单
-  useEffect(() => {
-    setIsDropdownOpen(false)
-  }, [pathname])
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null)
-    })
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-
-    return () => {
-      subscription.unsubscribe()
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
-
-  // ... 下面的代码保持不变 ...
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { useState, useEffect, useRef } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import ThemeToggle from './ThemeToggle'
-
-export default function Navbar({ initialUser }: { initialUser: any }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -56,11 +16,18 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // 👇 核心修复 1：只要路由变了，立刻关闭下拉菜单
   useEffect(() => {
+    setIsDropdownOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
+    // 监听认证状态变化
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null)
     })
 
+    // 点击空白处关闭下拉菜单
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false)
@@ -137,7 +104,6 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
 
           <ThemeToggle />
           
-          {/* 👇 用户状态判断开始 */}
           {user ? (
             <div style={{ position: 'relative' }} ref={dropdownRef}>
               <button 
@@ -152,7 +118,6 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
                 {avatarLetter}
               </button>
 
-              {/* 下拉菜单 */}
               {isDropdownOpen && (
                 <div style={{
                   position: 'absolute', top: '48px', right: 0, width: '200px',
@@ -165,24 +130,20 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
                     <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
                   </div>
                   
-                                    {/* 👇 修改这里的判断逻辑： */}
                   {user.email === 'sj2282@sina.com' ? (
-                    <Link href="/admin" className={`dropdown-item`} style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px' }}>
+                    <Link href="/admin" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px' }}>
                       👑 超级管理后台
                     </Link>
                   ) : (
-                    <Link href="/dashboard" className={`dropdown-item`} style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>
+                    <Link href="/dashboard" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>
                       💼 个人创作中心
                     </Link>
                   )}
                   
                   <button 
                     onClick={handleLogout}
-                    style={{ 
-                      padding: '10px 12px', fontSize: '14px', color: '#ff4444', background: 'transparent', 
-                      border: 'none', borderRadius: '6px', textAlign: 'left', cursor: 'pointer', transition: '0.2s' 
-                    }}
                     className="dropdown-item"
+                    style={{ padding: '10px 12px', fontSize: '14px', color: '#ff4444', background: 'transparent', border: 'none', borderRadius: '6px', textAlign: 'left', cursor: 'pointer' }}
                   >
                     🚪 退出登录
                   </button>
@@ -194,16 +155,11 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
               <Link href="/register" style={{ color: 'var(--text-secondary)', fontSize: '14px', textDecoration: 'none', fontWeight: 500, transition: '0.3s' }}>
                 注册
               </Link>
-              <Link href="/login" style={{ 
-                padding: '6px 16px', borderRadius: '100px', border: '1px solid var(--cyan)', 
-                color: 'var(--cyan)', fontSize: '14px', textDecoration: 'none', fontWeight: 'bold',
-                transition: '0.3s'
-              }}>
+              <Link href="/login" style={{ padding: '6px 16px', borderRadius: '100px', border: '1px solid var(--cyan)', color: 'var(--cyan)', fontSize: '14px', textDecoration: 'none', fontWeight: 'bold', transition: '0.3s' }}>
                 登录
               </Link>
             </div>
           )}
-          {/* 👆 用户状态判断结束 */}
 
         </div>
 
@@ -218,12 +174,7 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
             <form action="/search" method="GET" style={{ width: '100%', maxWidth: '600px', position: 'relative' }}>
               <input 
                 type="text" name="q" placeholder="搜索课程、工具、提示词..." autoFocus
-                style={{
-                  width: '100%', padding: '12px 20px 12px 40px', borderRadius: '100px',
-                  background: 'var(--bg-void)', border: '1px solid var(--border-glow)',
-                  color: 'var(--text-primary)', fontSize: '15px', outline: 'none',
-                  boxShadow: '0 0 20px rgba(0,212,255,0.1)'
-                }}
+                style={{ width: '100%', padding: '12px 20px 12px 40px', borderRadius: '100px', background: 'var(--bg-void)', border: '1px solid var(--border-glow)', color: 'var(--text-primary)', fontSize: '15px', outline: 'none', boxShadow: '0 0 20px rgba(0,212,255,0.1)' }}
               />
               <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--cyan)' }}>🔍</span>
             </form>
@@ -238,7 +189,6 @@ export default function Navbar({ initialUser }: { initialUser: any }) {
         }
         .dropdown-item:hover {
           background: rgba(0, 212, 255, 0.1) !important;
-          color: var(--cyan) !important;
         }
       `}} />
     </header>
