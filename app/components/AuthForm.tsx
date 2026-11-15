@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import styles from './auth.module.css'
 
@@ -10,50 +9,33 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
   const [isLogin, setIsLogin] = useState(initialMode === 'login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  
+  // 状态控制
   const [loading, setLoading] = useState(false)
-  
-  const [msg, setMsg] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
-  const [isAwaitingVerify, setIsAwaitingVerify] = useState(false)
+  const [msg, setMsg] = useState('')
   
-  const router = useRouter()
   const supabase = createClient()
 
-  // 👇 核心清理逻辑：只要用户通过后退回到这里，立刻清空残留信息
+  // 防止浏览器“后退”时残留密码（BFCache清理）
   useEffect(() => {
-    // 如果页面是从浏览器缓存恢复的
     const handlePageShow = (event: PageTransitionEvent) => {
       if (event.persisted) {
         setEmail('')
         setPassword('')
         setMsg('')
         setIsSuccess(false)
-        setIsAwaitingVerify(false)
+        setLoading(false)
       }
     }
-
-    // 挂载时检查一次是否已登录，如果已登录直接踢去工作台（防止未清空的情况）
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        if (session.user.email === 'sj2282@sina.com') {
-          router.replace('/admin')
-        } else {
-          router.replace('/dashboard')
-        }
-      }
-    }
-    checkAuth()
-
     window.addEventListener('pageshow', handlePageShow)
     return () => window.removeEventListener('pageshow', handlePageShow)
-  }, [router, supabase])
+  }, [])
 
   const switchTab = (loginMode: boolean) => {
     setIsLogin(loginMode)
     setMsg('')
     setIsSuccess(false)
-    setIsAwaitingVerify(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,13 +50,18 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
         
-        // 👇 核心修改：直接跳转，不显示残留的成功提示，使用 replace 替换历史记录
-        if (data.user?.email === 'sj2282@sina.com') {
-          router.replace('/admin')
-        } else {
-          router.replace('/dashboard')
-        }
-        router.refresh() 
+        // 显示成功状态，让用户感知到
+        setIsSuccess(true)
+        setMsg('登录成功，正在进入...')
+        
+        // 使用底层跳转，彻底断绝 BFCache 残留，速度极快
+        setTimeout(() => {
+          if (data.user?.email === 'sj2282@sina.com') {
+            window.location.href = '/admin'
+          } else {
+            window.location.href = '/dashboard'
+          }
+        }, 300) // 给300毫秒让用户看到绿色的成功提示
 
       } else {
         // ============ 注册逻辑 ============
@@ -83,13 +70,11 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
 
         if (data.user && data.session === null) {
           setIsSuccess(true)
-          setIsAwaitingVerify(true)
           setMsg('注册成功！请前往邮箱查收验证链接，验证后方可登录。')
         } else if (data.session) {
           setIsSuccess(true)
           setMsg('注册成功，正在自动登录...')
-          router.replace('/dashboard')
-          router.refresh()
+          setTimeout(() => { window.location.href = '/dashboard' }, 300)
         }
       }
     } catch (error: any) {
@@ -101,9 +86,8 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
       } else if (error.message.includes('Password should be at least')) {
         setMsg('密码长度至少需要 6 位。')
       } else {
-        setMsg(error.message || '操作失败，请检查网络或配置。')
+        setMsg(error.message || '操作失败，请检查网络。')
       }
-    } finally {
       setLoading(false)
     }
   }
@@ -118,14 +102,14 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
         </p>
 
         <div className={styles.tabContainer}>
-          <button className={`${styles.tabBtn} ${isLogin ? styles.tabBtnActive : ''}`} onClick={() => switchTab(true)} type="button">登录</button>
-          <button className={`${styles.tabBtn} ${!isLogin ? styles.tabBtnActive : ''}`} onClick={() => switchTab(false)} type="button">注册</button>
+          <button className={`${styles.tabBtn} ${isLogin ? styles.tabBtnActive : ''}`} onClick={() => switchTab(true)} type="button" disabled={loading}>登录</button>
+          <button className={`${styles.tabBtn} ${!isLogin ? styles.tabBtnActive : ''}`} onClick={() => switchTab(false)} type="button" disabled={loading}>注册</button>
         </div>
 
-        {/* 错误提示框 */}
+        {/* 状态提示框 */}
         {msg && (
           <div style={{ 
-            padding: '14px', marginBottom: '24px', borderRadius: '10px', fontSize: '14px', textAlign: 'center', lineHeight: '1.5',
+            padding: '12px', marginBottom: '20px', borderRadius: '8px', fontSize: '13px', textAlign: 'center', fontWeight: 'bold',
             background: isSuccess ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 68, 68, 0.1)',
             color: isSuccess ? '#3cdc8c' : '#ff4444',
             border: `1px solid ${isSuccess ? 'rgba(60, 220, 140, 0.3)' : 'rgba(255, 68, 68, 0.3)'}`
@@ -134,35 +118,32 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
           </div>
         )}
 
-        {!isAwaitingVerify ? (
-          <form onSubmit={handleSubmit}>
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>电子邮箱</label>
-              <input type="email" required placeholder="name@example.com" className={styles.inputField} value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>密码</label>
-              <input type="password" required placeholder="至少 6 位字符" className={styles.inputField} value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} />
-            </div>
-
-            <button type="submit" disabled={loading} className={styles.submitBtn}>
-              {loading ? '正在处理...' : (isLogin ? '登 录' : '注 册')}
-            </button>
-          </form>
-        ) : (
-          <div style={{ textAlign: 'center', padding: '20px 0' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📧</div>
-            <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '8px' }}>验证邮件已发送</h3>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              请前往 <strong>{email}</strong> 查收验证邮件。<br/>
-              点击邮件中的链接激活账号后，即可返回此处登录。
-            </p>
-            <button onClick={() => switchTab(true)} style={{ marginTop: '24px', background: 'transparent', border: '1px solid var(--cyan)', color: 'var(--cyan)', padding: '10px 24px', borderRadius: '100px', cursor: 'pointer', fontWeight: 'bold' }}>返回登录</button>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className={styles.inputGroup}>
+            <label className={styles.inputLabel}>电子邮箱</label>
+            <input type="email" required placeholder="name@example.com" className={styles.inputField} value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading || isSuccess} />
           </div>
-        )}
 
-        <div style={{ textAlign: 'center', marginTop: '32px' }}>
+          <div className={styles.inputGroup}>
+            <label className={styles.inputLabel}>密码</label>
+            <input type="password" required placeholder="至少 6 位字符" className={styles.inputField} value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading || isSuccess} />
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={loading || isSuccess} 
+            className={styles.submitBtn}
+            style={{
+              background: isSuccess ? 'var(--green)' : 'linear-gradient(120deg, var(--cyan), #4ae0ff)',
+              color: isSuccess ? '#05070d' : '#05070d',
+              cursor: (loading || isSuccess) ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {loading ? '处理中...' : isSuccess ? '登录成功' : (isLogin ? '登 录' : '注 册')}
+          </button>
+        </form>
+
+        <div style={{ textAlign: 'center', marginTop: '24px' }}>
           <Link href="/" style={{ fontSize: '13px', color: 'var(--text-dim)', textDecoration: 'none' }}>← 返回网站首页</Link>
         </div>
       </div>

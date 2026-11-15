@@ -1,14 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import ThemeToggle from './ThemeToggle'
 
 export default function Navbar({ initialUser, userRole }: { initialUser: any, userRole?: string }) {
   const pathname = usePathname()
-  const router = useRouter()
   const supabase = createClient()
   
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -42,7 +41,8 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setIsDropdownOpen(false)
-    window.location.href = '/'
+    // 使用底层跳转，彻底清空页面状态和缓存，防止后退残余
+    window.location.href = '/' 
   }
 
   const links = [
@@ -110,24 +110,22 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
               </button>
 
               {isDropdownOpen && (
-                 <div style={{
+                <div style={{
                   position: 'absolute', top: '48px', right: 0, width: '220px',
                   background: 'var(--surface-card)', border: '1px solid var(--border-subtle)',
                   borderRadius: '12px', padding: '8px', backdropFilter: 'blur(20px)',
                   boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '4px',
-                  zIndex: 9999 // 👈 核心修复：强制置顶
+                  zIndex: 9999
                 }}>
                   <div style={{ padding: '8px 12px', borderBottom: '1px dashed var(--border-subtle)', marginBottom: '4px' }}>
                     <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>已登录账号</p>
                     <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
                   </div>
                   
-                  {/* 个人创作中心 */}
                   <Link href="/dashboard" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>
                     💼 个人创作中心
                   </Link>
 
-                  {/* 只有超管和普通管理员才会多出一个后台入口 */}
                   {isSuperOrAdmin && (
                     <Link href="/admin" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px', background: 'rgba(255, 215, 0, 0.05)' }}>
                       👑 后台管理系统
