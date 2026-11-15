@@ -17,12 +17,21 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
     })
   }, [])
 
-  // 判断当前操作者是谁
+  // 判断当前操作者是不是超级管理员
   const isSuperAdmin = currentAdminEmail === 'sj2282@sina.com'
 
-  const filteredUsers = users.filter(u => 
-    u.email?.toLowerCase().includes(search.toLowerCase())
-  )
+  // 👇 核心修改：数据过滤逻辑
+  const filteredUsers = users.filter(u => {
+    // 1. 搜索词匹配
+    const matchesSearch = u.email?.toLowerCase().includes(search.toLowerCase())
+    
+    // 2. 权限拦截：如果当前是普通管理员，且目标账号是超级管理员，则不展示
+    if (!isSuperAdmin && u.email === 'sj2282@sina.com') {
+      return false
+    }
+    
+    return matchesSearch
+  })
 
   const handleRoleChange = async (id: string, newRole: string, targetEmail: string) => {
     if (!isSuperAdmin) return alert('只有超级管理员才能修改角色！')
@@ -82,9 +91,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
           <tbody>
             {filteredUsers.map((u) => {
               const isTargetSuper = u.email === 'sj2282@sina.com'
-              // 只有超管能改角色，且不能改超管的
               const canManageRole = isSuperAdmin && !isTargetSuper
-              // 任何管理员都能封禁和禁言，但不能动超管
               const canModerate = !isTargetSuper
 
               return (
@@ -104,24 +111,23 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
                   </td>
                   <td style={{ padding: '16px', textAlign: 'right', display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                     
-                    {/* 角色下拉框：只有超管能看见且能操作 */}
                     {canManageRole ? (
                       <select value={u.role} disabled={loadingId === u.id} onChange={(e) => handleRoleChange(u.id, e.target.value, u.email)} style={{ padding: '6px', borderRadius: '6px', background: 'var(--bg-void)', color: 'white', border: '1px solid var(--border-subtle)', fontSize: '12px' }}>
                         <option value="user">普通用户</option>
                         <option value="admin">管理员</option>
                       </select>
                     ) : (
-                      <span style={{ fontSize: '12px', color: 'var(--text-dim)', display: 'flex', alignItems: 'center' }}>无权改角色</span>
+                      <span style={{ fontSize: '12px', color: 'var(--text-dim)', display: 'flex', alignItems: 'center' }}>
+                        {isTargetSuper ? '最高权限' : '无权改角色'}
+                      </span>
                     )}
 
-                    {/* 禁言按钮：所有人都能用（除了对超管） */}
                     {canModerate ? (
                       <button onClick={() => handleToggleMute(u.id, u.is_muted, u.email)} disabled={loadingId === u.id} style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', background: u.is_muted ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 180, 60, 0.1)', color: u.is_muted ? 'var(--green)' : 'var(--warn)', border: `1px solid ${u.is_muted ? 'var(--green)' : 'var(--warn)'}` }}>
                         {u.is_muted ? '解禁言' : '禁言'}
                       </button>
                     ) : null}
 
-                    {/* 封禁按钮：所有人都能用（除了对超管） */}
                     {canModerate ? (
                       <button onClick={() => handleToggleBan(u.id, u.is_banned, u.email)} disabled={loadingId === u.id} style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', background: u.is_banned ? 'rgba(60, 220, 140, 0.1)' : 'rgba(255, 68, 68, 0.1)', color: u.is_banned ? 'var(--green)' : '#ff4444', border: `1px solid ${u.is_banned ? 'var(--green)' : '#ff4444'}` }}>
                         {u.is_banned ? '解封' : '封禁'}
