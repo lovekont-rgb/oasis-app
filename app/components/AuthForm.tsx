@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react' // 👈 加上 useEffect
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -19,6 +20,21 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
   
   const router = useRouter()
   const supabase = createClient()
+
+    // 👇 核心修复：监听浏览器的前进/后退事件，清空残留状态
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      // 如果是从缓存中恢复的页面 (persisted)
+      if (event.persisted) {
+        setEmail('')
+        setPassword('')
+        setMsg('')
+        setIsSuccess(false)
+      }
+    }
+    window.addEventListener('pageshow', handlePageShow)
+    return () => window.removeEventListener('pageshow', handlePageShow)
+  }, [])
 
   const switchTab = (loginMode: boolean) => {
     setIsLogin(loginMode)
