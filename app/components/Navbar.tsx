@@ -7,6 +7,46 @@ import { createClient } from '@/lib/supabase/client'
 import ThemeToggle from './ThemeToggle'
 
 export default function Navbar({ initialUser }: { initialUser: any }) {
+  const pathname = usePathname() // 👈 获取当前路由
+  const router = useRouter()
+  const supabase = createClient()
+  
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [user, setUser] = useState<any>(initialUser)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // 👇 核心修复：监听路由变化，只要路由变了，立刻关闭下拉菜单
+  useEffect(() => {
+    setIsDropdownOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null)
+    })
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      subscription.unsubscribe()
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  // ... 下面的代码保持不变 ...
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { useState, useEffect, useRef } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import ThemeToggle from './ThemeToggle'
+
+export default function Navbar({ initialUser }: { initialUser: any }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
