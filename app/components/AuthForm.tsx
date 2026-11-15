@@ -10,14 +10,12 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   
-  // 状态控制
   const [loading, setLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [msg, setMsg] = useState('')
   
   const supabase = createClient()
 
-  // 防止浏览器“后退”时残留密码（BFCache清理）
   useEffect(() => {
     const handlePageShow = (event: PageTransitionEvent) => {
       if (event.persisted) {
@@ -46,25 +44,22 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
 
     try {
       if (isLogin) {
-        // ============ 登录逻辑 ============
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
         
-        // 显示成功状态，让用户感知到
         setIsSuccess(true)
         setMsg('登录成功，正在进入...')
         
-        // 使用底层跳转，彻底断绝 BFCache 残留，速度极快
+        // 👇 核心修复：登录成功也使用 replace，防止后退回登录页
         setTimeout(() => {
           if (data.user?.email === 'sj2282@sina.com') {
-            window.location.href = '/admin'
+            window.location.replace('/admin')
           } else {
-            window.location.href = '/dashboard'
+            window.location.replace('/dashboard')
           }
-        }, 300) // 给300毫秒让用户看到绿色的成功提示
+        }, 300)
 
       } else {
-        // ============ 注册逻辑 ============
         const { data, error } = await supabase.auth.signUp({ email, password })
         if (error) throw error
 
@@ -74,7 +69,7 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
         } else if (data.session) {
           setIsSuccess(true)
           setMsg('注册成功，正在自动登录...')
-          setTimeout(() => { window.location.href = '/dashboard' }, 300)
+          setTimeout(() => { window.location.replace('/dashboard') }, 300)
         }
       }
     } catch (error: any) {
@@ -106,7 +101,6 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
           <button className={`${styles.tabBtn} ${!isLogin ? styles.tabBtnActive : ''}`} onClick={() => switchTab(false)} type="button" disabled={loading}>注册</button>
         </div>
 
-        {/* 状态提示框 */}
         {msg && (
           <div style={{ 
             padding: '12px', marginBottom: '20px', borderRadius: '8px', fontSize: '13px', textAlign: 'center', fontWeight: 'bold',

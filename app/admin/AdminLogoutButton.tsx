@@ -6,7 +6,8 @@ export default function AdminLogoutButton() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    window.location.href = '/login'
+    // 👇 核心修复：使用 replace 抹除历史记录，防止后退
+    window.location.replace('/login')
   }
 
   return (

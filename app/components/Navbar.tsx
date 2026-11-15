@@ -41,8 +41,8 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setIsDropdownOpen(false)
-    // 使用底层跳转，彻底清空页面状态和缓存，防止后退残余
-    window.location.href = '/' 
+    // 👇 核心修复：使用 replace 抹除当前页面记录
+    window.location.replace('/')
   }
 
   const links = [
