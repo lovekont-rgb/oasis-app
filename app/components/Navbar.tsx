@@ -110,11 +110,12 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
               </button>
 
               {isDropdownOpen && (
-                <div style={{
+                 <div style={{
                   position: 'absolute', top: '48px', right: 0, width: '220px',
                   background: 'var(--surface-card)', border: '1px solid var(--border-subtle)',
                   borderRadius: '12px', padding: '8px', backdropFilter: 'blur(20px)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '4px'
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '4px',
+                  zIndex: 9999 // 👈 核心修复：强制置顶
                 }}>
                   <div style={{ padding: '8px 12px', borderBottom: '1px dashed var(--border-subtle)', marginBottom: '4px' }}>
                     <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>已登录账号</p>
