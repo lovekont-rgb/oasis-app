@@ -4,10 +4,15 @@ import { createClient } from '@/lib/supabase/client'
 export default function AdminLogoutButton() {
   const supabase = createClient()
 
-  const handleLogout = () => {
-    // 👇 极速秒退：不等待网络，直接清空并跳转
-    supabase.auth.signOut()
-    window.location.href = '/login'
+  const handleLogout = async () => {
+    try {
+      // 必须等待清理完成
+      await supabase.auth.signOut()
+    } catch (error) {
+      console.error(error)
+    }
+    // 强制物理替换跳转
+    window.location.replace('/login')
   }
 
   return (

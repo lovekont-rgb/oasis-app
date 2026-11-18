@@ -36,12 +36,20 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
     setIsDropdownOpen(false)
   }, [pathname])
 
-  // 👇 核心优化：点击瞬间清空本地凭证并跳转，网络请求去后台慢慢跑
-  const handleLogout = () => {
-    // 不写 await，让它在后台静默作废服务端 Token
-    supabase.auth.signOut() 
-    // 暴力秒跳，清空所有本地缓存页面
-    window.location.href = '/login'
+  // 👇 核心修复：彻底清理
+  const handleLogout = async () => {
+    setIsDropdownOpen(false)
+    setUser(null) // 1. 瞬间清空前端状态，让头像立刻消失
+    
+    try {
+      // 2. 强制等待 Supabase 清理本地 Cookie 和 Token
+      await supabase.auth.signOut()
+    } catch (error) {
+      console.error("退出请求失败，但强制清理本地缓存", error)
+    }
+    
+    // 3. 物理替换跳转，彻底清空当前页面和缓存，不让后退
+    window.location.replace('/login')
   }
 
   const links = [
@@ -120,7 +128,6 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
                     <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
                   </div>
                   
-                  {/* 👇 移除了下拉菜单中的个人设置，只保留创作中心 */}
                   <Link href="/dashboard" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>💼 个人创作中心</Link>
 
                   {isSuperOrAdmin && (
