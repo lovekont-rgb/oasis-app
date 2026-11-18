@@ -12,11 +12,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   
   if (!user) redirect('/login')
 
-  const avatarLetter = user.email ? user.email.charAt(0).toUpperCase() : 'U'
+  // 👇 顺便查出头像和用户名
+  const { data: profile } = await supabase.from('profiles').select('avatar_url, username').eq('id', user.id).single()
+  const displayName = profile?.username || user.email?.split('@')[0] || '用户'
+  const avatarLetter = displayName.charAt(0).toUpperCase()
 
   return (
     <div className={styles.dashboardLayout}>
-      {/* 👇 核心安检：防止浏览器缓存倒退 */}
       <BFCacheGuard />
       
       <aside className={styles.sidebar}>
@@ -26,8 +28,15 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
 
         <div className={styles.userProfile}>
-          <div className={styles.avatar}>{avatarLetter}</div>
-          <div className={styles.email}>{user.email}</div>
+          <div className={styles.avatar} style={{ overflow: 'hidden' }}>
+            {/* 👇 有图显示图，无图显示首字母 */}
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              avatarLetter
+            )}
+          </div>
+          <div className={styles.email}>{displayName}</div>
           <div className={styles.roleBadge}>学习者 / 创作者</div>
         </div>
 
@@ -36,6 +45,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Link href="/dashboard/learning" className={styles.menuItem}>🎓 我的学习</Link>
           <Link href="/dashboard/portfolio" className={styles.menuItem}>🎨 我的作品</Link>
           <Link href="/dashboard/qa" className={styles.menuItem}>💬 我的问答</Link>
+          <Link href="/dashboard/settings" className={styles.menuItem}>⚙️ 个人设置</Link>
         </nav>
 
         <Link href="/" className={styles.backBtn}>← 返回网站首页</Link>

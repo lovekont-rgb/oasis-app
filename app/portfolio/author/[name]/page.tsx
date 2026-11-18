@@ -9,7 +9,7 @@ export default async function AuthorPage({ params }: { params: Promise<{ name: s
   const authorName = decodeURIComponent(resolvedParams.name)
 
   const supabase = await createClient()
-  // 查询该作者发布的所有作品
+  // 1. 查该作者发布的所有作品
   const { data: works } = await supabase
     .from('portfolios')
     .select('*')
@@ -18,7 +18,13 @@ export default async function AuthorPage({ params }: { params: Promise<{ name: s
 
   if (!works || works.length === 0) notFound()
 
-  // 统计总获赞数
+  // 2. 顺便查出该作者的真实资料（头像/简介）
+  const { data: authorProfile } = await supabase
+    .from('profiles')
+    .select('avatar_url, username, bio')
+    .eq('username', authorName)
+    .single()
+
   const totalLikes = works.reduce((acc, curr) => acc + (curr.likes_count || 0), 0)
 
   return (
@@ -27,15 +33,19 @@ export default async function AuthorPage({ params }: { params: Promise<{ name: s
         <Link href="/portfolio" style={{ color: 'var(--cyan)' }}>作品广场</Link> / {authorName} 的主页
       </div>
 
-      {/* 👇 创作者名片区 (Hero) */}
+      {/* 创作者名片区 */}
       <div className="ui-card" style={{ 
         padding: '48px', display: 'flex', alignItems: 'center', gap: '32px', 
         background: 'radial-gradient(ellipse 80% 100% at 0% 0%, rgba(0,212,255,0.1), transparent 70%), var(--surface-card)',
         border: '1px solid var(--border-glow)', marginBottom: '40px', flexWrap: 'wrap'
       }}>
-        {/* 大头像 */}
-        <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: 'white', fontWeight: '900', fontSize: '40px', boxShadow: '0 0 30px rgba(0,212,255,0.4)' }}>
-          {authorName.charAt(0).toUpperCase()}
+        {/* 👇 渲染真实头像 */}
+        <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: 'white', fontWeight: '900', fontSize: '40px', boxShadow: '0 0 30px rgba(0,212,255,0.4)', overflow: 'hidden' }}>
+          {authorProfile?.avatar_url ? (
+            <img src={authorProfile.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            authorName.charAt(0).toUpperCase()
+          )}
         </div>
         
         <div style={{ flex: 1 }}>
@@ -44,24 +54,13 @@ export default async function AuthorPage({ params }: { params: Promise<{ name: s
             <span className="ui-badge" style={{ margin: 0, padding: '4px 12px', fontSize: '12px' }}><span className="ui-badge-dot"></span>认证创作者</span>
           </div>
           <p style={{ color: 'var(--text-secondary)', fontSize: '15px', marginBottom: '24px' }}>
-            这个人很懒，还没有写个人简介... (未来可以在个人设置中修改)
+            {authorProfile?.bio || '这个人很懒，还没有写个人简介...'}
           </p>
           
-          {/* 数据看板 */}
           <div style={{ display: 'flex', gap: '32px' }}>
             <div><span style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-primary)' }}>{works.length}</span> <span style={{ fontSize: '13px', color: 'var(--text-dim)' }}>发布作品</span></div>
             <div><span style={{ fontSize: '20px', fontWeight: 'bold', color: '#ff4444' }}>{totalLikes}</span> <span style={{ fontSize: '13px', color: 'var(--text-dim)' }}>收获点赞</span></div>
           </div>
-        </div>
-        
-        {/* 预留操作按钮 */}
-        <div>
-          <button style={{ padding: '10px 24px', borderRadius: '100px', background: 'var(--cyan)', color: '#05070d', fontWeight: 'bold', border: 'none', cursor: 'pointer', marginBottom: '12px', width: '100%' }}>
-            + 关注 TA
-          </button>
-          <button style={{ padding: '10px 24px', borderRadius: '100px', background: 'transparent', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)', cursor: 'pointer', width: '100%' }}>
-            私信联系
-          </button>
         </div>
       </div>
 

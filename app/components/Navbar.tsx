@@ -6,39 +6,32 @@ import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import ThemeToggle from './ThemeToggle'
 
-export default function Navbar({ initialUser, userRole }: { initialUser: any, userRole?: string }) {
+export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUser: any, userRole?: string, avatarUrl?: string | null }) {
   const pathname = usePathname()
   const supabase = createClient()
   
   const [isSearchOpen, setIsSearchOpen] = useState(false)
-  // 直接使用服务端传来的 user 和 role，没有任何延迟
   const [user, setUser] = useState<any>(initialUser)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // 监听登录状态变化（用于退出登录等操作）
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null)
     })
 
-    // 监听页面点击，点击下拉菜单外部时关闭
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false)
       }
     }
-    
-    // 使用 click 而不是 mousedown，体验更好
     document.addEventListener('click', handleClickOutside)
-
     return () => {
       subscription.unsubscribe()
       document.removeEventListener('click', handleClickOutside)
     }
   }, [supabase])
 
-  // 路由变化时关闭下拉菜单
   useEffect(() => {
     setIsDropdownOpen(false)
   }, [pathname])
@@ -60,7 +53,6 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
   ]
 
   const avatarLetter = user?.email ? user.email.charAt(0).toUpperCase() : 'U'
-  // 直接依赖服务端传来的 userRole 判断
   const isSuperOrAdmin = user?.email === 'sj2282@sina.com' || userRole === 'admin'
 
   return (
@@ -91,10 +83,7 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
         </nav>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', zIndex: 2 }}>
-          <button 
-            onClick={() => setIsSearchOpen(!isSearchOpen)}
-            style={{ background: 'none', border: 'none', color: isSearchOpen ? 'var(--cyan)' : 'var(--text-secondary)', fontSize: '14px', cursor: 'pointer', fontWeight: 500, transition: '0.3s' }}
-          >
+          <button onClick={() => setIsSearchOpen(!isSearchOpen)} style={{ background: 'none', border: 'none', color: isSearchOpen ? 'var(--cyan)' : 'var(--text-secondary)', fontSize: '14px', cursor: 'pointer', fontWeight: 500, transition: '0.3s' }}>
             搜索
           </button>
 
@@ -102,7 +91,6 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
           
           {user ? (
             <div style={{ position: 'relative' }} ref={dropdownRef}>
-              {/* 头像按钮：用最稳健的 onClick */}
               <button 
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -111,43 +99,28 @@ export default function Navbar({ initialUser, userRole }: { initialUser: any, us
                   border: '2px solid var(--border-subtle)', color: '#fff', fontWeight: 'bold', fontSize: '16px',
                   display: 'grid', placeItems: 'center', cursor: 'pointer', transition: '0.3s',
                   boxShadow: isDropdownOpen ? '0 0 15px rgba(0, 212, 255, 0.4)' : 'none',
-                  padding: 0
+                  padding: 0, overflow: 'hidden'
                 }}
               >
-                {avatarLetter}
+                {/* 👇 核心：有图显示图，无图显示首字母 */}
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  avatarLetter
+                )}
               </button>
 
-              {/* 下拉菜单 */}
               {isDropdownOpen && (
-                <div style={{
-                  position: 'absolute', top: '48px', right: 0, width: '220px',
-                  background: 'var(--surface-card)', border: '1px solid var(--border-subtle)',
-                  borderRadius: '12px', padding: '8px', backdropFilter: 'blur(20px)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '4px',
-                  zIndex: 10000
-                }}>
+                <div style={{ position: 'absolute', top: '48px', right: 0, width: '220px', background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '8px', backdropFilter: 'blur(20px)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '4px', zIndex: 10000 }}>
                   <div style={{ padding: '8px 12px', borderBottom: '1px dashed var(--border-subtle)', marginBottom: '4px' }}>
                     <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>已登录账号</p>
                     <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
                   </div>
-                  
-                  <Link href="/dashboard" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>
-                    💼 个人创作中心
-                  </Link>
-
+                  <Link href="/dashboard" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>💼 个人创作中心</Link>
                   {isSuperOrAdmin && (
-                    <Link href="/admin" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px', background: 'rgba(255, 215, 0, 0.05)' }}>
-                      👑 后台管理系统
-                    </Link>
+                    <Link href="/admin" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px', background: 'rgba(255, 215, 0, 0.05)' }}>👑 后台管理系统</Link>
                   )}
-                  
-                  <button 
-                    onClick={handleLogout}
-                    className="dropdown-item"
-                    style={{ padding: '10px 12px', fontSize: '14px', color: '#ff4444', background: 'transparent', border: 'none', borderRadius: '6px', textAlign: 'left', cursor: 'pointer' }}
-                  >
-                    🚪 退出登录
-                  </button>
+                  <button onClick={handleLogout} className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ff4444', background: 'transparent', border: 'none', borderRadius: '6px', textAlign: 'left', cursor: 'pointer' }}>🚪 退出登录</button>
                 </div>
               )}
             </div>

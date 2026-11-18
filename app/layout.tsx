@@ -7,18 +7,22 @@ import NetworkStatus from './components/NetworkStatus'
 
 export const metadata = { title: 'OASIS | 创意无线增长' }
 
-// 优化：只在服务端获取一次，不缓存，保证数据准确且极快
 async function NavbarWrapper() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
   let role = 'user'
+  let avatar_url = null
+  
   if (user) {
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-    if (profile?.role) role = profile.role
+    const { data: profile } = await supabase.from('profiles').select('role, avatar_url').eq('id', user.id).single()
+    if (profile) {
+      role = profile.role
+      avatar_url = profile.avatar_url
+    }
   }
 
-  return <Navbar initialUser={user} userRole={role} />
+  return <Navbar initialUser={user} userRole={role} avatarUrl={avatar_url} />
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -29,7 +33,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <NetworkStatus />
-
         <Suspense fallback={<div style={{ height: '72px', background: 'var(--nav-bg)', borderBottom: '1px solid var(--border-subtle)' }} />}>
           <NavbarWrapper />
         </Suspense>
