@@ -53,7 +53,8 @@ export default function SettingsClient({ user, initialProfile }: { user: any, in
     const res = await updateProfile({
       username,
       bio,
-      skills: skills.split(',').map(s => s.trim()).filter(Boolean),
+      // 👇 修复了这里的 TypeScript 类型报错
+      skills: skills.split(',').map((s: string) => s.trim()).filter(Boolean),
       social_links: { github },
       avatar_url: avatarUrl
     })
