@@ -9,7 +9,6 @@ export default async function SettingsPage() {
   
   if (!user) return null
 
-  // 获取用户档案
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
 
   return (

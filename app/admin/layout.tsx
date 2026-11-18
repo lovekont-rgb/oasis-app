@@ -2,7 +2,7 @@ import Link from 'next/link'
 import styles from './admin.module.css'
 import { createClient } from '@/lib/supabase/server'
 import AdminLogoutButton from './AdminLogoutButton'
-import BFCacheGuard from '../dashboard/BFCacheGuard' // 复用上面写的安检组件
+import BFCacheGuard from '../dashboard/BFCacheGuard'
 
 export const instant = false
 
@@ -16,7 +16,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className={styles.adminLayout}>
-      {/* 👇 核心安检：防止浏览器缓存倒退 */}
       <BFCacheGuard />
       
       <aside className={styles.sidebar}>
@@ -52,6 +51,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin/weekly" className={`${styles.menuItem}`}>📰 AI 周刊管理</Link>
           <Link href="/admin/qa" className={`${styles.menuItem}`}>🙋 问答互助管理</Link>
           <Link href="/admin/progress" className={`${styles.menuItem}`}>📈 学习进度看板</Link>
+          
+          {/* 👇 为管理员增加跳往个人设置与创作中心的快捷入口 */}
+          <div className={styles.menuTitle}>个人中心</div>
+          <Link href="/dashboard" className={`${styles.menuItem}`}>💼 返回创作中心</Link>
+          <Link href="/dashboard/settings" className={`${styles.menuItem}`}>⚙️ 个人设置</Link>
         </div>
 
         <Link href="/" className={styles.backBtn}>← 返回网站前台</Link>

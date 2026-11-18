@@ -114,13 +114,11 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className={styles.inputGroup}>
             <label className={styles.inputLabel}>电子邮箱</label>
-            <input type="email" required placeholder="name@example.com" className={styles.inputField} value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading || isSuccess} />
-          </div>
+            <input type="email" required placeholder="name@example.com" autoComplete="off" className={styles.inputField} value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading || isSuccess} />          </div>
 
           <div className={styles.inputGroup}>
             <label className={styles.inputLabel}>密码</label>
-            <input type="password" required placeholder="至少 6 位字符" className={styles.inputField} value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading || isSuccess} />
-          </div>
+            <input type="password" required placeholder="至少 6 位字符" autoComplete="new-password" className={styles.inputField} value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading || isSuccess} />          </div>
 
           <button 
             type="submit" 

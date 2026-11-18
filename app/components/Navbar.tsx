@@ -39,7 +39,8 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setIsDropdownOpen(false)
-    window.location.replace('/login')
+    // 强制重定向并带上刷新标记，防止表单数据残留
+    window.location.href = '/login' 
   }
 
   const links = [
@@ -53,7 +54,10 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
   ]
 
   const avatarLetter = user?.email ? user.email.charAt(0).toUpperCase() : 'U'
-  const isSuperOrAdmin = user?.email === 'sj2282@sina.com' || userRole === 'admin'
+  // 👇 核心修复：准确判断身份
+  const isSuperAdmin = user?.email === 'sj2282@sina.com'
+  const isAdmin = userRole === 'admin'
+  const isSuperOrAdmin = isSuperAdmin || isAdmin
 
   return (
     <header style={{
@@ -102,7 +106,6 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
                   padding: 0, overflow: 'hidden'
                 }}
               >
-                {/* 👇 核心：有图显示图，无图显示首字母 */}
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
@@ -116,10 +119,16 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
                     <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>已登录账号</p>
                     <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
                   </div>
+                  
+                  {/* 👇 个人中心与设置 始终显示 */}
                   <Link href="/dashboard" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>💼 个人创作中心</Link>
+                  <Link href="/dashboard/settings" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>⚙️ 个人设置</Link>
+
+                  {/* 👇 后台入口 仅管理员显示 */}
                   {isSuperOrAdmin && (
                     <Link href="/admin" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px', background: 'rgba(255, 215, 0, 0.05)' }}>👑 后台管理系统</Link>
                   )}
+                  
                   <button onClick={handleLogout} className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ff4444', background: 'transparent', border: 'none', borderRadius: '6px', textAlign: 'left', cursor: 'pointer' }}>🚪 退出登录</button>
                 </div>
               )}
