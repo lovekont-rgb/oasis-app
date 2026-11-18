@@ -4,9 +4,9 @@ import { createClient } from '@/lib/supabase/client'
 export default function AdminLogoutButton() {
   const supabase = createClient()
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    // 使用 href 强制刷新页面，清空 React 内存中的所有缓存
+  const handleLogout = () => {
+    // 👇 极速秒退：不等待网络，直接清空并跳转
+    supabase.auth.signOut()
     window.location.href = '/login'
   }
 

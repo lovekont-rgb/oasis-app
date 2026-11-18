@@ -36,11 +36,12 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
     setIsDropdownOpen(false)
   }, [pathname])
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    setIsDropdownOpen(false)
-    // 强制重定向并带上刷新标记，防止表单数据残留
-    window.location.href = '/login' 
+  // 👇 核心优化：点击瞬间清空本地凭证并跳转，网络请求去后台慢慢跑
+  const handleLogout = () => {
+    // 不写 await，让它在后台静默作废服务端 Token
+    supabase.auth.signOut() 
+    // 暴力秒跳，清空所有本地缓存页面
+    window.location.href = '/login'
   }
 
   const links = [
@@ -54,7 +55,6 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
   ]
 
   const avatarLetter = user?.email ? user.email.charAt(0).toUpperCase() : 'U'
-  // 👇 核心修复：准确判断身份
   const isSuperAdmin = user?.email === 'sj2282@sina.com'
   const isAdmin = userRole === 'admin'
   const isSuperOrAdmin = isSuperAdmin || isAdmin
@@ -120,11 +120,9 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
                     <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
                   </div>
                   
-                  {/* 👇 个人中心与设置 始终显示 */}
+                  {/* 👇 移除了下拉菜单中的个人设置，只保留创作中心 */}
                   <Link href="/dashboard" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>💼 个人创作中心</Link>
-                  <Link href="/dashboard/settings" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>⚙️ 个人设置</Link>
 
-                  {/* 👇 后台入口 仅管理员显示 */}
                   {isSuperOrAdmin && (
                     <Link href="/admin" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px', background: 'rgba(255, 215, 0, 0.05)' }}>👑 后台管理系统</Link>
                   )}
