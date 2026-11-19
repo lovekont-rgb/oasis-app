@@ -5,22 +5,16 @@ import { headers } from 'next/headers'
 
 export async function submitQuestion(formData: FormData) {
   const supabase = await createClient()
-  
-  // 1. 获取当前用户
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: '请先登录' }
 
-  // 👇 核心检查：是否被禁言
   const { data: profile } = await supabase.from('profiles').select('is_muted').eq('id', user.id).single()
-  if (profile?.is_muted) {
-    return { success: false, error: '您的账号已被禁言，暂时无法发布内容。' }
-  }
+  if (profile?.is_muted) return { success: false, error: '您的账号已被禁言，暂时无法发布内容。' }
 
   const title = formData.get('title') as string
   const content = formData.get('content') as string
   const userName = formData.get('user_name') as string || user?.email?.split('@')[0] || '匿名用户'
 
-  // 获取 IP
   const headersList = await headers()
   const forwardedFor = headersList.get('x-forwarded-for')
   const realIp = forwardedFor ? forwardedFor.split(',')[0] : '127.0.0.1'
@@ -35,17 +29,15 @@ export async function submitQuestion(formData: FormData) {
   if (!title || !content) return { success: false, error: '请填写完整信息。' }
 
   const { error } = await supabase.from('community_questions').insert({
-    user_id: user.id, // 绑定用户ID
+    user_id: user.id, 
     user_name: userName, 
     title, 
     content, 
-    ip_location: ipLocation
+    ip_location: ipLocation,
+    status: 'pending' // 👈 强制设为待审核
   })
   
   if (error) return { success: false, error: error.message }
-  
-  revalidatePath('/community/qa')
-  revalidatePath('/dashboard')
-  revalidatePath('/dashboard/qa')
+  revalidatePath('/community/qa'); revalidatePath('/dashboard'); revalidatePath('/dashboard/qa')
   return { success: true }
 }

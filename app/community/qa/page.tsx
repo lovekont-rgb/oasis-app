@@ -7,13 +7,13 @@ export const instant = false
 export default async function QaPage() {
   const supabase = await createClient()
   
-  // 并行拉取：官方 FAQ 和 用户新提问
   const [ 
     { data: officialFaqs }, 
     { data: userQuestions } 
   ] = await Promise.all([
     supabase.from('community_faqs').select('*').order('sort_order', { ascending: false }),
-    supabase.from('community_questions').select('*').order('created_at', { ascending: false })
+    // 👇 核心：只查询已通过审核的用户提问
+    supabase.from('community_questions').select('*').eq('status', 'approved').order('created_at', { ascending: false })
   ])
 
   return (
@@ -26,7 +26,6 @@ export default async function QaPage() {
       <h1 className="ui-title">问答 <span className="ui-title-gradient">与互助</span></h1>
       <p className="ui-subtitle">遇到卡点不要慌，留下你的问题，老师与热心同学会为你解答。</p>
 
-      {/* 将两张表的数据都传给客户端 */}
       <QaClient officialFaqs={officialFaqs || []} userQuestions={userQuestions || []} />
     </main>
   )

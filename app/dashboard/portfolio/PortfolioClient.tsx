@@ -12,7 +12,6 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   
-  // 状态：用来区分是新建还是编辑
   const [editingId, setEditingId] = useState<number | null>(null)
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('作品集')
@@ -110,16 +109,35 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
           {initialData.map(item => (
             <div key={item.id} className="ui-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <Link href={`/portfolio/${item.id}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
-                  <img src={item.cover_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'var(--cyan)', color: '#05070d', padding: '2px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 'bold' }}>已发布</div>
-                </div>
-                <div style={{ padding: '16px 20px', flex: 1 }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '8px' }}>{item.title}</h3>
-                  <span style={{ fontSize: '12px', color: 'var(--cyan)' }}>{item.category}</span>
-                </div>
-              </Link>
+              
+              <div style={{ position: 'relative' }}>
+                <Link href={`/portfolio/${item.id}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
+                    <img src={item.cover_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                  
+                  <div style={{ padding: '16px 20px', flex: 1 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)', margin: 0 }}>{item.title}</h3>
+                      {/* 👇 新增：渲染状态标签 */}
+                      <span style={{ 
+                        fontSize: '10px', padding: '2px 6px', borderRadius: '4px', border: '1px solid', flexShrink: 0,
+                        color: item.status === 'approved' ? 'var(--green)' : item.status === 'rejected' ? '#ff4444' : 'var(--warn)',
+                        borderColor: item.status === 'approved' ? 'var(--green)' : item.status === 'rejected' ? '#ff4444' : 'var(--warn)'
+                      }}>
+                        {item.status === 'approved' ? '已发布' : item.status === 'rejected' ? '已驳回' : '审核中'}
+                      </span>
+                    </div>
+                    <span style={{ fontSize: '12px', color: 'var(--cyan)' }}>{item.category}</span>
+                    {/* 👇 新增：如果被驳回，显示驳回理由 */}
+                    {item.status === 'rejected' && item.reject_reason && (
+                      <p style={{ fontSize: '11px', color: '#ff4444', marginTop: '8px', margin: '8px 0 0 0' }}>
+                        驳回理由：{item.reject_reason}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              </div>
               
               <div style={{ padding: '0 20px 16px', display: 'flex', gap: '8px' }}>
                 <button onClick={() => openEditModal(item)} style={{ flex: 1, padding: '8px', background: 'rgba(0,212,255,0.1)', color: 'var(--cyan)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: '8px', fontSize: '13px', cursor: 'pointer' }}>编辑</button>
@@ -130,6 +148,7 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
         </div>
       )}
 
+      {/* 上传弹窗 (代码与之前一致，省略部分重复内容，确保你直接全选替换即可) */}
       {isModalOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div className="ui-card" style={{ width: '100%', maxWidth: '600px', padding: '40px', position: 'relative' }}>
@@ -151,7 +170,7 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
                 {fileUrl && !loading && <span style={{ marginLeft: '12px', color: 'var(--green)' }}>✓ 文件已就绪</span>}
               </div>
               <button type="submit" disabled={loading} style={{ padding: '14px', background: 'var(--cyan)', color: '#05070d', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', border: 'none', cursor: 'pointer', marginTop: '8px' }}>
-                {loading ? '正在保存...' : (editingId ? '保存修改' : '确认发布')}
+                {loading ? '正在提交...' : (editingId ? '保存修改' : '确认发布')}
               </button>
             </form>
           </div>

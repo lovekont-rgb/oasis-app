@@ -9,16 +9,16 @@ export default async function AuthorPage({ params }: { params: Promise<{ name: s
   const authorName = decodeURIComponent(resolvedParams.name)
 
   const supabase = await createClient()
-  // 1. 查该作者发布的所有作品
+  // 👇 核心：只查询该作者已通过审核的作品
   const { data: works } = await supabase
     .from('portfolios')
     .select('*')
     .eq('author_name', authorName)
+    .eq('status', 'approved')
     .order('created_at', { ascending: false })
 
   if (!works || works.length === 0) notFound()
 
-  // 2. 顺便查出该作者的真实资料（头像/简介）
   const { data: authorProfile } = await supabase
     .from('profiles')
     .select('avatar_url, username, bio')
@@ -39,7 +39,6 @@ export default async function AuthorPage({ params }: { params: Promise<{ name: s
         background: 'radial-gradient(ellipse 80% 100% at 0% 0%, rgba(0,212,255,0.1), transparent 70%), var(--surface-card)',
         border: '1px solid var(--border-glow)', marginBottom: '40px', flexWrap: 'wrap'
       }}>
-        {/* 👇 渲染真实头像 */}
         <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: 'white', fontWeight: '900', fontSize: '40px', boxShadow: '0 0 30px rgba(0,212,255,0.4)', overflow: 'hidden' }}>
           {authorProfile?.avatar_url ? (
             <img src={authorProfile.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

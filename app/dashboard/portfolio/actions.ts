@@ -3,38 +3,20 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-// 添加作品（绑定当前用户）
 export async function createMyPortfolio(data: any) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) return { success: false, error: '未登录' }
 
+  const { data: profile } = await supabase.from('profiles').select('is_muted').eq('id', user.id).single()
+  if (profile?.is_muted) return { success: false, error: '您的账号已被禁言，暂时无法发布作品。' }
+
   const { error } = await supabase.from('portfolios').insert({
     ...data,
-    user_id: user.id // 强制绑定当前用户
+    user_id: user.id,
+    status: 'pending' // 👈 强制设为待审核
   })
-  
-  if (error) return { success: false, error: error.message }
-  
-  revalidatePath('/dashboard/portfolio')
-  revalidatePath('/portfolio') // 同步刷新前台作品广场
-  return { success: true }
-}
-
-// 删除作品（校验权限，只能删自己的）
-export async function deleteMyPortfolio(id: number) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) return { success: false, error: '未登录' }
-
-  // 核心防御：必须带上 user_id 过滤，防止恶意删除别人的
-  const { error } = await supabase
-    .from('portfolios')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user.id) 
   
   if (error) return { success: false, error: error.message }
   
@@ -42,20 +24,28 @@ export async function deleteMyPortfolio(id: number) {
   revalidatePath('/portfolio')
   return { success: true }
 }
-// 编辑作品
+
+export async function deleteMyPortfolio(id: number) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: '未登录' }
+
+  const { error } = await supabase.from('portfolios').delete().eq('id', id).eq('user_id', user.id)
+  if (error) return { success: false, error: error.message }
+  revalidatePath('/dashboard/portfolio'); revalidatePath('/portfolio')
+  return { success: true }
+}
+
 export async function updateMyPortfolio(id: number, data: any) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: '未登录' }
 
   const { error } = await supabase.from('portfolios')
-    .update(data)
-    .eq('id', id)
-    .eq('user_id', user.id) // 安全校验
+    .update({ ...data, status: 'pending' }) // 👈 修改后重新进入待审核
+    .eq('id', id).eq('user_id', user.id)
   
   if (error) return { success: false, error: error.message }
-  revalidatePath('/dashboard/portfolio')
-  revalidatePath(`/portfolio/${id}`)
-  revalidatePath('/portfolio')
+  revalidatePath('/dashboard/portfolio'); revalidatePath(`/portfolio/${id}`); revalidatePath('/portfolio')
   return { success: true }
 }
