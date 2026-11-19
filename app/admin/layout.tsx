@@ -31,6 +31,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin/site/contact" className={`${styles.menuItem}`}>✉️ 联系我们</Link>
           <Link href="/admin/site/privacy" className={`${styles.menuItem}`}>📜 隐私政策</Link>
           <Link href="/admin/messages" className={`${styles.menuItem}`}>💬 留言管理</Link>
+          <Link href="/admin/review" className={`${styles.menuItem}`}>🛡️ 内容安全审核</Link>
           
           {(isSuperAdmin || isAdmin) && (
             <Link href="/admin/users" className={`${styles.menuItem}`}>👥 用户权限管理</Link>
