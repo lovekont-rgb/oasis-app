@@ -83,6 +83,7 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
     setLoading(false)
     if (res.success) {
       setIsModalOpen(false)
+      alert(editingId ? '修改已提交，需要重新审核，通过后会重新公开展示。' : '作品已提交审核，通过后会出现在作品广场。')
       router.refresh()
     } else alert('操作失败: ' + res.error)
   }
@@ -154,8 +155,11 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
           <div className="ui-card" style={{ width: '100%', maxWidth: '600px', padding: '40px', position: 'relative' }}>
             <button onClick={() => setIsModalOpen(false)} style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', color: 'var(--text-dim)', fontSize: '24px', cursor: 'pointer' }}>×</button>
             
-            <h2 className="ui-title" style={{ fontSize: '1.6rem', marginBottom: '24px' }}>{editingId ? '编辑作品' : '上传新作品'}</h2>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h2 className="ui-title" style={{ fontSize: '1.6rem', marginBottom: '12px' }}>{editingId ? '编辑作品' : '上传新作品'}</h2>
+            {/* 审核提示：提交/修改后都会进入待审核 */}
+            <p style={{ fontSize: '10px', color: 'var(--text-dim)', marginBottom: '20px', lineHeight: 1.6 }}>
+              提交后进入「待审核」，管理员通过后才会在作品广场公开展示；修改已发布的作品会重新回到审核队列。
+            </p>            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <input type="text" value={title} onChange={e => setTitle(e.target.value)} required placeholder="作品标题" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'var(--bg-void)', color: 'white' }} />
               <select value={category} onChange={e => setCategory(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'var(--bg-void)', color: 'white' }}>
                 <option value="作品集">作品集</option>
