@@ -36,19 +36,11 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
     setIsDropdownOpen(false)
   }, [pathname])
 
-  // 👇 核心修复：彻底清理
   const handleLogout = async () => {
     setIsDropdownOpen(false)
-    setUser(null) // 1. 瞬间清空前端状态，让头像立刻消失
-    
-    try {
-      // 2. 强制等待 Supabase 清理本地 Cookie 和 Token
-      await supabase.auth.signOut()
-    } catch (error) {
-      console.error("退出请求失败，但强制清理本地缓存", error)
-    }
-    
-    // 3. 物理替换跳转，彻底清空当前页面和缓存，不让后退
+    setUser(null)
+    await supabase.auth.signOut()
+    // 👇 强制替换历史记录，彻底断绝后退可能
     window.location.replace('/login')
   }
 
@@ -63,9 +55,9 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
   ]
 
   const avatarLetter = user?.email ? user.email.charAt(0).toUpperCase() : 'U'
-  const isSuperAdmin = user?.email === 'sj2282@sina.com'
-  const isAdmin = userRole === 'admin'
-  const isSuperOrAdmin = isSuperAdmin || isAdmin
+  
+  // 👇 核心逻辑：只要邮箱是超管，或者服务端传来了 admin 角色，绝对显示后台
+  const isSuperOrAdmin = user?.email === 'sj2282@sina.com' || userRole === 'admin'
 
   return (
     <header style={{

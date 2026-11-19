@@ -32,30 +32,20 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
 
     try {
       if (isLogin) {
-        // ============ 登录逻辑 ============
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
         
         setIsSuccess(true)
         setMsg('登录成功，正在进入...')
         
-        // 👇 极速软导航，去掉所有延迟！并立刻刷新服务端组件
-        const isAdminEmail = data.user?.email === 'sj2282@sina.com'
-        // 如果是超管或者数据库里角色是admin（这里简化处理，只要不是超管先去dashboard，或者都去admin）
-        // 根据你的需求：超管和普通管理员默认进admin，普通用户进dashboard
-        // 为了严谨，这里不查数据库，直接根据邮箱和常规情况跳。
-        // 如果你需要普通管理员也准确进admin，可以在前面通过getUser查profile，但为了极速，这里用路由拦截兜底
-        
-        // 只要不是普通用户，我们先统一去 /admin，门卫会自动校验
-        // 👇 修改为如下：
-        if (isAdminEmail) {
+        if (data.user?.email === 'sj2282@sina.com') {
           router.replace('/admin')
         } else {
           router.replace('/dashboard')
         }
+        router.refresh() 
 
       } else {
-        // ============ 注册逻辑 ============
         const { data, error } = await supabase.auth.signUp({ email, password })
         if (error) throw error
 
@@ -114,11 +104,15 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className={styles.inputGroup}>
             <label className={styles.inputLabel}>电子邮箱</label>
-            <input type="email" required placeholder="name@example.com" autoComplete="off" className={styles.inputField} value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading || isSuccess} />          </div>
+            {/* 👇 加入 autoComplete 阻止浏览器自动填充 */}
+            <input type="email" required placeholder="name@example.com" autoComplete="off" className={styles.inputField} value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading || isSuccess} />
+          </div>
 
           <div className={styles.inputGroup}>
             <label className={styles.inputLabel}>密码</label>
-            <input type="password" required placeholder="至少 6 位字符" autoComplete="new-password" className={styles.inputField} value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading || isSuccess} />          </div>
+            {/* 👇 new-password 强制禁用密码回填 */}
+            <input type="password" required placeholder="至少 6 位字符" autoComplete="new-password" className={styles.inputField} value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading || isSuccess} />
+          </div>
 
           <button 
             type="submit" 
@@ -131,7 +125,7 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
               transition: 'all 0.2s'
             }}
           >
-            {loading ? '验证中...' : isSuccess ? '跳转中...' : (isLogin ? '登 录' : '注 册')}
+            {loading ? '处理中...' : isSuccess ? '跳转中...' : (isLogin ? '登 录' : '注 册')}
           </button>
         </form>
 
