@@ -32,6 +32,17 @@ export async function createPortfolio(formData: FormData): Promise<void> {
   }
 
   const supabase = await createClient()
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+  await supabase.from('portfolios').insert({
+    ...parseData(formData),
+    status: 'approved' // 👈 管理员直接发布，无需审核
+  })
+  revalidatePath('/admin/portfolio'); revalidatePath('/portfolio')
+  redirect('/admin/portfolio')
+=======
+>>>>>>> Stashed changes
   const { error } = await supabase.from('portfolios').insert({
     ...parseData(formData),
     status: 'approved',
@@ -45,6 +56,10 @@ export async function createPortfolio(formData: FormData): Promise<void> {
   revalidatePath('/admin/portfolio')
   revalidatePath('/portfolio')
   redirect('/admin/portfolio?ok=' + encodeURIComponent('已直接发布'))
+<<<<<<< Updated upstream
+=======
+>>>>>>> 93d7db95f1438df1c767e89358f98c5576e34190
+>>>>>>> Stashed changes
 }
 
 /**
@@ -59,6 +74,14 @@ export async function updatePortfolio(id: number, formData: FormData): Promise<v
   }
 
   const supabase = await createClient()
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+  await supabase.from('portfolios').update(parseData(formData)).eq('id', id)
+  revalidatePath('/admin/portfolio'); revalidatePath('/portfolio'); revalidatePath(`/portfolio/${id}`)
+  redirect('/admin/portfolio')
+=======
+>>>>>>> Stashed changes
   const { error } = await supabase.from('portfolios').update(parseData(formData)).eq('id', id)
 
   if (error) {
@@ -69,6 +92,10 @@ export async function updatePortfolio(id: number, formData: FormData): Promise<v
   revalidatePath('/portfolio')
   revalidatePath(`/portfolio/${id}`)
   redirect('/admin/portfolio?ok=' + encodeURIComponent('已保存'))
+<<<<<<< Updated upstream
+=======
+>>>>>>> 93d7db95f1438df1c767e89358f98c5576e34190
+>>>>>>> Stashed changes
 }
 
 export async function deletePortfolioAction(formData: FormData): Promise<void> {

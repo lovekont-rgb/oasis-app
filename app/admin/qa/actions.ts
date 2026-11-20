@@ -23,21 +23,53 @@ export async function replyQuestion(
   if (text.length > 1000) return { success: false, error: '回复内容最多 1000 个字' }
 
   const supabase = await createClient()
+<<<<<<< Updated upstream
   const { error } = await supabase
     .from('community_questions')
     .update({ admin_reply: text })
     .eq('id', id)
 
   if (error) return { success: false, error: error.message }
+=======
+<<<<<<< HEAD
+  const { error } = await supabase.from('community_questions')
+    .update({ admin_reply: replyText }) // 👈 只更新回复，不改 status
+=======
+  const { error } = await supabase
+    .from('community_questions')
+    .update({ admin_reply: text })
+>>>>>>> 93d7db95f1438df1c767e89358f98c5576e34190
+    .eq('id', id)
+
+  if (error) return { success: false, error: error.message }
+<<<<<<< HEAD
+  revalidatePath('/admin/qa'); revalidatePath('/admin/review')
+  revalidatePath('/community/qa'); revalidatePath('/dashboard/qa')
+=======
+>>>>>>> Stashed changes
 
   revalidatePath('/admin/qa')
   revalidatePath('/admin/review')
   revalidatePath('/community/qa')
   revalidatePath('/dashboard/qa')
+<<<<<<< Updated upstream
+=======
+>>>>>>> 93d7db95f1438df1c767e89358f98c5576e34190
+>>>>>>> Stashed changes
   return { success: true }
 }
 
 export async function deleteQuestionAction(formData: FormData): Promise<void> {
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+  const id = Number(formData.get('id'))
+  const supabase = await createClient()
+  await supabase.from('community_questions').delete().eq('id', id)
+  revalidatePath('/admin/qa'); revalidatePath('/community/qa'); revalidatePath('/admin/review')
+}
+=======
+>>>>>>> Stashed changes
   const guard = await requireAdmin()
   if (guard.ok) {
     const id = Number(formData.get('id'))
@@ -51,3 +83,7 @@ export async function deleteQuestionAction(formData: FormData): Promise<void> {
   revalidatePath('/admin/review')
   revalidatePath('/community/qa')
 }
+<<<<<<< Updated upstream
+=======
+>>>>>>> 93d7db95f1438df1c767e89358f98c5576e34190
+>>>>>>> Stashed changes
