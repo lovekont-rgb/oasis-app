@@ -1,4 +1,5 @@
 'use client'
+
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -47,15 +48,7 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
     const payload = { title, category, content, file_url: fileUrl, file_type: fileType, cover_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop' }
     const res = editingId ? await updateMyPortfolio(editingId, payload) : await createMyPortfolio({ ...payload, author_name: userEmail.split('@')[0] })
     setLoading(false)
-<<<<<<< HEAD
     if (res.success) { setIsModalOpen(false); router.refresh() } else alert(res.error)
-=======
-    if (res.success) {
-      setIsModalOpen(false)
-      alert(editingId ? '修改已提交，需要重新审核，通过后会重新公开展示。' : '作品已提交审核，通过后会出现在作品广场。')
-      router.refresh()
-    } else alert('操作失败: ' + res.error)
->>>>>>> 93d7db95f1438df1c767e89358f98c5576e34190
   }
 
   return (
@@ -102,24 +95,9 @@ export default function PortfolioClient({ initialData, userEmail }: { initialDat
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div className="ui-card" style={{ width: '100%', maxWidth: '600px', padding: '40px', position: 'relative' }}>
             <button onClick={() => setIsModalOpen(false)} style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', color: 'var(--text-dim)', fontSize: '24px', cursor: 'pointer' }}>×</button>
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
             <h2 className="ui-title" style={{ fontSize: '1.6rem', marginBottom: '16px' }}>{editingId ? '编辑作品' : '上传新作品'}</h2>
             {editingId && <p style={{ color: 'var(--warn)', fontSize: '12px', marginBottom: '16px' }}>* 修改后需重新经过管理员审核方可展示</p>}
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-=======
->>>>>>> Stashed changes
-            
-            <h2 className="ui-title" style={{ fontSize: '1.6rem', marginBottom: '12px' }}>{editingId ? '编辑作品' : '上传新作品'}</h2>
-            {/* 审核提示：提交/修改后都会进入待审核 */}
-            <p style={{ fontSize: '10px', color: 'var(--text-dim)', marginBottom: '20px', lineHeight: 1.6 }}>
-              提交后进入「待审核」，管理员通过后才会在作品广场公开展示；修改已发布的作品会重新回到审核队列。
-            </p>            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-<<<<<<< Updated upstream
-=======
->>>>>>> 93d7db95f1438df1c767e89358f98c5576e34190
->>>>>>> Stashed changes
               <input type="text" value={title} onChange={e => setTitle(e.target.value)} required placeholder="作品标题" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'var(--bg-void)', color: 'white' }} />
               <select value={category} onChange={e => setCategory(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'var(--bg-void)', color: 'white' }}>
                 <option value="作品集">作品集</option><option value="优秀作品">优秀作品</option><option value="兼职接单">兼职接单</option>
