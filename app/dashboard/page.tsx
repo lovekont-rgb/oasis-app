@@ -4,28 +4,29 @@ import { Suspense } from 'react'
 
 export const instant = false
 
-// 独立的统计组件，带安全气囊防止断网崩溃
 async function DashboardStats() {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    // 并行获取真实数据
     const [
       { count: learningCount },
       { data: userPortfolios },
-      { count: qaCount }
+      { count: qaCount },
+      { count: collectCount }
     ] = await Promise.all([
       supabase.from('learning_progress').select('*', { count: 'exact', head: true }).eq('user_id', user?.id),
-      supabase.from('portfolios').select('likes_count').eq('user_id', user?.id),
-      supabase.from('community_questions').select('*', { count: 'exact', head: true }).eq('user_id', user?.id)
+      supabase.from('portfolios').select('likes_count, dislikes_count').eq('user_id', user?.id),
+      supabase.from('community_questions').select('*', { count: 'exact', head: true }).eq('user_id', user?.id),
+      supabase.from('portfolio_interactions').select('*', { count: 'exact', head: true }).eq('user_id', user?.id).eq('type', 'collect')
     ])
 
     const totalLikes = userPortfolios?.reduce((acc, curr) => acc + (curr.likes_count || 0), 0) || 0
+    const totalDislikes = userPortfolios?.reduce((acc, curr) => acc + (curr.dislikes_count || 0), 0) || 0
     const portfolioCount = userPortfolios?.length || 0
 
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
         
         <Link href="/dashboard/learning" className="ui-card" style={{ padding: '24px', textAlign: 'center', textDecoration: 'none' }}>
           <div style={{ fontSize: '28px', marginBottom: '8px' }}>🎓</div>
@@ -41,9 +42,17 @@ async function DashboardStats() {
 
         <div className="ui-card" style={{ padding: '24px', textAlign: 'center' }}>
           <div style={{ fontSize: '28px', marginBottom: '8px' }}>❤️</div>
-          <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>收到的赞</h3>
-          <p style={{ fontSize: '28px', fontWeight: '900', color: '#ff4444', fontFamily: 'Orbitron' }}>{totalLikes}</p>
+          <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>收到的赞 / 踩</h3>
+          <p style={{ fontSize: '24px', fontWeight: '900', color: '#ff4444', fontFamily: 'Orbitron' }}>
+            {totalLikes} <span style={{ fontSize: '14px', color: 'var(--text-dim)' }}>/</span> <span style={{ color: 'var(--warn)' }}>{totalDislikes}</span>
+          </p>
         </div>
+
+        <Link href="/dashboard/collections" className="ui-card" style={{ padding: '24px', textAlign: 'center', textDecoration: 'none' }}>
+          <div style={{ fontSize: '28px', marginBottom: '8px' }}>⭐</div>
+          <h3 style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>我的收藏</h3>
+          <p style={{ fontSize: '28px', fontWeight: '900', color: '#ffd700', fontFamily: 'Orbitron' }}>{collectCount || 0}</p>
+        </Link>
 
         <Link href="/dashboard/qa" className="ui-card" style={{ padding: '24px', textAlign: 'center', textDecoration: 'none' }}>
           <div style={{ fontSize: '28px', marginBottom: '8px' }}>💬</div>
@@ -53,7 +62,6 @@ async function DashboardStats() {
       </div>
     )
   } catch (err) {
-    // 断网或数据库异常时的兜底
     return (
       <div className="ui-card" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-dim)' }}>
         <div style={{ fontSize: '32px', marginBottom: '16px' }}>📡</div>
@@ -75,11 +83,7 @@ export default async function DashboardPage() {
       </h1>
       <p className="ui-subtitle" style={{ marginBottom: '40px' }}>这里是你的专属创作大本营。</p>
 
-      <Suspense fallback={
-        <div style={{ height: '130px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
-          数据加载中...
-        </div>
-      }>
+      <Suspense fallback={<div style={{ height: '130px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>数据加载中...</div>}>
         <DashboardStats />
       </Suspense>
 

@@ -1,23 +1,33 @@
 import Link from 'next/link'
 import styles from './admin.module.css'
 import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 import AdminLogoutButton from './AdminLogoutButton'
-import BFCacheGuard from '../dashboard/BFCacheGuard'
 
 export const instant = false
+export const dynamic = 'force-dynamic'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user?.id || '').single()
-  const isSuperAdmin = user?.email === 'sj2282@sina.com'
+  if (!user) redirect('/login')
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const isSuperAdmin = user.email === 'sj2282@sina.com'
   const isAdmin = profile?.role === 'admin'
+
+  if (!isSuperAdmin && !isAdmin) redirect('/login')
 
   return (
     <div className={styles.adminLayout}>
-      <BFCacheGuard />
-      
+      {/* 👇 核心修复：彻底封杀 BFCache，只要用户按后退键，强制刷新页面重新鉴权 */}
+      <script dangerouslySetInnerHTML={{ __html: `
+        window.addEventListener('pageshow', function(event) {
+          if (event.persisted) window.location.reload();
+        });
+      `}} />
+
       <aside className={styles.sidebar}>
         <div className={styles.logoArea}>
           <div className={styles.logoMark}>O</div>
@@ -27,11 +37,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className={styles.menuGroup}>
           <div className={styles.menuTitle}>网站管理</div>
           <Link href="/admin" className={`${styles.menuItem}`}>📊 数据概览</Link>
+          <Link href="/admin/review" className={`${styles.menuItem}`}>🛡️ 内容安全审核</Link>
           <Link href="/admin/site/about" className={`${styles.menuItem}`}>🏢 关于我们</Link>
           <Link href="/admin/site/contact" className={`${styles.menuItem}`}>✉️ 联系我们</Link>
           <Link href="/admin/site/privacy" className={`${styles.menuItem}`}>📜 隐私政策</Link>
           <Link href="/admin/messages" className={`${styles.menuItem}`}>💬 留言管理</Link>
-          <Link href="/admin/review" className={`${styles.menuItem}`}>🛡️ 内容安全审核</Link>
           
           {(isSuperAdmin || isAdmin) && (
             <Link href="/admin/users" className={`${styles.menuItem}`}>👥 用户权限管理</Link>
@@ -53,7 +63,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin/qa" className={`${styles.menuItem}`}>🙋 问答互助管理</Link>
           <Link href="/admin/progress" className={`${styles.menuItem}`}>📈 学习进度看板</Link>
           
-          {/* 👇 为管理员增加跳往个人设置与创作中心的快捷入口 */}
           <div className={styles.menuTitle}>个人中心</div>
           <Link href="/dashboard" className={`${styles.menuItem}`}>💼 返回创作中心</Link>
           <Link href="/dashboard/settings" className={`${styles.menuItem}`}>⚙️ 个人设置</Link>
