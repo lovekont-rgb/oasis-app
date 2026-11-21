@@ -5,7 +5,6 @@ import { redirect } from 'next/navigation'
 import AdminLogoutButton from './AdminLogoutButton'
 
 export const instant = false
-export const dynamic = 'force-dynamic'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -21,7 +20,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className={styles.adminLayout}>
-      {/* 👇 核心修复：彻底封杀 BFCache，只要用户按后退键，强制刷新页面重新鉴权 */}
+      {/* 👇 防 BFCache 倒退的拦截脚本 */}
       <script dangerouslySetInnerHTML={{ __html: `
         window.addEventListener('pageshow', function(event) {
           if (event.persisted) window.location.reload();

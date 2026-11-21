@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/server'
 import styles from './dashboard.module.css'
 
 export const instant = false
-export const dynamic = 'force-dynamic'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -18,6 +17,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className={styles.dashboardLayout}>
+      {/* 👇 防 BFCache 倒退的拦截脚本 */}
       <script dangerouslySetInnerHTML={{ __html: `
         window.addEventListener('pageshow', function(event) {
           if (event.persisted) window.location.reload();
@@ -47,7 +47,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Link href="/dashboard/learning" className={styles.menuItem}>🎓 我的学习</Link>
           <Link href="/dashboard/portfolio" className={styles.menuItem}>🎨 我的作品</Link>
           <Link href="/dashboard/qa" className={styles.menuItem}>💬 我的问答</Link>
-          {/* 👇 新增收藏菜单 */}
           <Link href="/dashboard/collections" className={styles.menuItem}>⭐ 我的收藏</Link>
           <Link href="/dashboard/settings" className={styles.menuItem}>⚙️ 个人设置</Link>
         </nav>
