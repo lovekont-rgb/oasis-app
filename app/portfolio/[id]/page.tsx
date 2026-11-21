@@ -23,7 +23,6 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '40px', alignItems: 'start' }}>
         
-        {/* 左侧：主展示区 */}
         <div>
           <div className="ui-card" style={{ padding: '8px', background: '#000', overflow: 'hidden', border: '1px solid var(--border-glow)' }}>
             {item.file_type === 'video' && item.file_url ? (
@@ -40,16 +39,20 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>{item.content || '作者暂无补充说明。'}</p>
           </div>
 
-          {/* 👇 核心：点赞与评论组件 */}
-          <DetailInteraction portfolioId={item.id} initialLikes={item.likes_count || 0} user={user} />
+          {/* 👇 补全了 initialDislikes 和 initialCollects */}
+          <DetailInteraction 
+            portfolioId={item.id} 
+            initialLikes={item.likes_count || 0} 
+            initialDislikes={item.dislikes_count || 0}
+            initialCollects={item.collects_count || 0}
+            user={user} 
+          />
         </div>
 
-        {/* 右侧：侧边栏 */}
         <div style={{ position: 'sticky', top: '100px' }}>
           <div className="ui-card" style={{ marginBottom: '24px' }}>
             <h1 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '12px', color: 'var(--text-primary)' }}>{item.title}</h1>
             
-            {/* 👇 点击作者头像跳转主页 */}
             <Link 
               href={`/portfolio/author/${encodeURIComponent(item.author_name)}`} 
               style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px dashed var(--border-subtle)', textDecoration: 'none', cursor: 'pointer' }}
