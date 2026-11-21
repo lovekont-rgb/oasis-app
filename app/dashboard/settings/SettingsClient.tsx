@@ -1,12 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { updateProfile, updatePassword } from './actions'
 
 export default function SettingsClient({ user, initialProfile }: { user: any, initialProfile: any }) {
-  const router = useRouter()
   const supabase = createClient()
 
   // 表单状态
@@ -53,7 +51,6 @@ export default function SettingsClient({ user, initialProfile }: { user: any, in
     const res = await updateProfile({
       username,
       bio,
-      // 👇 修复了这里的 TypeScript 类型报错
       skills: skills.split(',').map((s: string) => s.trim()).filter(Boolean),
       social_links: { github },
       avatar_url: avatarUrl
@@ -61,8 +58,11 @@ export default function SettingsClient({ user, initialProfile }: { user: any, in
 
     setSaving(false)
     if (res.success) {
-      setMsg('个人信息更新成功！')
-      router.refresh()
+      setMsg('个人信息更新成功！页面即将刷新...')
+      // 👇 核心修复：不用 router.refresh()，直接用 window.location.reload() 暴力刷新整个页面，确保数据绝对同步
+      setTimeout(() => {
+        window.location.reload()
+      }, 800)
     } else {
       setMsg('保存失败: ' + res.error)
     }

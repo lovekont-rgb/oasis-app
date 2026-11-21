@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import ThemeToggle from './ThemeToggle'
 
-export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUser: any, userRole?: string, avatarUrl?: string | null }) {
+export default function Navbar({ initialUser, userRole, avatarUrl, initialUsername }: { initialUser: any, userRole?: string, avatarUrl?: string | null, initialUsername?: string | null }) {
   const pathname = usePathname()
   const supabase = createClient()
   
@@ -36,11 +36,11 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
     setIsDropdownOpen(false)
   }, [pathname])
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     setIsDropdownOpen(false)
     setUser(null)
-    await supabase.auth.signOut()
-    // 👇 强制替换历史记录，彻底断绝后退可能
+    localStorage.removeItem('oasis_role')
+    supabase.auth.signOut().catch(console.error)
     window.location.replace('/login')
   }
 
@@ -54,9 +54,10 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
     { name: '社区', href: '/community' },
   ]
 
-  const avatarLetter = user?.email ? user.email.charAt(0).toUpperCase() : 'U'
+  // 👇 核心修改：优先用传过来的用户名，没有再用邮箱
+  const displayName = initialUsername || user?.email?.split('@')[0] || 'U'
+  const avatarLetter = displayName.charAt(0).toUpperCase()
   
-  // 👇 核心逻辑：只要邮箱是超管，或者服务端传来了 admin 角色，绝对显示后台
   const isSuperOrAdmin = user?.email === 'sj2282@sina.com' || userRole === 'admin'
 
   return (
@@ -116,8 +117,8 @@ export default function Navbar({ initialUser, userRole, avatarUrl }: { initialUs
               {isDropdownOpen && (
                 <div style={{ position: 'absolute', top: '48px', right: 0, width: '220px', background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '8px', backdropFilter: 'blur(20px)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '4px', zIndex: 10000 }}>
                   <div style={{ padding: '8px 12px', borderBottom: '1px dashed var(--border-subtle)', marginBottom: '4px' }}>
-                    <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>已登录账号</p>
-                    <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
+                    <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>{displayName}</p>
+                    <p style={{ fontSize: '12px', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
                   </div>
                   
                   <Link href="/dashboard" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>💼 个人创作中心</Link>

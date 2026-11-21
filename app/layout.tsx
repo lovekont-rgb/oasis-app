@@ -14,21 +14,22 @@ async function NavbarWrapper() {
   
   let role = 'user'
   let avatar_url = null
+  let username = null // 👈 新增
   
   if (user) {
-    const { data: profile } = await supabase.from('profiles').select('role, avatar_url').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('profiles').select('role, avatar_url, username').eq('id', user.id).single()
     if (profile) {
       role = profile.role || 'user'
       avatar_url = profile.avatar_url
+      username = profile.username // 👈 把用户名查出来
     }
   }
 
-  // 强制锁定超管权限，防止数据库数据错误
   if (user?.email === 'sj2282@sina.com') {
     role = 'admin'
   }
 
-  return <Navbar initialUser={user} userRole={role} avatarUrl={avatar_url} />
+  return <Navbar initialUser={user} userRole={role} avatarUrl={avatar_url} initialUsername={username} />
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -38,9 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('oasis-theme')||'dark';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');document.documentElement.setAttribute('data-theme-pref',t);}catch(e){}})();` }} />
       </head>
       <body>
-        {/* 👇 核心：全局防倒退魔法 */}
         <BFCacheCleaner />
-        
         <NetworkStatus />
         <Suspense fallback={<div style={{ height: '72px', background: 'var(--nav-bg)', borderBottom: '1px solid var(--border-subtle)' }} />}>
           <NavbarWrapper />

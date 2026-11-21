@@ -1,4 +1,5 @@
 'use server'
+
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -19,15 +20,20 @@ function parseData(formData: FormData) {
 
 export async function createPortfolio(formData: FormData): Promise<void> {
   const supabase = await createClient()
-  await supabase.from('portfolios').insert(parseData(formData))
-  revalidatePath('/admin/portfolio'); revalidatePath('/portfolio')
+  await supabase.from('portfolios').insert({
+    ...parseData(formData),
+    status: 'approved' // 管理员后台直接创建，免审核
+  })
+  revalidatePath('/admin/portfolio')
+  revalidatePath('/portfolio')
   redirect('/admin/portfolio')
 }
 
 export async function updatePortfolio(id: number, formData: FormData): Promise<void> {
   const supabase = await createClient()
   await supabase.from('portfolios').update(parseData(formData)).eq('id', id)
-  revalidatePath('/admin/portfolio'); revalidatePath('/portfolio')
+  revalidatePath('/admin/portfolio')
+  revalidatePath('/portfolio')
   revalidatePath(`/portfolio/${id}`)
   redirect('/admin/portfolio')
 }
@@ -36,5 +42,6 @@ export async function deletePortfolioAction(formData: FormData): Promise<void> {
   const id = Number(formData.get('id'))
   const supabase = await createClient()
   await supabase.from('portfolios').delete().eq('id', id)
-  revalidatePath('/admin/portfolio'); revalidatePath('/portfolio')
+  revalidatePath('/admin/portfolio')
+  revalidatePath('/portfolio')
 }
