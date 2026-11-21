@@ -9,46 +9,55 @@ export default function PortfolioClient({ initialData, currentUser, initialInter
   const [activeTab, setActiveTab] = useState('全部')
   const [sortBy, setSortBy] = useState<'latest' | 'hot'>('latest')
   
-  // 本地渲染列表数据
   const [works, setWorks] = useState(initialData)
   
-  // 本地互动状态字典
+  // 👇 修复：精确映射每个动作的状态，不再动态拼接
   const [interactions, setInteractions] = useState<Record<string, { liked: boolean, disliked: boolean, collected: boolean }>>(() => {
     const map: Record<string, any> = {}
     initialInteractions.forEach(i => {
       if (!map[i.portfolio_id]) map[i.portfolio_id] = { liked: false, disliked: false, collected: false }
-      map[i.portfolio_id][`${i.type}d`] = true // like -> liked, dislike -> disliked
+      if (i.type === 'like') map[i.portfolio_id].liked = true
+      if (i.type === 'dislike') map[i.portfolio_id].disliked = true
+      if (i.type === 'collect') map[i.portfolio_id].collected = true
     })
     return map
   })
 
   const tabs = ['全部', '作品集', '优秀作品', '兼职接单']
 
-  // 过滤和排序
   let filteredData = works.filter(item => activeTab === '全部' ? true : item.category === activeTab)
   filteredData = filteredData.sort((a, b) => {
     if (sortBy === 'hot') return (b.likes_count || 0) - (a.likes_count || 0)
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   })
 
-  // 👇 秒级响应：点赞/踩/收藏逻辑
+  // 👇 修复：精确读取状态，不使用 `${type}d` 拼接
   const handleAction = async (e: React.MouseEvent, id: number, type: 'like' | 'dislike' | 'collect') => {
     e.preventDefault()
     e.stopPropagation()
 
     if (!currentUser) return alert('请先登录再操作！')
 
-    const isActive = interactions[id]?.[`${type}d`] || false
+    const currentInteract = interactions[id] || { liked: false, disliked: false, collected: false }
+    const isActive = type === 'like' ? currentInteract.liked : type === 'dislike' ? currentInteract.disliked : currentInteract.collected
     
-    // 1. 立即更新 UI（乐观更新，不等数据库）
-    setInteractions(prev => ({
-      ...prev,
-      [id]: { ...prev[id], [`${type}d`]: !isActive }
-    }))
+    // 1. 立即更新 UI
+    setInteractions(prev => {
+      const current = prev[id] || { liked: false, disliked: false, collected: false }
+      return {
+        ...prev,
+        [id]: {
+          ...current,
+          liked: type === 'like' ? !isActive : current.liked,
+          disliked: type === 'dislike' ? !isActive : current.disliked,
+          collected: type === 'collect' ? !isActive : current.collected,
+        }
+      }
+    })
     
     setWorks(prev => prev.map(w => {
       if (w.id === id) {
-        const field = `${type}s_count` // like -> likes_count
+        const field = `${type}s_count`
         return { ...w, [field]: (w[field] || 0) + (isActive ? -1 : 1) }
       }
       return w
@@ -110,7 +119,6 @@ export default function PortfolioClient({ initialData, currentUser, initialInter
                   <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{item.author_name}</span>
                 </Link>
                 
-                {/* 👇 完整三联操作按钮 */}
                 <div style={{ display: 'flex', gap: '12px' }}>
                   <button onClick={(e) => handleAction(e, item.id, 'like')} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: action.liked ? '#ff4444' : 'var(--text-secondary)' }}>
                     {action.liked ? '❤️' : '🤍'} {item.likes_count || 0}
