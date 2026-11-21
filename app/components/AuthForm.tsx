@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import styles from './auth.module.css'
 
@@ -15,7 +14,6 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
   const [msg, setMsg] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
   
-  const router = useRouter()
   const supabase = createClient()
 
   const switchTab = (loginMode: boolean) => {
@@ -38,12 +36,14 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
         setIsSuccess(true)
         setMsg('登录成功，正在进入...')
         
-        if (data.user?.email === 'sj2282@sina.com') {
-          router.replace('/admin')
-        } else {
-          router.replace('/dashboard')
-        }
-        router.refresh() 
+        // 👇 核心优化：不用 router，直接用物理跳转，速度极快，绝不卡顿
+        setTimeout(() => {
+          if (data.user?.email === 'sj2282@sina.com') {
+            window.location.replace('/admin')
+          } else {
+            window.location.replace('/dashboard')
+          }
+        }, 200)
 
       } else {
         const { data, error } = await supabase.auth.signUp({ email, password })
@@ -57,8 +57,7 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
         } else if (data.session) {
           setIsSuccess(true)
           setMsg('注册成功，正在自动登录...')
-          router.replace('/dashboard')
-          router.refresh()
+          setTimeout(() => { window.location.replace('/dashboard') }, 200)
         }
       }
     } catch (error: any) {
@@ -67,8 +66,6 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
         setMsg('邮箱或密码错误，请重试。')
       } else if (error.message.includes('User already registered')) {
         setMsg('该邮箱已注册，请直接登录。')
-      } else if (error.message.includes('Password should be at least')) {
-        setMsg('密码长度至少需要 6 位。')
       } else {
         setMsg(error.message || '操作失败，请检查网络。')
       }
@@ -79,7 +76,6 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
   return (
     <div className={styles.authWrapper}>
       <div className={styles.authCard}>
-        
         <h1 className={styles.authTitle}>{isLogin ? '欢迎回来' : '创建账号'}</h1>
         <p className={styles.authSubtitle}>
           {isLogin ? '登录以继续你的 AIGC 学习之旅' : '加入 OASIS，开启创意无限增长'}
@@ -104,27 +100,13 @@ export default function AuthForm({ initialMode = 'login' }: { initialMode?: 'log
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className={styles.inputGroup}>
             <label className={styles.inputLabel}>电子邮箱</label>
-            {/* 👇 加入 autoComplete 阻止浏览器自动填充 */}
             <input type="email" required placeholder="name@example.com" autoComplete="off" className={styles.inputField} value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading || isSuccess} />
           </div>
-
           <div className={styles.inputGroup}>
             <label className={styles.inputLabel}>密码</label>
-            {/* 👇 new-password 强制禁用密码回填 */}
             <input type="password" required placeholder="至少 6 位字符" autoComplete="new-password" className={styles.inputField} value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading || isSuccess} />
           </div>
-
-          <button 
-            type="submit" 
-            disabled={loading || isSuccess} 
-            className={styles.submitBtn}
-            style={{
-              background: isSuccess ? 'var(--green)' : 'linear-gradient(120deg, var(--cyan), #4ae0ff)',
-              color: '#05070d',
-              cursor: (loading || isSuccess) ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
+          <button type="submit" disabled={loading || isSuccess} className={styles.submitBtn} style={{ background: isSuccess ? 'var(--green)' : 'linear-gradient(120deg, var(--cyan), #4ae0ff)', color: '#05070d' }}>
             {loading ? '处理中...' : isSuccess ? '跳转中...' : (isLogin ? '登 录' : '注 册')}
           </button>
         </form>

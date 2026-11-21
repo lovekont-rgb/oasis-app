@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 
 export default function DetailInteraction({ portfolioId, initialLikes, initialDislikes, initialCollects, user }: { 
   portfolioId: number, initialLikes: number, initialDislikes: number, initialCollects: number, user: any 
 }) {
   const supabase = createClient()
-  const router = useRouter()
   
   const [likes, setLikes] = useState(initialLikes)
   const [dislikes, setDislikes] = useState(initialDislikes)
@@ -41,36 +39,32 @@ export default function DetailInteraction({ portfolioId, initialLikes, initialDi
     fetchInteractions()
   }, [portfolioId, user, supabase])
 
+  // 👇 秒级响应互动
   const handleAction = async (e: React.MouseEvent, type: 'like' | 'dislike' | 'collect') => {
-    e.preventDefault() // 绝对阻止跳转
-    e.stopPropagation()
-    
+    e.preventDefault()
     if (!user) return alert('请先登录才能操作！')
     if (loading) return
 
-    setLoading(true)
     const isActive = userAction[type]
+    
+    // 1. 瞬间修改 UI
+    setUserAction(prev => ({ ...prev, [type]: !isActive }))
+    if (type === 'like') setLikes(prev => prev + (isActive ? -1 : 1))
+    if (type === 'dislike') setDislikes(prev => prev + (isActive ? -1 : 1))
+    if (type === 'collect') setCollects(prev => prev + (isActive ? -1 : 1))
 
+    // 2. 静默请求
+    setLoading(true)
     try {
       if (isActive) {
         await supabase.from('portfolio_interactions').delete().eq('portfolio_id', portfolioId).eq('user_id', user.id).eq('type', type)
         const updateField = type === 'like' ? { likes_count: likes - 1 } : type === 'dislike' ? { dislikes_count: dislikes - 1 } : { collects_count: collects - 1 }
         await supabase.from('portfolios').update(updateField).eq('id', portfolioId)
-        
-        if (type === 'like') setLikes(prev => prev - 1)
-        if (type === 'dislike') setDislikes(prev => prev - 1)
-        if (type === 'collect') setCollects(prev => prev - 1)
       } else {
         await supabase.from('portfolio_interactions').insert({ portfolio_id: portfolioId, user_id: user.id, type })
         const updateField = type === 'like' ? { likes_count: likes + 1 } : type === 'dislike' ? { dislikes_count: dislikes + 1 } : { collects_count: collects + 1 }
         await supabase.from('portfolios').update(updateField).eq('id', portfolioId)
-        
-        if (type === 'like') setLikes(prev => prev + 1)
-        if (type === 'dislike') setDislikes(prev => prev + 1)
-        if (type === 'collect') setCollects(prev => prev + 1)
       }
-      setUserAction(prev => ({ ...prev, [type]: !isActive }))
-      router.refresh()
     } catch (error) {
       console.error(error)
     } finally {
@@ -95,13 +89,13 @@ export default function DetailInteraction({ portfolioId, initialLikes, initialDi
   return (
     <div style={{ marginTop: '40px', paddingTop: '32px', borderTop: '1px dashed var(--border-subtle)' }}>
       <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
-        <button onClick={(e) => handleAction(e, 'like')} disabled={loading} style={{ padding: '10px 24px', borderRadius: '100px', background: userAction.like ? 'rgba(255, 68, 68, 0.15)' : 'rgba(0,212,255,0.05)', color: userAction.like ? '#ff4444' : 'var(--cyan)', border: `1px solid ${userAction.like ? '#ff4444' : 'var(--border-subtle)'}`, cursor: 'pointer', fontWeight: 'bold', transition: '0.3s' }}>
+        <button onClick={(e) => handleAction(e, 'like')} style={{ padding: '10px 24px', borderRadius: '100px', background: userAction.like ? 'rgba(255, 68, 68, 0.15)' : 'rgba(0,212,255,0.05)', color: userAction.like ? '#ff4444' : 'var(--cyan)', border: `1px solid ${userAction.like ? '#ff4444' : 'var(--border-subtle)'}`, cursor: 'pointer', fontWeight: 'bold', transition: '0.2s' }}>
           {userAction.like ? '❤️ 已赞' : '🤍 点赞'} ({likes})
         </button>
-        <button onClick={(e) => handleAction(e, 'dislike')} disabled={loading} style={{ padding: '10px 24px', borderRadius: '100px', background: userAction.dislike ? 'rgba(255, 180, 60, 0.15)' : 'rgba(0,212,255,0.05)', color: userAction.dislike ? 'var(--warn)' : 'var(--text-secondary)', border: `1px solid ${userAction.dislike ? 'var(--warn)' : 'var(--border-subtle)'}`, cursor: 'pointer', fontWeight: 'bold', transition: '0.3s' }}>
+        <button onClick={(e) => handleAction(e, 'dislike')} style={{ padding: '10px 24px', borderRadius: '100px', background: userAction.dislike ? 'rgba(255, 180, 60, 0.15)' : 'rgba(0,212,255,0.05)', color: userAction.dislike ? 'var(--warn)' : 'var(--text-secondary)', border: `1px solid ${userAction.dislike ? 'var(--warn)' : 'var(--border-subtle)'}`, cursor: 'pointer', fontWeight: 'bold', transition: '0.2s' }}>
           {userAction.dislike ? '👎 已踩' : '👎 踩'} ({dislikes})
         </button>
-        <button onClick={(e) => handleAction(e, 'collect')} disabled={loading} style={{ padding: '10px 24px', borderRadius: '100px', background: userAction.collect ? 'rgba(255, 215, 0, 0.15)' : 'rgba(0,212,255,0.05)', color: userAction.collect ? '#ffd700' : 'var(--text-secondary)', border: `1px solid ${userAction.collect ? '#ffd700' : 'var(--border-subtle)'}`, cursor: 'pointer', fontWeight: 'bold', transition: '0.3s' }}>
+        <button onClick={(e) => handleAction(e, 'collect')} style={{ padding: '10px 24px', borderRadius: '100px', background: userAction.collect ? 'rgba(255, 215, 0, 0.15)' : 'rgba(0,212,255,0.05)', color: userAction.collect ? '#ffd700' : 'var(--text-secondary)', border: `1px solid ${userAction.collect ? '#ffd700' : 'var(--border-subtle)'}`, cursor: 'pointer', fontWeight: 'bold', transition: '0.2s' }}>
           {userAction.collect ? '⭐ 已收藏' : '⭐ 收藏'} ({collects})
         </button>
       </div>
