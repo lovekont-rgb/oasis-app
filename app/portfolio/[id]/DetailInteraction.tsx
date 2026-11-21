@@ -14,7 +14,6 @@ export default function DetailInteraction({ portfolioId, initialLikes, initialDi
   const [dislikes, setDislikes] = useState(initialDislikes)
   const [collects, setCollects] = useState(initialCollects)
   
-  // 记录用户的互动状态
   const [userAction, setUserAction] = useState<{ like: boolean, dislike: boolean, collect: boolean }>({
     like: false, dislike: false, collect: false
   })
@@ -25,22 +24,11 @@ export default function DetailInteraction({ portfolioId, initialLikes, initialDi
 
   useEffect(() => {
     const fetchInteractions = async () => {
-      // 1. 获取评论
-      const { data: commentData } = await supabase
-        .from('portfolio_comments')
-        .select('*')
-        .eq('portfolio_id', portfolioId)
-        .order('created_at', { ascending: true })
+      const { data: commentData } = await supabase.from('portfolio_comments').select('*').eq('portfolio_id', portfolioId).order('created_at', { ascending: true })
       if (commentData) setComments(commentData)
 
-      // 2. 获取当前用户的互动状态
       if (user) {
-        const { data: actionData } = await supabase
-          .from('portfolio_interactions')
-          .select('type')
-          .eq('portfolio_id', portfolioId)
-          .eq('user_id', user.id)
-        
+        const { data: actionData } = await supabase.from('portfolio_interactions').select('type').eq('portfolio_id', portfolioId).eq('user_id', user.id)
         if (actionData) {
           setUserAction({
             like: actionData.some(a => a.type === 'like'),
@@ -51,12 +39,11 @@ export default function DetailInteraction({ portfolioId, initialLikes, initialDi
       }
     }
     fetchInteractions()
-  }, [portfolioId, user])
+  }, [portfolioId, user, supabase])
 
-  // 👇 核心：点赞/踩/收藏逻辑（带防抖、防连点、防跳转）
   const handleAction = async (e: React.MouseEvent, type: 'like' | 'dislike' | 'collect') => {
-    e.preventDefault() // 阻止 Link 跳转
-    e.stopPropagation() // 阻止事件冒泡
+    e.preventDefault() // 绝对阻止跳转
+    e.stopPropagation()
     
     if (!user) return alert('请先登录才能操作！')
     if (loading) return
@@ -66,10 +53,7 @@ export default function DetailInteraction({ portfolioId, initialLikes, initialDi
 
     try {
       if (isActive) {
-        // 如果已经点过，则取消操作（删除记录，数量-1）
-        await supabase.from('portfolio_interactions')
-          .delete().eq('portfolio_id', portfolioId).eq('user_id', user.id).eq('type', type)
-        
+        await supabase.from('portfolio_interactions').delete().eq('portfolio_id', portfolioId).eq('user_id', user.id).eq('type', type)
         const updateField = type === 'like' ? { likes_count: likes - 1 } : type === 'dislike' ? { dislikes_count: dislikes - 1 } : { collects_count: collects - 1 }
         await supabase.from('portfolios').update(updateField).eq('id', portfolioId)
         
@@ -77,11 +61,7 @@ export default function DetailInteraction({ portfolioId, initialLikes, initialDi
         if (type === 'dislike') setDislikes(prev => prev - 1)
         if (type === 'collect') setCollects(prev => prev - 1)
       } else {
-        // 如果没点过，则新增记录（数量+1）
-        await supabase.from('portfolio_interactions').insert({
-          portfolio_id: portfolioId, user_id: user.id, type
-        })
-        
+        await supabase.from('portfolio_interactions').insert({ portfolio_id: portfolioId, user_id: user.id, type })
         const updateField = type === 'like' ? { likes_count: likes + 1 } : type === 'dislike' ? { dislikes_count: dislikes + 1 } : { collects_count: collects + 1 }
         await supabase.from('portfolios').update(updateField).eq('id', portfolioId)
         
@@ -114,8 +94,6 @@ export default function DetailInteraction({ portfolioId, initialLikes, initialDi
 
   return (
     <div style={{ marginTop: '40px', paddingTop: '32px', borderTop: '1px dashed var(--border-subtle)' }}>
-      
-      {/* 👇 互动按钮组 */}
       <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
         <button onClick={(e) => handleAction(e, 'like')} disabled={loading} style={{ padding: '10px 24px', borderRadius: '100px', background: userAction.like ? 'rgba(255, 68, 68, 0.15)' : 'rgba(0,212,255,0.05)', color: userAction.like ? '#ff4444' : 'var(--cyan)', border: `1px solid ${userAction.like ? '#ff4444' : 'var(--border-subtle)'}`, cursor: 'pointer', fontWeight: 'bold', transition: '0.3s' }}>
           {userAction.like ? '❤️ 已赞' : '🤍 点赞'} ({likes})
@@ -129,7 +107,6 @@ export default function DetailInteraction({ portfolioId, initialLikes, initialDi
       </div>
 
       <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', color: 'var(--text-primary)' }}>评论区</h3>
-      
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
         {comments.map((c, i) => (
           <div key={i} style={{ background: 'var(--surface-card)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
