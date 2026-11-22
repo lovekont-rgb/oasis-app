@@ -261,3 +261,13 @@ html[data-theme-pref="light"] .theme-icon[data-icon="light"],
 html[data-theme-pref="system"] .theme-icon[data-icon="system"] {
   display: block;
 }
+
+/* ===== 消息通知系统：补充变量 ===== */
+html[data-theme="dark"] {
+  --danger: #ff4444;
+  --danger-bg: rgba(255, 68, 68, 0.12);
+}
+html[data-theme="light"] {
+  --danger: #d93636;
+  --danger-bg: rgba(217, 54, 54, 0.1);
+}

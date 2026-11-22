@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import ThemeToggle from './ThemeToggle'
+import NotificationBell from './NotificationBell'
 
 export default function Navbar({ initialUser, userRole, avatarUrl, initialUsername }: { initialUser: any, userRole?: string, avatarUrl?: string | null, initialUsername?: string | null }) {
   const pathname = usePathname()
@@ -93,6 +94,8 @@ export default function Navbar({ initialUser, userRole, avatarUrl, initialUserna
           </button>
 
           <ThemeToggle />
+
+          {user && <NotificationBell />}
           
           {user ? (
             <div style={{ position: 'relative' }} ref={dropdownRef}>
@@ -122,6 +125,8 @@ export default function Navbar({ initialUser, userRole, avatarUrl, initialUserna
                   </div>
                   
                   <Link href="/dashboard" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>💼 个人创作中心</Link>
+
+                  <Link href="/notifications" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '6px' }}>🔔 消息中心</Link>
 
                   {isSuperOrAdmin && (
                     <Link href="/admin" className="dropdown-item" style={{ padding: '10px 12px', fontSize: '14px', color: '#ffd700', textDecoration: 'none', borderRadius: '6px', background: 'rgba(255, 215, 0, 0.05)' }}>👑 后台管理系统</Link>
