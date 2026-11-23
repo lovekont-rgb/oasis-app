@@ -16,19 +16,12 @@ export default async function SettingsPage() {
     .single();
 
   return (
-    <main className="page-container">
-      <div className="ui-badge">
-        <span className="ui-badge-dot" />
-        SETTINGS
-      </div>
-      <h1 className="ui-title">
-        个人<span className="ui-title-gradient">设置</span>
+    <div style={{ paddingBottom: '80px' }}>
+      {/* 仿照“我的收藏”的极简标题 */}
+      <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '32px' }}>
+        个人设置
       </h1>
-      <p className="ui-subtitle">
-        管理你的个人资料、账号安全与第三方绑定。
-      </p>
-
       <SettingsClient initialUser={user} initialProfile={profile || {}} />
-    </main>
+    </div>
   );
 }
