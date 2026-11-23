@@ -120,7 +120,6 @@ export default function SettingsClient({ initialUser, initialProfile }: { initia
     }
   };
 
-  // 仿照截图，采用极简的虚线边框卡片
   const cardStyle: React.CSSProperties = {
     background: 'var(--surface-card)',
     border: '1px dashed var(--border-subtle)',
@@ -166,7 +165,7 @@ export default function SettingsClient({ initialUser, initialProfile }: { initia
           display: grid;
           grid-template-columns: 1.3fr 1fr;
           gap: 24px;
-          align-items: start;
+          align-items: stretch; /* 改为 stretch，使左右两列等高 */
         }
         @media (max-width: 900px) {
           .settings-grid {
@@ -188,8 +187,8 @@ export default function SettingsClient({ initialUser, initialProfile }: { initia
 
       <div className="settings-grid">
         
-        {/* 左侧：基础资料 */}
-        <form onSubmit={handleSaveProfile} style={cardStyle}>
+        {/* 左侧：基础资料 (设置 height: 100% 撑满整列) */}
+        <form onSubmit={handleSaveProfile} style={{ ...cardStyle, height: '100%' }}>
           <h2 style={sectionTitleStyle}>基础资料</h2>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -249,14 +248,15 @@ export default function SettingsClient({ initialUser, initialProfile }: { initia
             padding: '12px 32px', borderRadius: '100px', border: 'none', 
             background: saving ? 'var(--border-subtle)' : 'linear-gradient(120deg, var(--cyan), #4ae0ff)', 
             color: '#05070d', fontWeight: 700, fontSize: '14px', alignSelf: 'flex-start',
-            cursor: saving ? 'not-allowed' : 'pointer', boxShadow: saving ? 'none' : '0 0 20px rgba(0,212,255,0.3)'
+            cursor: saving ? 'not-allowed' : 'pointer', boxShadow: saving ? 'none' : '0 0 20px rgba(0,212,255,0.3)',
+            marginTop: 'auto' /* 让保存按钮自动吸附在卡片最底部 */
           }}>
             {saving ? '保存中…' : '保存资料'}
           </button>
         </form>
 
-        {/* 右侧：上下两个模块 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        {/* 右侧：上下两个模块 (同样 height: 100%) */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%' }}>
           
           {/* 右上：修改密码 */}
           <form onSubmit={handleUpdatePassword} style={cardStyle}>
@@ -279,8 +279,8 @@ export default function SettingsClient({ initialUser, initialProfile }: { initia
             </button>
           </form>
 
-          {/* 右下：注销账号 */}
-          <div style={{ ...cardStyle, borderColor: 'rgba(255, 68, 68, 0.4)' }}>
+          {/* 右下：注销账号 (使用 marginTop: auto 把它推到最底部) */}
+          <div style={{ ...cardStyle, borderColor: 'rgba(255, 68, 68, 0.4)', marginTop: 'auto' }}>
             <h2 style={{ ...sectionTitleStyle, color: 'var(--danger)', borderBottomColor: 'rgba(255, 68, 68, 0.2)' }}>注销账号</h2>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>
               注销账号是不可逆操作。注销后，你的个人资料、学习进度、发布的作品、问答与所有互动数据将被永久删除，且无法恢复。
