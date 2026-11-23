@@ -1,86 +1,86 @@
-import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
-import { notFound } from 'next/navigation'
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { createClient } from '@/lib/supabase/server';
+import FollowButton from './FollowButton';
 
-export const instant = false
+export const instant = false;
 
 export default async function AuthorPage({ params }: { params: Promise<{ name: string }> }) {
-  const resolvedParams = await params
-  const authorName = decodeURIComponent(resolvedParams.name)
+  const { name } = await params;
+  const decodedName = decodeURIComponent(name);
+  const supabase = await createClient();
+  
+  // 查创作者资料
+  const { data: profile } = await supabase.from('profiles').select('*').eq('username', decodedName).single();
+  if (!profile) notFound();
+  
+  // 查作品
+  const { data: portfolios } = await supabase.from('portfolios').select('*').eq('author_name', decodedName).eq('status', 'approved').order('created_at', { ascending: false });
+  
+  // 统计粉丝和关注数
+  const { count: followersCount } = await supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', profile.id);
+  const { count: followingCount } = await supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', profile.id);
+  
+  // 查当前用户是否已关注
+  const { data: { user } } = await supabase.auth.getUser();
+  let isFollowing = false;
+  if (user) {
+    const { data: follow } = await supabase.from('follows').select('id').eq('follower_id', user.id).eq('following_id', profile.id).maybeSingle();
+    isFollowing = !!follow;
+  }
 
-  const supabase = await createClient()
-  // 👇 核心：只查询该作者已通过审核的作品
-  const { data: works } = await supabase
-    .from('portfolios')
-    .select('*')
-    .eq('author_name', authorName)
-    .eq('status', 'approved')
-    .order('created_at', { ascending: false })
-
-  if (!works || works.length === 0) notFound()
-
-  const { data: authorProfile } = await supabase
-    .from('profiles')
-    .select('avatar_url, username, bio')
-    .eq('username', authorName)
-    .single()
-
-  const totalLikes = works.reduce((acc, curr) => acc + (curr.likes_count || 0), 0)
+  const totalLikes = (portfolios || []).reduce((acc, p) => acc + (p.likes_count || 0), 0);
 
   return (
-    <main className="page-container" style={{ maxWidth: '1000px' }}>
-      <div style={{ marginBottom: '24px', fontSize: '14px', color: 'var(--text-secondary)' }}>
-        <Link href="/portfolio" style={{ color: 'var(--cyan)' }}>作品广场</Link> / {authorName} 的主页
+    <main className="page-container">
+      <div className="ui-badge">
+        <span className="ui-badge-dot" />
+        AUTHOR PROFILE
       </div>
+      
+      <div className="ui-card" style={{ padding: '40px', marginBottom: '40px', display: 'flex', gap: '32px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        <div style={{ width: '120px', height: '120px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', overflow: 'hidden', display: 'grid', placeItems: 'center', color: '#fff', fontSize: '48px', fontWeight: 'bold', flexShrink: 0 }}>
+          {profile.avatar_url ? <img src={profile.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : decodedName.charAt(0).toUpperCase()}
+        </div>
+        <div style={{ flex: 1, minWidth: '260px' }}>
+          <h1 className="ui-title" style={{ fontSize: '32px', marginBottom: '8px' }}>{decodedName}</h1>
+          <p className="ui-subtitle" style={{ margin: 0, marginBottom: '16px', fontSize: '15px' }}>{profile.bio || '这个创作者很低调，还没有写简介。'}</p>
+          
+          <div style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
+            <div><strong style={{ color: 'var(--text-primary)', fontSize: '18px', fontFamily: 'Orbitron' }}>{portfolios?.length || 0}</strong> <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>作品</span></div>
+            <div><strong style={{ color: 'var(--text-primary)', fontSize: '18px', fontFamily: 'Orbitron' }}>{followersCount || 0}</strong> <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>粉丝</span></div>
+            <div><strong style={{ color: 'var(--text-primary)', fontSize: '18px', fontFamily: 'Orbitron' }}>{followingCount || 0}</strong> <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>关注</span></div>
+            <div><strong style={{ color: 'var(--text-primary)', fontSize: '18px', fontFamily: 'Orbitron' }}>{totalLikes}</strong> <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>获赞</span></div>
+          </div>
 
-      {/* 创作者名片区 */}
-      <div className="ui-card" style={{ 
-        padding: '48px', display: 'flex', alignItems: 'center', gap: '32px', 
-        background: 'radial-gradient(ellipse 80% 100% at 0% 0%, rgba(0,212,255,0.1), transparent 70%), var(--surface-card)',
-        border: '1px solid var(--border-glow)', marginBottom: '40px', flexWrap: 'wrap'
-      }}>
-        <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', display: 'grid', placeItems: 'center', color: 'white', fontWeight: '900', fontSize: '40px', boxShadow: '0 0 30px rgba(0,212,255,0.4)', overflow: 'hidden' }}>
-          {authorProfile?.avatar_url ? (
-            <img src={authorProfile.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            authorName.charAt(0).toUpperCase()
+          {/* 仅当登录且不是自己时，显示关注按钮 */}
+          {user && user.id !== profile.id && (
+            <FollowButton targetUserId={profile.id} initialIsFollowing={isFollowing} targetUsername={decodedName} />
           )}
         </div>
-        
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-            <h1 className="ui-title" style={{ fontSize: '2.5rem', margin: 0 }}>{authorName}</h1>
-            <span className="ui-badge" style={{ margin: 0, padding: '4px 12px', fontSize: '12px' }}><span className="ui-badge-dot"></span>认证创作者</span>
-          </div>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '15px', marginBottom: '24px' }}>
-            {authorProfile?.bio || '这个人很懒，还没有写个人简介...'}
-          </p>
-          
-          <div style={{ display: 'flex', gap: '32px' }}>
-            <div><span style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-primary)' }}>{works.length}</span> <span style={{ fontSize: '13px', color: 'var(--text-dim)' }}>发布作品</span></div>
-            <div><span style={{ fontSize: '20px', fontWeight: 'bold', color: '#ff4444' }}>{totalLikes}</span> <span style={{ fontSize: '13px', color: 'var(--text-dim)' }}>收获点赞</span></div>
-          </div>
-        </div>
       </div>
 
-      {/* 作品展示区 */}
-      <h2 className="ui-section-title" style={{ marginTop: 0, marginBottom: '24px' }}>TA 的作品</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-        {works.map(item => (
-          <Link href={`/portfolio/${item.id}`} key={item.id} className="ui-card" style={{ padding: 0, overflow: 'hidden', textDecoration: 'none' }}>
-            <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
-              <img src={item.cover_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-            <div style={{ padding: '16px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '8px' }}>{item.title}</h3>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '12px', color: 'var(--cyan)' }}>{item.category}</span>
-                <span style={{ fontSize: '12px', color: '#ff4444' }}>❤️ {item.likes_count || 0}</span>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <h2 className="ui-section-title">TA 的作品</h2>
+      {(portfolios || []).length === 0 ? (
+        <div className="ui-card" style={{ textAlign: 'center', padding: '60px' }}>
+          <div style={{ fontSize: '32px', marginBottom: '16px' }}>📭</div>
+          <p style={{ color: 'var(--text-secondary)' }}>还没有发布过作品</p>
+        </div>
+      ) : (
+        <div className="ui-grid-3">
+          {portfolios!.map(p => (
+             <Link key={p.id} href={`/portfolio/${p.id}`} className="ui-card" style={{ padding: 0, overflow: 'hidden', textDecoration: 'none' }}>
+               <div style={{ height: '200px', background: 'var(--bg-void)', overflow: 'hidden' }}>
+                 <img src={p.cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe'} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+               </div>
+               <div style={{ padding: '20px' }}>
+                 <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>{p.title}</h3>
+                 <div style={{ fontSize: '12px', color: 'var(--text-dim)' }}>❤️ {p.likes_count} · ⭐ {p.collects_count}</div>
+               </div>
+             </Link>
+          ))}
+        </div>
+      )}
     </main>
   )
 }

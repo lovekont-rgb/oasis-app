@@ -14,7 +14,6 @@ export async function updateProfile(data: {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: '未登录' };
 
-  // 保留原有的其他 social_links 字段，只更新 github
   const { data: oldProfile } = await supabase.from('profiles').select('social_links').eq('id', user.id).single();
   const currentLinks = oldProfile?.social_links || {};
   const newLinks = { ...currentLinks, github: data.github.trim() };
@@ -33,8 +32,9 @@ export async function updateProfile(data: {
   const { error } = await supabase.from('profiles').update(updateData).eq('id', user.id);
   
   if (error) return { success: false, error: error.message };
-  revalidatePath('/dashboard/settings');
-  revalidatePath('/dashboard');
+  
+  // ★ 核心修改：全站刷新，解决头像和昵称不同步问题
+  revalidatePath('/', 'layout'); 
   return { success: true };
 }
 
