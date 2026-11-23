@@ -1,22 +1,34 @@
-import { createClient } from '@/lib/supabase/server'
-import SettingsClient from './SettingsClient'
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
+import SettingsClient from './SettingsClient';
 
-export const instant = false
+export const instant = false;
 
 export default async function SettingsPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) return null
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
 
-  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
 
   return (
-    <div>
-      <h1 className="ui-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>个人设置</h1>
-      <p className="ui-subtitle" style={{ marginBottom: '40px' }}>管理你的创作者身份与安全设置。</p>
-      
-      <SettingsClient user={user} initialProfile={profile} />
-    </div>
-  )
+    <main className="page-container">
+      <div className="ui-badge">
+        <span className="ui-badge-dot" />
+        SETTINGS
+      </div>
+      <h1 className="ui-title">
+        个人<span className="ui-title-gradient">设置</span>
+      </h1>
+      <p className="ui-subtitle">
+        管理你的个人资料、账号安全与第三方绑定。
+      </p>
+
+      <SettingsClient initialUser={user} initialProfile={profile || {}} />
+    </main>
+  );
 }
