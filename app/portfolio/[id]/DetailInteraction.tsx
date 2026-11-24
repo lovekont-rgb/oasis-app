@@ -1,120 +1,99 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+import { formatRelativeTime } from '@/lib/format';
 
-export default function DetailInteraction({ portfolioId, initialLikes, initialDislikes, initialCollects, user }: { 
-  portfolioId: number, initialLikes: number, initialDislikes: number, initialCollects: number, user: any 
+export default function DetailInteraction({ 
+  portfolioId, 
+  initialInteractions, 
+  initialComments,
+  currentUser 
+}: { 
+  portfolioId: number, 
+  initialInteractions: any[], 
+  initialComments: any[],
+  currentUser: any 
 }) {
-  const supabase = createClient()
+  const supabase = createClient();
+  const router = useRouter();
   
-  const [likes, setLikes] = useState(initialLikes)
-  const [dislikes, setDislikes] = useState(initialDislikes)
-  const [collects, setCollects] = useState(initialCollects)
-  
-  const [userAction, setUserAction] = useState<{ like: boolean, dislike: boolean, collect: boolean }>({
-    like: false, dislike: false, collect: false
-  })
-
-  const [comment, setComment] = useState('')
-  const [comments, setComments] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    const fetchInteractions = async () => {
-      const { data: commentData } = await supabase.from('portfolio_comments').select('*').eq('portfolio_id', portfolioId).order('created_at', { ascending: true })
-      if (commentData) setComments(commentData)
-
-      if (user) {
-        const { data: actionData } = await supabase.from('portfolio_interactions').select('type').eq('portfolio_id', portfolioId).eq('user_id', user.id)
-        if (actionData) {
-          setUserAction({
-            like: actionData.some(a => a.type === 'like'),
-            dislike: actionData.some(a => a.type === 'dislike'),
-            collect: actionData.some(a => a.type === 'collect'),
-          })
-        }
-      }
-    }
-    fetchInteractions()
-  }, [portfolioId, user, supabase])
-
-  // 👇 秒级响应互动
-  const handleAction = async (e: React.MouseEvent, type: 'like' | 'dislike' | 'collect') => {
-    e.preventDefault()
-    if (!user) return alert('请先登录才能操作！')
-    if (loading) return
-
-    const isActive = userAction[type]
-    
-    // 1. 瞬间修改 UI
-    setUserAction(prev => ({ ...prev, [type]: !isActive }))
-    if (type === 'like') setLikes(prev => prev + (isActive ? -1 : 1))
-    if (type === 'dislike') setDislikes(prev => prev + (isActive ? -1 : 1))
-    if (type === 'collect') setCollects(prev => prev + (isActive ? -1 : 1))
-
-    // 2. 静默请求
-    setLoading(true)
-    try {
-      if (isActive) {
-        await supabase.from('portfolio_interactions').delete().eq('portfolio_id', portfolioId).eq('user_id', user.id).eq('type', type)
-        const updateField = type === 'like' ? { likes_count: likes - 1 } : type === 'dislike' ? { dislikes_count: dislikes - 1 } : { collects_count: collects - 1 }
-        await supabase.from('portfolios').update(updateField).eq('id', portfolioId)
-      } else {
-        await supabase.from('portfolio_interactions').insert({ portfolio_id: portfolioId, user_id: user.id, type })
-        const updateField = type === 'like' ? { likes_count: likes + 1 } : type === 'dislike' ? { dislikes_count: dislikes + 1 } : { collects_count: collects + 1 }
-        await supabase.from('portfolios').update(updateField).eq('id', portfolioId)
-      }
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [comment, setComment] = useState('');
+  const [comments, setComments] = useState(initialComments);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleComment = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!user) return alert('请先登录才能评论！')
-    if (!comment.trim()) return
-    setLoading(true)
-    const { data, error } = await supabase.from('portfolio_comments').insert({
-      portfolio_id: portfolioId, user_id: user.id,
-      user_name: user.email?.split('@')[0] || '匿名用户', content: comment
-    }).select().single()
-    setLoading(false)
-    if (error) alert('评论失败')
-    else { setComments([...comments, data]); setComment('') }
-  }
+    e.preventDefault();
+    if (!currentUser) return alert('请先登录');
+    if (!comment.trim()) return;
+    setSubmitting(true);
+    
+    const { error } = await supabase.from('portfolio_comments').insert({
+      portfolio_id: portfolioId,
+      user_id: currentUser.id,
+      user_name: currentUser.email?.split('@')[0] || '用户', // 保留历史兼容
+      content: comment.trim()
+    });
+
+    if (error) {
+      alert('评论失败：' + error.message);
+    } else {
+      setComment('');
+      router.refresh(); // ★ 刷新服务端数据，拉取带最新头像的评论
+    }
+    setSubmitting(false);
+  };
 
   return (
-    <div style={{ marginTop: '40px', paddingTop: '32px', borderTop: '1px dashed var(--border-subtle)' }}>
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
-        <button onClick={(e) => handleAction(e, 'like')} style={{ padding: '10px 24px', borderRadius: '100px', background: userAction.like ? 'rgba(255, 68, 68, 0.15)' : 'rgba(0,212,255,0.05)', color: userAction.like ? '#ff4444' : 'var(--cyan)', border: `1px solid ${userAction.like ? '#ff4444' : 'var(--border-subtle)'}`, cursor: 'pointer', fontWeight: 'bold', transition: '0.2s' }}>
-          {userAction.like ? '❤️ 已赞' : '🤍 点赞'} ({likes})
-        </button>
-        <button onClick={(e) => handleAction(e, 'dislike')} style={{ padding: '10px 24px', borderRadius: '100px', background: userAction.dislike ? 'rgba(255, 180, 60, 0.15)' : 'rgba(0,212,255,0.05)', color: userAction.dislike ? 'var(--warn)' : 'var(--text-secondary)', border: `1px solid ${userAction.dislike ? 'var(--warn)' : 'var(--border-subtle)'}`, cursor: 'pointer', fontWeight: 'bold', transition: '0.2s' }}>
-          {userAction.dislike ? '👎 已踩' : '👎 踩'} ({dislikes})
-        </button>
-        <button onClick={(e) => handleAction(e, 'collect')} style={{ padding: '10px 24px', borderRadius: '100px', background: userAction.collect ? 'rgba(255, 215, 0, 0.15)' : 'rgba(0,212,255,0.05)', color: userAction.collect ? '#ffd700' : 'var(--text-secondary)', border: `1px solid ${userAction.collect ? '#ffd700' : 'var(--border-subtle)'}`, cursor: 'pointer', fontWeight: 'bold', transition: '0.2s' }}>
-          {userAction.collect ? '⭐ 已收藏' : '⭐ 收藏'} ({collects})
-        </button>
-      </div>
+    <div style={{ marginTop: '48px', borderTop: '1px solid var(--border-subtle)', paddingTop: '32px' }}>
+      <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '24px' }}>评论 ({comments.length})</h3>
 
-      <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', color: 'var(--text-primary)' }}>评论区</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-        {comments.map((c, i) => (
-          <div key={i} style={{ background: 'var(--surface-card)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-            <span style={{ fontSize: '12px', color: 'var(--cyan)', fontWeight: 'bold' }}>@{c.user_name}</span>
-            <p style={{ fontSize: '14px', marginTop: '8px', color: 'var(--text-secondary)', margin: 0 }}>{c.content}</p>
-          </div>
-        ))}
-        {comments.length === 0 && <p style={{ fontSize: '14px', color: 'var(--text-dim)' }}>还没有评论，快来抢沙发吧！</p>}
-      </div>
+      {currentUser ? (
+        <form onSubmit={handleComment} style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
+          <input 
+            value={comment}
+            onChange={e => setComment(e.target.value)}
+            placeholder="发一条友善的评论…"
+            style={{ flex: 1, padding: '12px 16px', borderRadius: '100px', border: '1px solid var(--border-subtle)', background: 'var(--surface-card)', color: 'var(--text-primary)', outline: 'none' }}
+          />
+          <button type="submit" disabled={submitting || !comment.trim()} style={{ padding: '0 24px', borderRadius: '100px', background: 'var(--cyan)', color: '#05070d', fontWeight: 'bold', border: 'none', cursor: submitting ? 'not-allowed' : 'pointer' }}>
+            发送
+          </button>
+        </form>
+      ) : (
+        <div style={{ padding: '24px', background: 'var(--surface-card)', borderRadius: '12px', textAlign: 'center', marginBottom: '32px', color: 'var(--text-secondary)' }}>
+          请登录后参与评论。
+        </div>
+      )}
 
-      <form onSubmit={handleComment} style={{ display: 'flex', gap: '12px' }}>
-        <input value={comment} onChange={e => setComment(e.target.value)} placeholder={user ? "说点什么..." : "请先登录后发表评论..."} disabled={!user || loading} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'var(--bg-void)', color: 'white' }} />
-        <button type="submit" disabled={!user || loading} style={{ padding: '0 24px', background: 'var(--cyan)', color: '#05070d', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: user ? 'pointer' : 'not-allowed', opacity: user ? 1 : 0.5 }}>发送</button>
-      </form>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {comments.map((c: any) => {
+          // ★ 核心修复：取联表查询的最新头像
+          const commenterName = c.profiles?.username || c.user_name || '匿名用户';
+          const commenterAvatar = c.profiles?.avatar_url;
+
+          return (
+            <div key={c.id} style={{ display: 'flex', gap: '12px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', overflow: 'hidden', display: 'grid', placeItems: 'center', color: '#fff', fontSize: '14px', fontWeight: 'bold', flexShrink: 0 }}>
+                {commenterAvatar ? (
+                  <img src={commenterAvatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  commenterName.charAt(0).toUpperCase()
+                )}
+              </div>
+              <div style={{ flex: 1, background: 'var(--surface-card)', padding: '16px', borderRadius: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{commenterName}</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>{formatRelativeTime(c.created_at)}</span>
+                </div>
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>{c.content}</p>
+              </div>
+            </div>
+          );
+        })}
+        {comments.length === 0 && <p style={{ color: 'var(--text-dim)', fontSize: '13px' }}>还没有评论，来抢沙发吧。</p>}
+      </div>
     </div>
-  )
+  );
 }

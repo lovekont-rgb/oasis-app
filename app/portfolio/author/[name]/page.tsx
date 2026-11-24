@@ -10,18 +10,25 @@ export default async function AuthorPage({ params }: { params: Promise<{ name: s
   const decodedName = decodeURIComponent(name);
   const supabase = await createClient();
   
-  // 查创作者资料
-  const { data: profile } = await supabase.from('profiles').select('*').eq('username', decodedName).single();
+  // ★ 核心修复：加 .select() 并确保拉最新
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('username', decodedName)
+    .single();
+    
   if (!profile) notFound();
   
-  // 查作品
-  const { data: portfolios } = await supabase.from('portfolios').select('*').eq('author_name', decodedName).eq('status', 'approved').order('created_at', { ascending: false });
+  const { data: portfolios } = await supabase
+    .from('portfolios')
+    .select('*')
+    .eq('user_id', profile.id) // ★ 改用 user_id 匹配，避免更名后匹配失败
+    .eq('status', 'approved')
+    .order('created_at', { ascending: false });
   
-  // 统计粉丝和关注数
   const { count: followersCount } = await supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', profile.id);
   const { count: followingCount } = await supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', profile.id);
   
-  // 查当前用户是否已关注
   const { data: { user } } = await supabase.auth.getUser();
   let isFollowing = false;
   if (user) {
@@ -40,10 +47,15 @@ export default async function AuthorPage({ params }: { params: Promise<{ name: s
       
       <div className="ui-card" style={{ padding: '40px', marginBottom: '40px', display: 'flex', gap: '32px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
         <div style={{ width: '120px', height: '120px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', overflow: 'hidden', display: 'grid', placeItems: 'center', color: '#fff', fontSize: '48px', fontWeight: 'bold', flexShrink: 0 }}>
-          {profile.avatar_url ? <img src={profile.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : decodedName.charAt(0).toUpperCase()}
+          {/* ★ 强制渲染最新头像 */}
+          {profile.avatar_url ? (
+            <img src={profile.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            decodedName.charAt(0).toUpperCase()
+          )}
         </div>
         <div style={{ flex: 1, minWidth: '260px' }}>
-          <h1 className="ui-title" style={{ fontSize: '32px', marginBottom: '8px' }}>{decodedName}</h1>
+          <h1 className="ui-title" style={{ fontSize: '32px', marginBottom: '8px' }}>{profile.username || decodedName}</h1>
           <p className="ui-subtitle" style={{ margin: 0, marginBottom: '16px', fontSize: '15px' }}>{profile.bio || '这个创作者很低调，还没有写简介。'}</p>
           
           <div style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
@@ -53,9 +65,8 @@ export default async function AuthorPage({ params }: { params: Promise<{ name: s
             <div><strong style={{ color: 'var(--text-primary)', fontSize: '18px', fontFamily: 'Orbitron' }}>{totalLikes}</strong> <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>获赞</span></div>
           </div>
 
-          {/* 仅当登录且不是自己时，显示关注按钮 */}
           {user && user.id !== profile.id && (
-            <FollowButton targetUserId={profile.id} initialIsFollowing={isFollowing} targetUsername={decodedName} />
+            <FollowButton targetUserId={profile.id} initialIsFollowing={isFollowing} targetUsername={profile.username || decodedName} />
           )}
         </div>
       </div>
