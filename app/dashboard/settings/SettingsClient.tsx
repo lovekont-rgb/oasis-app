@@ -49,7 +49,7 @@ export default function SettingsClient({ initialUser, initialProfile }: { initia
     
     const res = await updateProfile({ username, bio, skills, github, avatar_url: data.publicUrl });
     if (res.success) {
-      // ★ 核心修改：强制重载整个页面以清除所有缓存
+      // 强制物理刷新，解决全站缓存不同步
       window.location.href = '/dashboard/settings';
     } else {
       setMsg({ type: 'err', text: res.error || '头像保存失败' });
@@ -64,7 +64,6 @@ export default function SettingsClient({ initialUser, initialProfile }: { initia
     const res = await updateProfile({ username, bio, skills, github });
     if (res.success) {
       setMsg({ type: 'ok', text: '资料已保存' });
-      // ★ 强制重载
       window.location.href = '/dashboard/settings';
     } else {
       setMsg({ type: 'err', text: res.error || '保存失败' });
@@ -154,7 +153,6 @@ export default function SettingsClient({ initialUser, initialProfile }: { initia
       )}
 
       <div className="settings-grid">
-        {/* 左侧：基础资料 */}
         <form onSubmit={handleSaveProfile} style={{ ...cardStyle, height: '100%' }}>
           <h2 style={sectionTitleStyle}>基础资料</h2>
           
@@ -200,7 +198,6 @@ export default function SettingsClient({ initialUser, initialProfile }: { initia
           </button>
         </form>
 
-        {/* 右侧：上下模块 */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%' }}>
           <form onSubmit={handleUpdatePassword} style={cardStyle}>
             <h2 style={sectionTitleStyle}>修改密码</h2>
