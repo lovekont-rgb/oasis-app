@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { updateProfile, updatePassword, deleteAccount } from './actions';
 
 export default function SettingsClient({ initialUser, initialProfile }: { initialUser: any, initialProfile: any }) {
   const supabase = createClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [username, setUsername] = useState(initialProfile.username || '');
   const [bio, setBio] = useState(initialProfile.bio || '');
@@ -26,33 +27,47 @@ export default function SettingsClient({ initialUser, initialProfile }: { initia
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = ''; // 允许重复选择同一文件
+    
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
       setMsg({ type: 'err', text: '头像大小不能超过 2MB' });
       return;
     }
+    
     setUploading(true);
     setMsg(null);
     
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${initialUser.id}-${Date.now()}.${fileExt}`;
-    const { error } = await supabase.storage.from('avatars').upload(fileName, file, { upsert: true });
-    
-    if (error) {
-      setMsg({ type: 'err', text: '上传失败：' + error.message });
-      setUploading(false);
-      return;
-    }
-    
-    const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
-    setAvatarUrl(data.publicUrl);
-    
-    const res = await updateProfile({ username, bio, skills, github, avatar_url: data.publicUrl });
-    if (res.success) {
-      // 强制物理刷新，解决全站缓存不同步
+    try {
+      const fileExt = file.name.split('.').pop() || 'png';
+      const fileName = `${initialUser.id}-${Date.now()}.${fileExt}`;
+      
+      // 显式指定 contentType，防止 Supabase 存储桶拒绝
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { 
+          upsert: true,
+          contentType: file.type 
+        });
+        
+      if (uploadError) throw new Error(`上传至存储失败：${uploadError.message}`);
+      
+      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+      setAvatarUrl(urlData.publicUrl);
+      
+      // 更新资料库
+      const res = await updateProfile({ 
+        username, bio, skills, github, 
+        avatar_url: urlData.publicUrl 
+      });
+      
+      if (!res.success) throw new Error(`资料保存失败：${res.error}`);
+      
+      // 强制物理重载，彻底解决全站缓存不刷新问题
       window.location.href = '/dashboard/settings';
-    } else {
-      setMsg({ type: 'err', text: res.error || '头像保存失败' });
+    } catch (err: any) {
+      console.error(err);
+      setMsg({ type: 'err', text: err.message || '头像上传失败，请重试' });
       setUploading(false);
     }
   };
@@ -157,14 +172,39 @@ export default function SettingsClient({ initialUser, initialProfile }: { initia
           <h2 style={sectionTitleStyle}>基础资料</h2>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', overflow: 'hidden', display: 'grid', placeItems: 'center', color: '#fff', fontSize: '28px', fontWeight: 'bold' }}>
+            <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--cyan))', overflow: 'hidden', display: 'grid', placeItems: 'center', color: '#fff', fontSize: '28px', fontWeight: 'bold', flexShrink: 0 }}>
               {avatarUrl ? <img src={avatarUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (username.charAt(0).toUpperCase() || 'U')}
             </div>
             <div>
-              <label style={{ padding: '8px 16px', borderRadius: '100px', border: '1px solid var(--cyan)', color: 'var(--cyan)', fontSize: '13px', cursor: 'pointer', display: 'inline-block', transition: 'all 0.2s' }}>
-                {uploading ? '上传中…' : '更换头像'}
-                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarUpload} disabled={uploading} />
-              </label>
+              <button 
+                type="button" 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                style={{ 
+                  padding: '8px 16px', borderRadius: '100px', border: '1px solid var(--cyan)', 
+                  background: uploading ? 'var(--border-subtle)' : 'transparent',
+                  color: uploading ? 'var(--text-dim)' : 'var(--cyan)', 
+                  fontSize: '13px', cursor: uploading ? 'not-allowed' : 'pointer', 
+                  display: 'inline-flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s' 
+                }}
+              >
+                {uploading && (
+                  <span style={{ 
+                    display: 'inline-block', width: '12px', height: '12px', 
+                    border: '2px solid var(--text-dim)', borderTopColor: 'transparent', 
+                    borderRadius: '50%', animation: 'spin 1s linear infinite' 
+                  }} />
+                )}
+                {uploading ? '正在上传…' : '更换头像'}
+              </button>
+              <input 
+                type="file" 
+                accept="image/*" 
+                style={{ display: 'none' }} 
+                ref={fileInputRef} 
+                onChange={handleAvatarUpload} 
+                disabled={uploading} 
+              />
               <p style={{ fontSize: '12px', color: 'var(--text-dim)', marginTop: '8px' }}>支持 JPG/PNG，最大 2MB</p>
             </div>
           </div>
